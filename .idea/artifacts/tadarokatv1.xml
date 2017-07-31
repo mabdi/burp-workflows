@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="tadarokatv1">
+    <output-path>$PROJECT_DIR$/out/artifacts/tadarokatv1</output-path>
+    <root id="archive" name="tadarokatv1.jar">
+      <element id="module-output" name="tadarokatv1" />
+    </root>
+  </artifact>
+</component>
