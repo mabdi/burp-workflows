@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/tadarokatv1</output-path>
     <root id="archive" name="tadarokatv1.jar">
       <element id="module-output" name="tadarokatv1" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/sqlite-jdbc-3.19.3.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

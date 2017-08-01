@@ -32,4 +32,10 @@ public class RequestListModelObject {
     public byte[] getResponse() {
         return reqres.getMessageInfo().getResponse();
     }
+
+    public IRequestInfo getAnalysed() {
+        return analysed;
+    }
+
+
 }

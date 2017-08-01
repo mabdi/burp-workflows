@@ -2,6 +2,8 @@ package com.behsazan.view.dialogs;
 
 import burp.BurpExtender;
 import com.behsazan.model.adapters.RequestListModelObject;
+import com.behsazan.model.entity.Sequence;
+import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.panels.PanelEditSequence;
 import com.behsazan.view.panels.PanelNewSequenceChooseRequests;
@@ -10,7 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
 import java.util.List;
 
 /**
@@ -22,10 +23,8 @@ public class DialogSequenceNew extends AbstractDialog {
     private PanelNewSequenceChooseRequests choosePanel;
     private PanelEditSequence editPanel;
     private CardLayout cardLayout;
-    private JButton btnnext;
     private JButton btncancel;
     private JButton btnfinish;
-    private JButton btnprev;
 
     public DialogSequenceNew(JPanel parent) {
         super(parent);
@@ -36,54 +35,48 @@ public class DialogSequenceNew extends AbstractDialog {
         setSize(800,600);
         setTitle("New Sequence");
         setLocationRelativeTo(getParentWindow());
-        BurpExtender.getInstance().getStdout().println("new dialog initing");
         setLayout(new BorderLayout());
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         choosePanel = new PanelNewSequenceChooseRequests();
-        editPanel = new PanelEditSequence();
         cardPanel.add(choosePanel.getName(),choosePanel);
-        cardPanel.add(editPanel.getName(),editPanel);
         add(cardPanel, BorderLayout.CENTER);
         add(getToolbar(), BorderLayout.SOUTH);
-        btnfinish.setEnabled(false);
-        btnprev.setEnabled(false);
         cardLayout.first(cardPanel);
-        BurpExtender.getInstance().getStdout().println("new dialog done");
     }
 
     public Component getToolbar() {
         if(toolbar == null){
             toolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            btnprev = new JButton("Previous");
-            btnprev.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    cardLayout.previous(cardPanel);
-                    btnnext.setEnabled(true);
-                    btnprev.setEnabled(false);
-                    btnfinish.setEnabled(false);
-                }
-            });
-            btnnext = new JButton("Next");
-            btnnext.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-//            editPanel.setEntity(en)
-                    cardLayout.next(cardPanel);
-                    btnnext.setEnabled(false);
-                    btnprev.setEnabled(true);
-                    btnfinish.setEnabled(true);
-
-                    List<RequestListModelObject> reqs = choosePanel.getSelectedRequests();
-                    editPanel.setRequets(reqs);
-                }
-            });
-            btnfinish = new JButton("Finish");
+            btnfinish = new JButton("Save");
             btnfinish.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // save entity
+                    SqliteHelper db = new SqliteHelper();
+                    List<RequestListModelObject> reqs = choosePanel.getSelectedRequests();
+                    String name = choosePanel.getSequenceName().trim();
+                    if(name.isEmpty()){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence name is not set.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if(reqs.size()==0){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"No request is selected.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if(db.isSequenceNameUsed(name)){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    try {
+                        db.insertSequence(new Sequence(name,reqs));
+                        choosePanel.shutDown();
+                        dissmiss();
+
+                    }catch (Exception x){
+                        BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");
+                        x.printStackTrace(BurpExtender.getInstance().getStdout());
+                    }
+
                 }
             });
             btncancel = new JButton("Cancel");
@@ -94,8 +87,6 @@ public class DialogSequenceNew extends AbstractDialog {
                     dissmiss();
                 }
             });
-            toolbar.add(btnprev);
-            toolbar.add(btnnext);
             toolbar.add(btnfinish);
             toolbar.add(btncancel);
         }

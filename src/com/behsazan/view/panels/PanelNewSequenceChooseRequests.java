@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 
@@ -32,6 +33,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     private DefaultListModel<RequestListModelObject> modelAllRequests;
     private DefaultListModel<RequestListModelObject> modelSelectedRequests;
     private JList listSelectedReqs;
+    private JTextField txtSeqName;
 
     @Override
     public String getName() {
@@ -52,6 +54,8 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     @Override
     protected void initUI() {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel lblSeqName = new JLabel("Sequence Name: ");
+        txtSeqName = new JTextField("",20);
         final JButton startRecord = new JButton("Record");
         final JButton stopRecord = new JButton("Stop");
         startRecord.addActionListener(new ActionListener() {
@@ -72,6 +76,8 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
             }
         });
         stopRecord.setEnabled(false);
+        topPanel.add(lblSeqName);
+        topPanel.add(txtSeqName);
         topPanel.add(startRecord);
         topPanel.add(stopRecord);
 
@@ -194,10 +200,15 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         }
     }
 
+    public String getSequenceName(){
+        return txtSeqName.getText();
+    }
+
     public List<RequestListModelObject> getSelectedRequests(){
         ArrayList<RequestListModelObject> list = new ArrayList<>();
-        while(modelSelectedRequests.elements().hasMoreElements()){
-            list.add(modelSelectedRequests.elements().nextElement());
+        Enumeration<RequestListModelObject> els = modelSelectedRequests.elements();
+        while(els.hasMoreElements()){
+            list.add(els.nextElement());
         }
         return list;
     }

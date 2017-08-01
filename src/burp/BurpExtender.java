@@ -1,5 +1,6 @@
 package burp;
 
+import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.Interface;
 
 import javax.swing.*;
@@ -24,7 +25,7 @@ public class BurpExtender implements IBurpExtender {
         helpers = callbacks.getHelpers();
         stdout = new PrintWriter(callbacks.getStdout(),true);
         callbacks.setExtensionName(EXTENSION_NAME);
-
+        new SqliteHelper().initDb();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
