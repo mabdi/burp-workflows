@@ -2,6 +2,7 @@ package com.behsazan.view.dialogs;
 
 import burp.BurpExtender;
 import com.behsazan.model.adapters.RequestListModelObject;
+import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.abstracts.AbstractDialog;
@@ -53,7 +54,7 @@ public class DialogSequenceNew extends AbstractDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     SqliteHelper db = new SqliteHelper();
-                    List<RequestListModelObject> reqs = choosePanel.getSelectedRequests();
+                    List<Request> reqs = choosePanel.getSelectedRequests();
                     String name = choosePanel.getSequenceName().trim();
                     if(name.isEmpty()){
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence name is not set.","Error",JOptionPane.ERROR_MESSAGE);

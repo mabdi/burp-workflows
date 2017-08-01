@@ -14,12 +14,4 @@ public class UIUtils {
             SwingUtilities.invokeLater(runnable);
         }
     }
-
-    public static void invokeNotInDispatchThreadIfNeeded(Runnable runnable) {
-        if (EventQueue.isDispatchThread()) {
-            SwingUtilities.invokeLater(runnable);
-        } else {
-            runnable.run();
-        }
-    }
 }

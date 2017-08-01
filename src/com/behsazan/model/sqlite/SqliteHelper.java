@@ -5,7 +5,12 @@ import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
 
 import javax.sql.rowset.serial.SerialBlob;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by admin on 07/31/2017.
@@ -81,7 +86,8 @@ public class SqliteHelper {
                 " SID           INTEGER    NOT NULL, " +
                 " REQUEST         BLOB     NOT NULL, " +
                 " RESPONSE        BLOB     NOT NULL, " +
-                " URL        TEXT NOT NULL " +
+                " URL        TEXT NOT NULL, " +
+                " ORDER_NUM      INTEGER NOT NULL " +
                 " )";
 
         stmt.executeUpdate(createTableSquence);
@@ -104,25 +110,39 @@ public class SqliteHelper {
         rs.next();
         int newid = rs.getInt(1);
         sq.setId(newid);
+        int order = 0;
         for (Request rq :sq.getRequest()) {
-            PreparedStatement  stmt2 = c.prepareStatement("INSERT INTO REQUEST (SID,REQUEST,RESPONSE,URL) VALUES (?,?,?,?)");
+            PreparedStatement  stmt2 = c.prepareStatement("INSERT INTO REQUEST (SID,REQUEST,RESPONSE,URL,ORDER_NUM) VALUES (?,?,?,?,?)");
             stmt2.setInt(1,rq.getSequence().getId());
             stmt2.setBytes(2,rq.getRequest());
             stmt2.setBytes(3,rq.getResponse());
             stmt2.setString(4,rq.getUrl().toString());
+            stmt2.setInt(5,order);
             stmt2.executeUpdate();
             stmt2.close();
+            order++;
         }
         stmt.close();
         c.close();
     }
 
-    public ResultSet getAllSequences() throws SQLException {
+    public Vector<Vector<Object>> getAllSequences() throws SQLException {
         Connection c = getConnection();
         Statement stmt = c.createStatement();
         ResultSet allRequests = stmt.executeQuery("SELECT ID as Id,NAME as Name,REQUEST_COUNT as 'Number Of Requests',FIRST_URL as 'First Url',LAST_URL as 'Last Url' from SEQUENCE");
-
-        return allRequests;
+        int columnCount = allRequests.getMetaData().getColumnCount();
+        Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+        while (allRequests.next()) {
+            Vector<Object> vector = new Vector<Object>();
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                vector.add(allRequests.getObject(columnIndex));
+            }
+            data.add(vector);
+        }
+        allRequests.close();
+        stmt.close();
+        c.close();
+        return data;
     }
 
     public boolean isSequenceNameUsed(String name) {
@@ -155,5 +175,88 @@ public class SqliteHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateSequenceName(int id, String name) {
+        try {
+            Connection c = getConnection();
+            PreparedStatement stmt = c.prepareStatement("UPDATE SEQUENCE SET NAME = ? WHERE ID =?");
+            stmt.setString(1,name);
+            stmt.setInt(2,id);
+            stmt.executeUpdate();
+            stmt.close();
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Sequence getSequenceById(int id) {
+        Sequence res = null;
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL from SEQUENCE WHERE ID=?");
+                stmt.setInt(1, id);
+                rq = stmt.executeQuery();
+                if (!rq.next()){
+                    res = null;
+                }else {
+                    String name = rq.getString(2);
+                    List<Request> reqs = getSequenceRequestById(id);
+                    Sequence s = new Sequence(name, reqs);
+                    s.setId(id);
+                    res = s;
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    private List<Request> getSequenceRequestById(int requestId) {
+        List<Request> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,SID,REQUEST,RESPONSE,URL,ORDER_NUM from REQUEST WHERE SID= ?");
+                stmt.setInt(1, requestId);
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    String url = rq.getString(5);
+                    byte[] request = rq.getBytes(3);
+                    byte[] response = rq.getBytes(4);
+                    int order = rq.getInt(6);
+                    Request r = new Request(new URL(url),request,response,order);
+                    res.add(r);
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 }

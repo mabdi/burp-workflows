@@ -14,32 +14,17 @@ import java.util.Vector;
  */
 public class TableModelSequences extends AbstractTableModel {
     private Vector<Vector<Object>> data;
-    private int columnCount;
+    private String[] columns = new String[]{
+        "Id","Name","Number Of Requests","First Url","Last Url"
+    };
 
     public TableModelSequences() {
         updateData();
     }
 
     public void updateData() {
-        data = new Vector<Vector<Object>>();
-
-        ResultSetMetaData metaData = null;
         try {
-            ResultSet rs = new SqliteHelper().getAllSequences();
-            metaData = rs.getMetaData();
-            // names of columns
-
-            columnCount = metaData.getColumnCount();
-            // data of the table
-
-            while (rs.next()) {
-                Vector<Object> vector = new Vector<Object>();
-                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-                    vector.add(rs.getObject(columnIndex));
-                }
-                data.add(vector);
-            }
-            rs.close();
+            data = new SqliteHelper().getAllSequences();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -47,9 +32,7 @@ public class TableModelSequences extends AbstractTableModel {
 
     @Override
     public String getColumnName(int column) {
-        return new String[]{
-                "Id","Name","Number Of Requests","First Url","Last Url"
-        }[column];
+        return columns[column];
     }
 
     @Override
@@ -59,7 +42,7 @@ public class TableModelSequences extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return columnCount;
+        return columns.length;
     }
 
     @Override

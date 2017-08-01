@@ -2,6 +2,7 @@ package com.behsazan.view.panels;
 
 import burp.*;
 import com.behsazan.model.adapters.RequestListModelObject;
+import com.behsazan.model.entity.Request;
 import com.behsazan.view.abstracts.AbstractPanel;
 
 import javax.swing.*;
@@ -128,9 +129,11 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         listAllRequests.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                currentlyDisplayedItem = modelAllRequests.elementAt(e.getFirstIndex());
-                requestViewer.setMessage(currentlyDisplayedItem.getRequest(), true);
-                responseViewer.setMessage(currentlyDisplayedItem.getResponse(), false);
+                if(e.getValueIsAdjusting()) {
+                    currentlyDisplayedItem = (RequestListModelObject) listAllRequests.getSelectedValue();
+                    requestViewer.setMessage(currentlyDisplayedItem.getRequest(), true);
+                    responseViewer.setMessage(currentlyDisplayedItem.getResponse(), false);
+                }
 
             }
         });
@@ -175,13 +178,14 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         listSelectedReqs.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                currentlyDisplayedItem = modelSelectedRequests.elementAt(e.getFirstIndex());
-                requestViewer.setMessage(currentlyDisplayedItem.getRequest(), true);
-                responseViewer.setMessage(currentlyDisplayedItem.getResponse(), false);
-
+                if(e.getValueIsAdjusting()) {
+                    currentlyDisplayedItem = (RequestListModelObject) listSelectedReqs.getSelectedValue();
+                    requestViewer.setMessage(currentlyDisplayedItem.getRequest(), true);
+                    responseViewer.setMessage(currentlyDisplayedItem.getResponse(), false);
+                }
             }
         });
-        listSelectedReqs.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        listSelectedReqs.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane list2 = new JScrollPane(listSelectedReqs);
         return list2;
     }
@@ -204,11 +208,14 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         return txtSeqName.getText();
     }
 
-    public List<RequestListModelObject> getSelectedRequests(){
-        ArrayList<RequestListModelObject> list = new ArrayList<>();
+    public List<Request> getSelectedRequests(){
+        ArrayList<Request> list = new ArrayList<>();
         Enumeration<RequestListModelObject> els = modelSelectedRequests.elements();
+        int rid = 0;
         while(els.hasMoreElements()){
-            list.add(els.nextElement());
+            RequestListModelObject rq = els.nextElement();
+            list.add(new Request(rq.getAnalysed().getUrl(),rq.getRequest(),rq.getResponse(),rid) );
+            rid++;
         }
         return list;
     }

@@ -66,6 +66,10 @@ public class TabSequnces extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+                    if(id<0){
+                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
                     DialogSequenceEdit dlg = new DialogSequenceEdit(TabSequnces.this,id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -81,6 +85,10 @@ public class TabSequnces extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+                    if(id<0){
+                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
                     int response = JOptionPane.showConfirmDialog(TabSequnces.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
                         new SqliteHelper().deleteSequence(id);
@@ -93,6 +101,11 @@ public class TabSequnces extends AbstractTab {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+                    if(id<0){
+                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
                 }
             });
             toolbar.add(newNoCookie);

@@ -11,10 +11,26 @@ public abstract class AbstractDialog extends JDialog {
 
 
     public AbstractDialog(JPanel parent){
+        this(parent,true);
+    }
+
+    public AbstractDialog(JPanel parent,boolean setVisible){
         this.parent_window = parent;
         setModalityType(ModalityType.APPLICATION_MODAL);
+        preInitUI();
         initUI();
-        setVisible(true);
+        postInitUI();
+        if(setVisible) {
+            setVisible(true);
+        }
+    }
+
+    protected void postInitUI() {
+
+    }
+
+    protected void preInitUI() {
+
     }
 
     protected abstract void initUI();

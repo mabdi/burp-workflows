@@ -1,6 +1,7 @@
 package com.behsazan.model.entity;
 
 import com.behsazan.model.adapters.RequestListModelObject;
+import com.behsazan.model.sqlite.SqliteHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,25 +13,17 @@ public class Sequence {
     private int id;
     private List<Request> request;
     private String name;
-    private List<RequestListModelObject> requestModels;
 
-    public Sequence(String sequenceName, List<RequestListModelObject> selectedRequests) {
+    public Sequence(String sequenceName, List<Request> selectedRequests) {
         this.name = sequenceName;
-        this.requestModels = selectedRequests;
-        parseRequestModels(requestModels);
-    }
-
-    public Sequence(int id) {
-
-    }
-
-    private void parseRequestModels(List<RequestListModelObject> requestModels) {
-        this.request = new ArrayList<>();
-        int rid = 0;
-        for (RequestListModelObject rq:requestModels) {
-            request.add(new Request(rq.getAnalysed().getUrl(),rq.getRequest(),rq.getResponse(),this,rid));
-            id++;
+        this.request = selectedRequests;
+        for (Request r : request) {
+            r.setSequence(this);
         }
+    }
+
+    public static Sequence getById(int id) {
+        return new SqliteHelper().getSequenceById(id);
     }
 
     public String getName() {

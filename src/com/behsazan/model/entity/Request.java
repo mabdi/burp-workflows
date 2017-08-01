@@ -1,5 +1,8 @@
 package com.behsazan.model.entity;
 
+import burp.BurpExtender;
+import burp.IHttpService;
+
 import java.net.URL;
 
 /**
@@ -12,13 +15,14 @@ public class Request {
     private byte[] response;
     private URL url;
 
-    public Request(URL url, byte[] request,byte[] response, Sequence sequence, int order) {
+    public Request(URL url, byte[] request,byte[] response, int order) {
         this.url = url;
         this.request = request;
         this.response = response;
-        this.sequence = sequence;
         this.order = order;
     }
+
+
 
     public Sequence getSequence() {
         return sequence;
@@ -58,5 +62,11 @@ public class Request {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public IHttpService getHttpService() {
+        BurpExtender ext = BurpExtender.getInstance();
+        IHttpService httpService = ext.getHelpers().buildHttpService(url.getHost(),url.getPort(),url.getProtocol());
+        return httpService;
     }
 }
