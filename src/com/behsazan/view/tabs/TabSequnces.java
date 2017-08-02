@@ -6,6 +6,7 @@ import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.abstracts.AbstractTab;
 import com.behsazan.view.dialogs.DialogSequenceEdit;
 import com.behsazan.view.dialogs.DialogSequenceNew;
+import com.behsazan.view.dialogs.DialogSequencePlay;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -106,6 +107,8 @@ public class TabSequnces extends AbstractTab {
                         JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    DialogSequencePlay dlg = new DialogSequencePlay(TabSequnces.this,id);
+
                 }
             });
             toolbar.add(newNoCookie);
