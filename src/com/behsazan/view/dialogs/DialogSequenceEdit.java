@@ -46,8 +46,8 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
     private void setData() {
         this.sqName.setText(sequence.getName());
         this.sqName.repaint();
-        List<Request> rqs = sequence.getRequest();
-        for (Request rq: rqs) {
+        List<Request> requests = sequence.getRequest();
+        for (Request rq: requests) {
             modelAllRequests.addElement(new RequestListModelObject(rq));
         }
         this.listAllRequests.repaint();
@@ -91,6 +91,49 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
                 dissmiss();
             }
         });
+        JButton updateRequest = new JButton("Update Request");
+        updateRequest.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!requestViewer.isMessageModified()){
+                    int opt = JOptionPane.showConfirmDialog(DialogSequenceEdit.this,"Message is not modified. Do you want to force update?","Not Modifiend",JOptionPane.YES_NO_OPTION);
+                    if(opt==JOptionPane.NO_OPTION){
+                        return;
+                    }
+                }
+                if(requestViewer.getMessage().length ==0){
+                    JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Messeage is Empty.","Error",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                SqliteHelper db = new SqliteHelper();
+                currentlyDisplayedItem.getRequestObject().setRequest(requestViewer.getMessage());
+                db.updateRequestRequest(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getRequest());
+                JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Request Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
+
+            }
+        });
+        JButton updateResponse = new JButton("Update Response");
+        updateResponse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!responseViewer.isMessageModified()){
+                    int opt = JOptionPane.showConfirmDialog(DialogSequenceEdit.this,"Message is not modified. Do you want to force update?","Not Modifiend",JOptionPane.YES_NO_OPTION);
+                    if(opt==JOptionPane.NO_OPTION){
+                        return;
+                    }
+                }
+                if(responseViewer.getMessage().length ==0){
+                    JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Messeage is Empty.","Error",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                SqliteHelper db = new SqliteHelper();
+                currentlyDisplayedItem.getRequestObject().setResponse(responseViewer.getMessage());
+                db.updateRequestResponse(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getResponse());
+                JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Response Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        closePanel.add(updateRequest);
+        closePanel.add(updateResponse);
         closePanel.add(closeButton);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -117,8 +160,8 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
 
         JTabbedPane tabs = new JTabbedPane();
         callbacks = BurpExtender.getInstance().getCallbacks();
-        requestViewer = callbacks.createMessageEditor(this, false);
-        responseViewer = callbacks.createMessageEditor(this, false);
+        requestViewer = callbacks.createMessageEditor(this, true);
+        responseViewer = callbacks.createMessageEditor(this, true);
         tabs.addTab("Request", requestViewer.getComponent());
         tabs.addTab("Response", responseViewer.getComponent());
         splitPane.setRightComponent(tabs);

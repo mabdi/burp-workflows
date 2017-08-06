@@ -2,6 +2,7 @@ package com.behsazan.model.entity;
 
 import burp.BurpExtender;
 import burp.IHttpService;
+import burp.IRequestInfo;
 import com.behsazan.model.DataUtils;
 
 import java.net.URL;
@@ -15,6 +16,8 @@ public class Request {
     private byte[] request;
     private byte[] response;
     private URL url;
+    private int id;
+    private IRequestInfo analyzed;
 
     public Request(URL url, byte[] request,byte[] response, int order) {
         this.url = url;
@@ -47,6 +50,7 @@ public class Request {
 
     public void setRequest(byte[] request) {
         this.request = request;
+        analyzed = null;
     }
 
     public URL getUrl() {
@@ -67,5 +71,22 @@ public class Request {
 
     public IHttpService getHttpService() {
         return DataUtils.makeHttpService(url);
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public IRequestInfo getAnalysed() {
+        if(analyzed!=null){
+            return analyzed;
+        }
+        BurpExtender ext = BurpExtender.getInstance();
+        analyzed = ext.getHelpers().analyzeRequest(request);
+        return analyzed;
     }
 }

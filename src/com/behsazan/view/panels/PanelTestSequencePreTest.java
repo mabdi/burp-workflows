@@ -6,17 +6,19 @@ import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
 import com.behsazan.view.abstracts.AbstractPanel;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by admin on 08/01/2017.
@@ -32,6 +34,9 @@ public class PanelTestSequencePreTest extends AbstractPanel implements IMessageE
     private JList listAllRequests;
     private RequestListModelObject currentlyDisplayedItem;
     private Sequence sequence;
+    private JTextField txtCookie;
+    private JTextField txtBase1;
+    private JTextField txtBase2;
 
     @Override
     public String getName() {
@@ -46,17 +51,54 @@ public class PanelTestSequencePreTest extends AbstractPanel implements IMessageE
         }
         this.listAllRequests.repaint();
         this.txtRootAddress.setText(DataUtils.getRootAddress(sq.getRequest().get(0)));
+        this.txtCookie.setText(DataUtils.getCookie(sq.getRequest().get(0)));
+        this.txtBase1.setText(DataUtils.getBasePath(sq.getRequest().get(0)));
+        this.txtBase2.setText(DataUtils.getBasePath(sq.getRequest().get(0)));
         this.txtRootAddress.repaint();
 
     }
 
     @Override
     protected void initUI() {
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        SpringLayout layoutTop = new SpringLayout();
+        JPanel topPanel = new JPanel(layoutTop);
+        topPanel.setPreferredSize(new Dimension(400,100));
         JLabel lblSeqName = new JLabel("Change URL Root: ");
         txtRootAddress = new JTextField("",60);
+
+        JLabel lblBase = new JLabel("Change Path Base: ");
+        txtBase1 = new JTextField("",30);
+        txtBase2 = new JTextField("",30);
+
+        JLabel lblCookie = new JLabel("Change Cookie: ");
+        txtCookie = new JTextField("",60);
+
+
         topPanel.add(lblSeqName);
         topPanel.add(txtRootAddress);
+        topPanel.add(lblBase);
+        topPanel.add(txtBase1);
+        topPanel.add(txtBase2);
+        topPanel.add(lblCookie);
+        topPanel.add(txtCookie);
+
+
+        layoutTop.putConstraint(SpringLayout.WEST,lblSeqName,10,SpringLayout.WEST,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,lblSeqName,10,SpringLayout.NORTH,topPanel);
+        layoutTop.putConstraint(SpringLayout.WEST,txtRootAddress,140,SpringLayout.WEST,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,txtRootAddress,0,SpringLayout.NORTH,lblSeqName);
+
+        layoutTop.putConstraint(SpringLayout.WEST,lblBase,10,SpringLayout.WEST,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,lblBase,10,SpringLayout.SOUTH,lblSeqName);
+        layoutTop.putConstraint(SpringLayout.WEST,txtBase1,140,SpringLayout.WEST,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,txtBase1,0,SpringLayout.NORTH,lblBase);
+        layoutTop.putConstraint(SpringLayout.WEST,txtBase2,5,SpringLayout.EAST,txtBase1);
+        layoutTop.putConstraint(SpringLayout.NORTH,txtBase2,0,SpringLayout.NORTH,lblBase);
+
+        layoutTop.putConstraint(SpringLayout.WEST,lblCookie,10,SpringLayout.WEST,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,lblCookie,10,SpringLayout.SOUTH,lblBase);
+        layoutTop.putConstraint(SpringLayout.WEST,txtCookie,140,SpringLayout.WEST,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,txtCookie,0,SpringLayout.NORTH,lblCookie);
 
         callbacks = BurpExtender.getInstance().getCallbacks();
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -116,7 +158,11 @@ public class PanelTestSequencePreTest extends AbstractPanel implements IMessageE
         Enumeration<RequestListModelObject> els = modelAllRequests.elements();
         while(els.hasMoreElements()){
             RequestListModelObject el = els.nextElement();
-            ret.add(el.getRequest());
+            String[] msg = DataUtils.ExplodeRequest(el.getRequest());
+            msg = DataUtils.changeCookie(msg,txtCookie.getText());
+            msg = DataUtils.changeHost(msg,txtRootAddress.getText());
+            msg = DataUtils.changeUrlBase(msg,txtBase1.getText().trim(),txtBase2.getText().trim());
+            ret.add(DataUtils.buildRequest(msg));
         }
         return ret;
     }
@@ -124,4 +170,5 @@ public class PanelTestSequencePreTest extends AbstractPanel implements IMessageE
     public URL getNewRootURL() throws MalformedURLException {
         return new URL(txtRootAddress.getText());
     }
+
 }

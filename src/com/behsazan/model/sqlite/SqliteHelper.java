@@ -89,9 +89,40 @@ public class SqliteHelper {
                 " URL        TEXT NOT NULL, " +
                 " ORDER_NUM      INTEGER NOT NULL " +
                 " )";
+        String createTableTestCase = "CREATE TABLE TESTCASE " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " NAME           TEXT    NOT NULL " +
+                " )";
+        String createTableTestCaseSequence = "CREATE TABLE TESTCASE_SEQUENCE " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TID           INTEGER    NOT NULL, " +
+                " SID           INTEGER    NOT NULL, " +
+                " URL           TEXT    NOT NULL, " +
+                " PATH_BASE           TEXT    NOT NULL, " +
+                " COOKIE           TEXT    NOT NULL " +
+                " )";
+        String createTableRequestIn = "CREATE TABLE REQUEST_INPUT " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TSID           INTEGER    NOT NULL, " +
+                " RID           INTEGER    NOT NULL, " +
+                " PLACE_HOLDER        TEXT NOT NULL, " +
+                " PARAM_PARAMS        TEXT NOT NULL, " +
+                " PARAM_TYPE      INTEGER NOT NULL " +
+                " )";
+        String createTableResponseOut = "CREATE TABLE RESPONSE_OUTPUT " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TSID           INTEGER    NOT NULL, " +
+                " RID           INTEGER    NOT NULL, " +
+                " PARAM_PARAMS        TEXT NOT NULL, " +
+                " PARAM_TYPE      INTEGER NOT NULL " +
+                " )";
 
         stmt.executeUpdate(createTableSquence);
         stmt.executeUpdate(createTableRequest);
+        stmt.executeUpdate(createTableTestCase);
+        stmt.executeUpdate(createTableTestCaseSequence);
+        stmt.executeUpdate(createTableRequestIn);
+        stmt.executeUpdate(createTableResponseOut);
         stmt.close();
 
     }
@@ -170,6 +201,9 @@ public class SqliteHelper {
             PreparedStatement stmt = c.prepareStatement("DELETE from SEQUENCE WHERE ID =?");
             stmt.setInt(1,id);
             stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from REQUEST WHERE SID =?");
+            stmt.setInt(1,id);
+            stmt.executeUpdate();
             stmt.close();
             c.close();
         } catch (SQLException e) {
@@ -242,6 +276,7 @@ public class SqliteHelper {
                     byte[] response = rq.getBytes(4);
                     int order = rq.getInt(6);
                     Request r = new Request(new URL(url),request,response,order);
+                    r.setId(rq.getInt(1));
                     res.add(r);
                 }
             } catch (MalformedURLException e) {
@@ -258,5 +293,33 @@ public class SqliteHelper {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public void updateRequestRequest(int id, byte[] message) {
+        try {
+            Connection c = getConnection();
+            PreparedStatement stmt = c.prepareStatement("UPDATE REQUEST SET REQUEST = ? WHERE ID =?");
+            stmt.setBytes(1,message);
+            stmt.setInt(2,id);
+            stmt.executeUpdate();
+            stmt.close();
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateRequestResponse(int id, byte[] message) {
+        try {
+            Connection c = getConnection();
+            PreparedStatement stmt = c.prepareStatement("UPDATE REQUEST SET RESPONSE = ? WHERE ID =?");
+            stmt.setBytes(1,message);
+            stmt.setInt(2,id);
+            stmt.executeUpdate();
+            stmt.close();
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

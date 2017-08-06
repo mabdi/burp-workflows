@@ -55,4 +55,8 @@ public class BurpExtender implements IBurpExtender {
     public static BurpExtender getInstance() {
         return instance;
     }
+
+    public static void logText(String s){
+        getInstance().getStdout().println(s);
+    }
 }

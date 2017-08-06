@@ -14,6 +14,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -33,7 +34,6 @@ public class PanelTestSequencePlay extends AbstractPanel implements OnSequencePl
     private List<byte[]> requests;
     private URL newRoot;
     private BurpExtender ext;
-    private IHttpService httpService;
     private JButton cancelPlay;
 
     @Override
@@ -91,7 +91,6 @@ public class PanelTestSequencePlay extends AbstractPanel implements OnSequencePl
     public void setData(URL newroot, List<byte[]> reqs) {
         ext = BurpExtender.getInstance();
         this.newRoot = newroot;
-        this.httpService = DataUtils.makeHttpService(newroot);
         this.requests = reqs;
     }
 
@@ -105,11 +104,12 @@ public class PanelTestSequencePlay extends AbstractPanel implements OnSequencePl
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (byte[] rq :
+                for (final byte[] rq :
                         requests) {
                     if(forceCancel){
                         break;
                     }
+                    IHttpService httpService = DataUtils.makeHttpService(newRoot);
                     final IHttpRequestResponse response = ext.getCallbacks().makeHttpRequest(httpService,rq);
                     UIUtils.invokeInDispatchThreadIfNeeded(new Runnable() {
                         @Override
@@ -117,6 +117,21 @@ public class PanelTestSequencePlay extends AbstractPanel implements OnSequencePl
                             modelAllRequests.addElement(new RequestListModelObject(response));
                         }
                     });
+//                    final byte[] response = ext.getCallbacks().makeHttpRequest(httpService.getHost(),httpService.getPort(),
+//                            httpService.getProtocol().equalsIgnoreCase("https"),rq);
+//                    UIUtils.invokeInDispatchThreadIfNeeded(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            URL url = null;
+//                            try {
+//                                url = new URL(httpService.getProtocol(),
+//                                        httpService.getHost(),httpService.getPort(),"/");
+//                            } catch (MalformedURLException e) {
+//                                e.printStackTrace();
+//                            }
+//                            modelAllRequests.addElement(new RequestListModelObject(new Request(url,rq,response,-1)));
+//                        }
+//                    });
                 }
                 testFinished();
             }

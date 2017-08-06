@@ -1,36 +1,45 @@
 package com.behsazan.model.adapters;
 
 import burp.*;
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.Request;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
  * Created by admin on 07/30/2017.
  */
 public class RequestListModelObject {
-    private byte[] request;
-    private byte[] response;
+//    private byte[] request;
+//    private byte[] response;
     private IHttpService httpService;
     private String title;
     private IRequestInfo analysed;
+    private Request requestObject;
 
     public RequestListModelObject(IInterceptedProxyMessage reqres) {
         this(reqres.getMessageInfo());
     }
 
     public RequestListModelObject(Request rq) {
-        this.request = rq.getRequest();
-        this.response = rq.getResponse();
+        this.requestObject = rq;
+//        this.request = rq.getRequest();
+//        this.response = rq.getResponse();
         this.httpService = rq.getHttpService();
         BurpExtender ext = BurpExtender.getInstance();
-        this.analysed = ext.getHelpers().analyzeRequest(httpService,request);
+        this.analysed = ext.getHelpers().analyzeRequest(httpService,requestObject.getRequest());
         this.title = analysed.getMethod() + "  " + analysed.getUrl().getPath();
     }
 
     public RequestListModelObject(IHttpRequestResponse reqres) {
-        this.request = reqres.getRequest();
-        this.response = reqres.getResponse();
+        URL url = null;
+        try {
+            url = new URL(reqres.getHttpService().getProtocol(), reqres.getHttpService().getHost(), String.valueOf(reqres.getHttpService().getPort()));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        this.requestObject = new Request(url,reqres.getRequest(),reqres.getResponse(),-1 );
         this.httpService = reqres.getHttpService();
         this.analysed = BurpExtender.getInstance().getHelpers().analyzeRequest(reqres);
         this.title = analysed.getMethod() + "  " + analysed.getUrl().getPath();
@@ -46,11 +55,11 @@ public class RequestListModelObject {
     }
 
     public byte[] getRequest() {
-        return request;
+        return requestObject.getRequest();
     }
 
     public byte[] getResponse() {
-        return response;
+        return requestObject.getResponse();
     }
 
     public IRequestInfo getAnalysed() {
@@ -58,9 +67,12 @@ public class RequestListModelObject {
     }
 
     public void setRequest(byte[] request) {
-        this.request = request;
         BurpExtender ext = BurpExtender.getInstance();
         this.analysed = ext.getHelpers().analyzeRequest(httpService,request);
         this.title = analysed.getMethod() + "  " + analysed.getUrl().getPath();
+    }
+
+    public Request getRequestObject() {
+        return requestObject;
     }
 }
