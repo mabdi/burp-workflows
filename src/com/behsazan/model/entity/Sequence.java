@@ -22,6 +22,11 @@ public class Sequence {
         }
     }
 
+    @Override
+    public String toString() {
+        return id + ": " + name;
+    }
+
     public static Sequence getById(int id) {
         return new SqliteHelper().getSequenceById(id);
     }
@@ -44,5 +49,9 @@ public class Sequence {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

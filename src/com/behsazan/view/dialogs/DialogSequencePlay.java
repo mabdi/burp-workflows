@@ -98,7 +98,7 @@ public class DialogSequencePlay extends AbstractDialog implements OnSequencePlay
 
     @Override
     public void testFinished() {
-        btnPlay.setEnabled(true);
+//        btnPlay.setEnabled(true);
     }
 
 }

@@ -26,12 +26,10 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
     private RequestListModelObject currentlyDisplayedItem;
-    private Component listAll;
-    private Component buttons;
-    private Component listSelected;
     private JList listAllRequests;
     private BurpExtender ext;
     private DefaultListModel<RequestListModelObject> modelAllRequests;
+    private DefaultListModel<RequestListModelObject> modelDoRequests;
     private DefaultListModel<RequestListModelObject> modelSelectedRequests;
     private JList listSelectedReqs;
     private JTextField txtSeqName;
@@ -76,11 +74,23 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
                 stopRecord.setEnabled(false);
             }
         });
+        final JCheckBox enableFilter = new JCheckBox("Show Only .do requests");
+        enableFilter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(enableFilter.isSelected()){
+                    listAllRequests.setModel(modelDoRequests);
+                }else{
+                    listAllRequests.setModel(modelAllRequests);
+                }
+            }
+        });
         stopRecord.setEnabled(false);
         topPanel.add(lblSeqName);
         topPanel.add(txtSeqName);
         topPanel.add(startRecord);
         topPanel.add(stopRecord);
+        topPanel.add(enableFilter);
 
         callbacks = BurpExtender.getInstance().getCallbacks();
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -121,6 +131,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
 
     public Component getListAll() {
         modelAllRequests = new DefaultListModel<>();
+        modelDoRequests = new DefaultListModel<>();
         listAllRequests = new JList(modelAllRequests);
         listAllRequests.setVisibleRowCount(10);
         listAllRequests.setFixedCellHeight(20);
@@ -196,10 +207,11 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         {
             synchronized(modelAllRequests)
             {
-                int row = modelAllRequests.size();
                 RequestListModelObject req = new RequestListModelObject(message);
                 modelAllRequests.addElement(req);
-
+                if(req.getAnalysed().getUrl().getPath().endsWith(".do")){
+                    modelDoRequests.addElement(req);
+                }
             }
         }
     }

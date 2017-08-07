@@ -66,11 +66,11 @@ public class TabSequnces extends AbstractTab {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    if(id<0){
+                    if(tableSelectedRow<0){
                         JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     DialogSequenceEdit dlg = new DialogSequenceEdit(TabSequnces.this,id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -80,19 +80,47 @@ public class TabSequnces extends AbstractTab {
                     });
                 }
             });
+            JButton clone = new JButton("Clone");
+            clone.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int tableSelectedRow = table.getSelectedRow();
+                    if(tableSelectedRow<0){
+                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+                    String name = (String) tableModel.getValueAt(tableSelectedRow,1);
+                    String response = JOptionPane.showInputDialog(TabSequnces.this,"Enter new sequence Name: ","Copy Of " + name);
+                    if(!response.isEmpty()){
+                        SqliteHelper db = new SqliteHelper();
+                        if(db.isSequenceNameUsed(response)){
+                            JOptionPane.showMessageDialog(TabSequnces.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        db.cloneSequence(id,response);
+                        refreshMainView();
+                    }
+                }
+            });
             JButton delete = new JButton("Delete");
             delete.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    if(id<0){
+                    if(tableSelectedRow<0){
                         JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+                    SqliteHelper db = new SqliteHelper();
+                    if(db.isPossibleToDeleteSequence(id)){
+                        JOptionPane.showMessageDialog(TabSequnces.this,"The Sequence is used somewhere.","Oops!",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     int response = JOptionPane.showConfirmDialog(TabSequnces.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
-                        new SqliteHelper().deleteSequence(id);
+                        db.deleteSequence(id);
                         refreshMainView();
                     }
                 }
@@ -102,17 +130,19 @@ public class TabSequnces extends AbstractTab {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    if(id<0){
+                    if(tableSelectedRow<0){
                         JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     DialogSequencePlay dlg = new DialogSequencePlay(TabSequnces.this,id);
 
                 }
             });
             toolbar.add(newNoCookie);
             toolbar.add(editView);
+            toolbar.add(clone);
             toolbar.add(delete);
             toolbar.add(playTest);
         }

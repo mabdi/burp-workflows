@@ -1,10 +1,13 @@
 package com.behsazan.model.sqlite;
 
+import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
+import com.behsazan.model.entity.TestCase;
 
 import javax.sql.rowset.serial.SerialBlob;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.*;
@@ -16,7 +19,8 @@ import java.util.Vector;
  * Created by admin on 07/31/2017.
  */
 public class SqliteHelper {
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
+    private List<Connection> connections = new ArrayList<>();
 
 
     public void initDb(){
@@ -53,22 +57,47 @@ public class SqliteHelper {
         }
     }
 
-    private Connection getConnection() throws  SQLException {
+
+    public File getDbFile() {
         String appHome = DataUtils.getAppHome();
+        return new File(appHome,"data.db");
+    }
+
+    private Connection getConnection() throws  SQLException {
+        File db = getDbFile();
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        Connection c = DriverManager.getConnection("jdbc:sqlite:"+appHome+"/data.db");
-
+        Connection c = DriverManager.getConnection("jdbc:sqlite:"+db.getAbsolutePath());
+        connections.add(c);
         return c;
+    }
+
+    public void closeAllConnection(){
+        BurpExtender.logText("Dangling Connections Count: " + connections.size());
+        for (Connection c :
+                connections) {
+            if (c != null){
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    e.printStackTrace(BurpExtender.getInstance().getStdout());
+                }
+            }
+        }
+        connections.clear();
     }
 
     private void update_Db(Statement stmt, int fromVer, int toVer) throws SQLException {
         int ver = fromVer;
         if(ver<1){
             update_v1(stmt);
+            ver++;
+        }
+        if(ver<2){
+            update_v2(stmt);
             ver++;
         }
     }
@@ -89,9 +118,18 @@ public class SqliteHelper {
                 " URL        TEXT NOT NULL, " +
                 " ORDER_NUM      INTEGER NOT NULL " +
                 " )";
+
+        stmt.executeUpdate(createTableSquence);
+        stmt.executeUpdate(createTableRequest);
+
+    }
+
+    private void update_v2(Statement stmt) throws SQLException {
         String createTableTestCase = "CREATE TABLE TESTCASE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " NAME           TEXT    NOT NULL " +
+                " NAME           TEXT    NOT NULL, " +
+                " SEQUENCE_COUNT            INTEGER     NOT NULL, " +
+                " REQUEST_COUNT            INTEGER     NOT NULL  " +
                 " )";
         String createTableTestCaseSequence = "CREATE TABLE TESTCASE_SEQUENCE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -116,15 +154,10 @@ public class SqliteHelper {
                 " PARAM_PARAMS        TEXT NOT NULL, " +
                 " PARAM_TYPE      INTEGER NOT NULL " +
                 " )";
-
-        stmt.executeUpdate(createTableSquence);
-        stmt.executeUpdate(createTableRequest);
         stmt.executeUpdate(createTableTestCase);
         stmt.executeUpdate(createTableTestCaseSequence);
         stmt.executeUpdate(createTableRequestIn);
         stmt.executeUpdate(createTableResponseOut);
-        stmt.close();
-
     }
 
 
@@ -157,10 +190,30 @@ public class SqliteHelper {
         c.close();
     }
 
-    public Vector<Vector<Object>> getAllSequences() throws SQLException {
+    public Vector<Vector<Object>> getAllSequences_Table() throws SQLException {
         Connection c = getConnection();
         Statement stmt = c.createStatement();
         ResultSet allRequests = stmt.executeQuery("SELECT ID as Id,NAME as Name,REQUEST_COUNT as 'Number Of Requests',FIRST_URL as 'First Url',LAST_URL as 'Last Url' from SEQUENCE");
+        int columnCount = allRequests.getMetaData().getColumnCount();
+        Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+        while (allRequests.next()) {
+            Vector<Object> vector = new Vector<Object>();
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                vector.add(allRequests.getObject(columnIndex));
+            }
+            data.add(vector);
+        }
+        allRequests.close();
+        stmt.close();
+        c.close();
+        return data;
+    }
+
+
+    public Vector<Vector<Object>> getAllTestCases_Table() throws SQLException {
+        Connection c = getConnection();
+        Statement stmt = c.createStatement();
+        ResultSet allRequests = stmt.executeQuery("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT from TESTCASE");
         int columnCount = allRequests.getMetaData().getColumnCount();
         Vector<Vector<Object>> data = new Vector<Vector<Object>>();
         while (allRequests.next()) {
@@ -211,6 +264,25 @@ public class SqliteHelper {
         }
     }
 
+    public boolean isPossibleToDeleteSequence(int id){
+        Connection c = null;
+        try {
+            c = getConnection();
+            PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) from TESTCASE_SEQUENCE WHERE SID =?");
+            stmt.setInt(1,id);
+            ResultSet allRequests = stmt.executeQuery();
+            allRequests.next();
+            boolean res = allRequests.getInt(1)==0;
+            allRequests.close();
+            stmt.close();
+            c.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public void updateSequenceName(int id, String name) {
         try {
             Connection c = getConnection();
@@ -223,6 +295,38 @@ public class SqliteHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Sequence> getAllSequences() {
+        List<Sequence> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL from SEQUENCE");
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    int id = rq.getInt(1);
+                    String name = rq.getString(2);
+                    List<Request> reqs = getSequenceRequestById(id);
+                    Sequence s = new Sequence(name, reqs);
+                    s.setId(id);
+                    res.add(s);
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
     public Sequence getSequenceById(int id) {
@@ -321,5 +425,19 @@ public class SqliteHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void cloneSequence(int id, String response) {
+        Sequence seq = getSequenceById(id);
+        seq.setName(response);
+        try {
+            insertSequence(seq);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insertTestCase(TestCase testCase) {
+
     }
 }

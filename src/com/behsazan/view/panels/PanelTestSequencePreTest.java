@@ -161,6 +161,7 @@ public class PanelTestSequencePreTest extends AbstractPanel implements IMessageE
             String[] msg = DataUtils.ExplodeRequest(el.getRequest());
             msg = DataUtils.changeCookie(msg,txtCookie.getText());
             msg = DataUtils.changeHost(msg,txtRootAddress.getText());
+            msg = DataUtils.changeReferer(msg,txtRootAddress.getText());
             msg = DataUtils.changeUrlBase(msg,txtBase1.getText().trim(),txtBase2.getText().trim());
             ret.add(DataUtils.buildRequest(msg));
         }

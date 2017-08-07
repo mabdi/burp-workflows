@@ -15,7 +15,7 @@ import java.util.Vector;
 public class TableModelSequences extends AbstractTableModel {
     private Vector<Vector<Object>> data;
     private String[] columns = new String[]{
-        "Id","Name","Number Of Requests","First Url","Last Url"
+        "Id","Name","#Requests","First Url","Last Url"
     };
 
     public TableModelSequences() {
@@ -24,7 +24,7 @@ public class TableModelSequences extends AbstractTableModel {
 
     public void updateData() {
         try {
-            data = new SqliteHelper().getAllSequences();
+            data = new SqliteHelper().getAllSequences_Table();
         } catch (SQLException e) {
             e.printStackTrace();
         }

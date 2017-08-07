@@ -88,13 +88,41 @@ public class DataUtils {
             String hd = msg[i].trim();
             if (!newCookie.isEmpty()) {
                 if (hd.startsWith("Cookie: ")) {
-                    msg[i] = hd.replaceFirst("JSESSIONID=([^;]+)", newCookie);
+                    Pattern pattern = Pattern.compile("JSESSIONID=([^;]+)");
+                    Matcher matcher = pattern.matcher(hd);
+                    if(matcher.find()){
+                        String oldCookie = matcher.group(1);
+                        msg[i] = hd.replace(oldCookie, newCookie);
+                    }
+
                 }
             }
         }
         return msg;
     }
 
+    public static String[] changeReferer(String[] msg, String newHost) {
+        for (int i=0;i<msg.length;i++) {
+            if (msg[i].trim().isEmpty()) {
+                break;
+            }
+            String hd = msg[i].trim();
+            if (!newHost.isEmpty()) {
+                if (hd.startsWith("Referer: ")) {
+                    URL urlNew = null;
+                    URL urlOld = null;
+                    try {
+                        urlNew = new URL(newHost);
+                        urlOld = new URL(hd.substring("Referer: ".length()).trim());
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                    msg[i] = "Referer: " + (urlNew.toString() + urlOld.getFile().substring(1));
+                }
+            }
+        }
+        return msg;
+    }
 
     public static String[] changeHost(String[] msg, String newHost) {
         for (int i=0;i<msg.length;i++) {
@@ -111,7 +139,7 @@ public class DataUtils {
                         e.printStackTrace();
                     }
                     String prt = "";
-                    if(url.getPort()!= 80 && url.getPort()!= 443){
+                    if(url.getPort()!=-1 && url.getPort()!= 80 && url.getPort()!= 443){
                         prt = ":" + url.getPort();
                     }
                     String newHostStr = url.getHost() + prt;

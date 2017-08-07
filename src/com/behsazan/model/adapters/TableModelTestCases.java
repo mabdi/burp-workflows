@@ -12,7 +12,7 @@ import java.util.Vector;
 public class TableModelTestCases extends AbstractTableModel {
     private Vector<Vector<Object>> data;
     private String[] columns = new String[]{
-        "Id","Name","Number Of Requests","First Url","Last Url"
+        "Id","Name","#Sequence","#Request"
     };
 
     public TableModelTestCases() {
@@ -21,7 +21,7 @@ public class TableModelTestCases extends AbstractTableModel {
 
     public void updateData() {
         try {
-            data = new SqliteHelper().getAllSequences();
+            data = new SqliteHelper().getAllTestCases_Table();
         } catch (SQLException e) {
             e.printStackTrace();
         }

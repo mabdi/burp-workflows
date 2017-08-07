@@ -3,10 +3,7 @@ package com.behsazan.view;
 import burp.BurpExtender;
 import burp.ITab;
 import com.behsazan.view.abstracts.AbstractTab;
-import com.behsazan.view.tabs.TabLogins;
-import com.behsazan.view.tabs.TabSequnces;
-import com.behsazan.view.tabs.TabSettings;
-import com.behsazan.view.tabs.TabTestCases;
+import com.behsazan.view.tabs.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +25,9 @@ public class Interface implements ITab {
         tabsPane = new JTabbedPane();
         AbstractTab[] tabs = new AbstractTab[]{
                 new TabSequnces(),
+                new TabLogins(),
                 new TabTestCases(),
+                new TabTestSuites(),
                 new TabSettings(),
         };
         for (AbstractTab tab : tabs) {

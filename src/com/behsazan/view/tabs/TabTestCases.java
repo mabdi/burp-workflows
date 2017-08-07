@@ -33,8 +33,7 @@ public class TabTestCases extends AbstractTab {
         table.getColumnModel().getColumn(0).setPreferredWidth(10);
         table.getColumnModel().getColumn(1).setPreferredWidth(400);
         table.getColumnModel().getColumn(2).setPreferredWidth(40);
-        table.getColumnModel().getColumn(3).setPreferredWidth(400);
-        table.getColumnModel().getColumn(4).setPreferredWidth(400);
+        table.getColumnModel().getColumn(3).setPreferredWidth(40);
     }
 
     @Override
@@ -49,7 +48,6 @@ public class TabTestCases extends AbstractTab {
             newTestCase.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    BurpExtender.getInstance().getCallbacks().setProxyInterceptionEnabled(false);
                     DialogTestCaseNew dlg = new DialogTestCaseNew(TabTestCases.this);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -64,11 +62,11 @@ public class TabTestCases extends AbstractTab {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    if(id<0){
+                    if(tableSelectedRow<0){
                         JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     DialogTestCasePlay dlg = new DialogTestCasePlay(TabTestCases.this,id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -83,11 +81,11 @@ public class TabTestCases extends AbstractTab {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    if(id<0){
+                    if(tableSelectedRow<0){
                         JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     int response = JOptionPane.showConfirmDialog(TabTestCases.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
                         new SqliteHelper().deleteSequence(id);
@@ -100,11 +98,11 @@ public class TabTestCases extends AbstractTab {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    if(id<0){
+                    if(tableSelectedRow<0){
                         JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     DialogTestCasePlay dlg = new DialogTestCasePlay(TabTestCases.this,id);
 
                 }
