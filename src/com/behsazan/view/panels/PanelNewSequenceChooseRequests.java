@@ -33,6 +33,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     private DefaultListModel<RequestListModelObject> modelSelectedRequests;
     private JList listSelectedReqs;
     private JTextField txtSeqName;
+    private JCheckBox enableFilter;
 
     @Override
     public String getName() {
@@ -74,7 +75,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
                 stopRecord.setEnabled(false);
             }
         });
-        final JCheckBox enableFilter = new JCheckBox("Show Only .do requests");
+        enableFilter = new JCheckBox("Show Only .do requests");
         enableFilter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -162,7 +163,13 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         buttonin.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                 modelSelectedRequests.addElement(modelAllRequests.elementAt( listAllRequests.getSelectedIndex() ));
+                DefaultListModel<RequestListModelObject> model;
+                if(enableFilter.isSelected()){
+                    model = modelDoRequests;
+                }else{
+                    model = modelAllRequests;
+                }
+                modelSelectedRequests.addElement(model.elementAt( listAllRequests.getSelectedIndex() ));
             }
         });
         buttonPanel.add(buttonin);

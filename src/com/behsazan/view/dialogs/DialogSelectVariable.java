@@ -18,45 +18,29 @@ import java.util.List;
 /**
  * Created by admin on 08/07/2017.
  */
-public class DialogSelectSequence extends AbstractDialog {
+public class DialogSelectVariable extends AbstractDialog {
 
-    private ArrayList<Integer> listUsed;
     private JPanel buttonsPanel;
-    private List<SequenceListModelObject> selectedItem;
-    private JList<SequenceListModelObject> listSequences;
-    private DefaultListModel<SequenceListModelObject> modelList;
+    private List<String> selectedItem;
+    private JList<String> listSequences;
+    private DefaultListModel<String> modelList;
 
-    public DialogSelectSequence(Component parent) {
+    public DialogSelectVariable(Component parent) {
         super(parent,false);
     }
 
 
-    public void setData(DefaultListModel<SequenceListModelObject> notshow){
-        this.listUsed = new ArrayList<Integer>();
-        Enumeration<SequenceListModelObject> notshowList = notshow.elements();
-        while(notshowList.hasMoreElements()){
-            SequenceListModelObject el = notshowList.nextElement();
-            listUsed.add(el.getSequence().getId());
-        }
-        java.util.List<Sequence> allSeq = new SqliteHelper().getAllSequences();
-        for (Sequence seq : allSeq) {
-            boolean doadd = true;
-            for (int i = 0; i < listUsed.size(); i++) {
-                if(seq.getId() == listUsed.get(i)){
-                    doadd = false;
-                    break;
-                }
-            }
-            if(doadd) {
-                modelList.addElement(new SequenceListModelObject(seq));
-            }
+    public void setData(boolean globals){
+        List<String> allSeq = new SqliteHelper().getAllVariables(globals);
+        for (String seq : allSeq) {
+            modelList.addElement(seq);
         }
     }
 
     @Override
     protected void initUI() {
         setSize(300, 500);
-        setTitle("Choose A Sequence");
+        setTitle("Choose A Variable");
         setLocationRelativeTo(getParentWindow());
         setLayout(new BorderLayout());
         add(new JScrollPane(getList()) ,BorderLayout.CENTER);
@@ -106,10 +90,10 @@ public class DialogSelectSequence extends AbstractDialog {
 
     private void doSelect() {
         selectedItem = listSequences.getSelectedValuesList();
-        DialogSelectSequence.this.setVisible(false);
+        DialogSelectVariable.this.setVisible(false);
     }
 
-    public List<SequenceListModelObject> getSelectedItem(){
+    public List<String> getSelectedItem(){
         setVisible(true);
         return selectedItem;
     }

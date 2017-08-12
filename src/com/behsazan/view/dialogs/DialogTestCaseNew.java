@@ -5,6 +5,7 @@ import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.SequenceListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.TestCase;
+import com.behsazan.model.entity.TestCase_Sequence;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.abstracts.AbstractTab;
@@ -15,8 +16,9 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.sql.Connection;
 import java.util.*;
 import java.util.List;
 
@@ -39,6 +41,7 @@ public class DialogTestCaseNew extends AbstractDialog {
     private JPanel centerPanel;
     private DefaultListModel<SequenceListModelObject> modelSequeces;
     private JButton btnRequest;
+    private SequenceListModelObject activeSequence;
 
     public DialogTestCaseNew(AbstractTab tabTestCases) {
         super(tabTestCases);
@@ -70,7 +73,7 @@ public class DialogTestCaseNew extends AbstractDialog {
         if (centerPanel == null) {
             centerPanel = new JPanel(new BorderLayout());
             centerSplitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-            centerSplitPanel.setResizeWeight(0.2);
+            centerSplitPanel.setDividerLocation(0.2);
             centerSplitPanel.setLeftComponent(getSequenceJListPanel());
             centerSplitPanel.setRightComponent(getSequenceDetailPanel());
 
@@ -96,8 +99,12 @@ public class DialogTestCaseNew extends AbstractDialog {
                     SqliteHelper db = new SqliteHelper();
                     List<SequenceListModelObject> reqs = getSelectedSequences();
                     String name = txtTestCaseName.getText();
-                    if(name.isEmpty()){
-                        JOptionPane.showMessageDialog(DialogTestCaseNew.this,"TestCase name is not set.","Error",JOptionPane.ERROR_MESSAGE);
+                    String base1 = txtBase1.getText();
+                    String base2 = txtBase2.getText();
+                    String url = txtRootAddress.getText();
+                    String cookie = txtCookie.getText();
+                    if(name.isEmpty() || base1.isEmpty() || base2.isEmpty() || url.isEmpty()){
+                        JOptionPane.showMessageDialog(DialogTestCaseNew.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     if(reqs.size()==0){
@@ -109,7 +116,11 @@ public class DialogTestCaseNew extends AbstractDialog {
                         return;
                     }
                     try {
-                        db.insertTestCase(new TestCase(name,reqs));
+                        List<TestCase_Sequence> ts = new ArrayList<>();
+                        for (SequenceListModelObject req: reqs) {
+                            ts.add(req.getTestCase_sequence());
+                        }
+                        db.insertTestCase(new TestCase(name,base1,base2,url,cookie,ts));
                         dissmiss();
 
                     }catch (Exception x){
@@ -140,7 +151,13 @@ public class DialogTestCaseNew extends AbstractDialog {
             sequncesJlist.addListSelectionListener(new ListSelectionListener() {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
-                    showSequenceDetail(sequncesJlist.getSelectedValue());
+                    if(!validateUpdate()){
+                        sequncesJlist.setSelectedValue(activeSequence,true);
+                    }
+                    updateSequenceDetail();
+                    activeSequence = sequncesJlist.getSelectedValue();
+                    showSequenceDetail();
+
                 }
             });
             JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -149,6 +166,7 @@ public class DialogTestCaseNew extends AbstractDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     final DialogSelectSequence dlg = new DialogSelectSequence(DialogTestCaseNew.this);
+                    dlg.setData(modelSequeces);
                     addNewSequence(dlg.getSelectedItem());
                     dlg.dissmiss();
                 }
@@ -171,14 +189,40 @@ public class DialogTestCaseNew extends AbstractDialog {
             btns.add(addSequence);
             btns.add(removeSequence);
             sequenceJListPanel.add(new JLabel("Sequence order: "),BorderLayout.NORTH);
-            sequenceJListPanel.add(sequncesJlist,BorderLayout.CENTER);
+            sequenceJListPanel.add(new JScrollPane(sequncesJlist),BorderLayout.CENTER);
             sequenceJListPanel.add(btns,BorderLayout.SOUTH);
         }
         return sequenceJListPanel;
     }
 
-    private void showSequenceDetail(SequenceListModelObject selectedValue) {
-        Request req1 = selectedValue.getSequence().getRequest().get(0);
+    private boolean validateUpdate() {
+        if(activeSequence==null)
+            return false;
+        try {
+            new URL(txtRootAddress.getText());
+            return true;
+        } catch (MalformedURLException e) {
+            JOptionPane.showMessageDialog(this,"URL format is not correct.","Error",JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+    }
+
+    private void updateSequenceDetail() {
+        if(activeSequence==null)
+            return;
+        try {
+            activeSequence.getTestCase_sequence().setUrl(new URL(txtRootAddress.getText()));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        activeSequence.getTestCase_sequence().setBase1(txtBase1.getText());
+        activeSequence.getTestCase_sequence().setBase2(txtBase2.getText());
+        activeSequence.getTestCase_sequence().setCookie(txtCookie.getText());
+    }
+
+    private void showSequenceDetail() {
+        Request req1 = activeSequence.getSequence().getRequest().get(0);
         txtRootAddress.setText(DataUtils.getRootAddress(req1));
         txtRootAddress.setEnabled(true);
         txtBase1.setEnabled(true);
@@ -190,9 +234,62 @@ public class DialogTestCaseNew extends AbstractDialog {
         btnRequest.setEnabled(true);
     }
 
-    private void addNewSequence(SequenceListModelObject selectedItem) {
+    private void addNewSequence(List<SequenceListModelObject> selectedItem) {
         if(selectedItem!=null) {
-            modelSequeces.addElement(selectedItem);
+            for (SequenceListModelObject s:
+                    selectedItem) {
+                modelSequeces.addElement(s);
+                sequncesJlist.setSelectedValue(s,true);
+            }
+            final JDialog pleaseWaitDialog = new JDialog(this);
+            JPanel panel = new JPanel();
+            final JLabel dialogWaitlabel = new JLabel("Please wait...");
+            panel.add(dialogWaitlabel );
+            pleaseWaitDialog.add(panel);
+            pleaseWaitDialog.setTitle("Please wait...");
+            pleaseWaitDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+            pleaseWaitDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+            pleaseWaitDialog.pack();
+            pleaseWaitDialog.setLocationRelativeTo(this);
+            final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    Enumeration<SequenceListModelObject> els = modelSequeces.elements();
+                    while(els.hasMoreElements()){
+                        parse(els.nextElement());
+                    }
+                    return null;
+                }
+
+                private void parse(SequenceListModelObject sequenceListModelObject) {
+                    if(sequenceListModelObject.getTestCase_sequence()!=null){
+                        return;
+                    }
+                    publish("Parsing " + sequenceListModelObject.getSequence().getName());
+                    sequenceListModelObject.setTestCase_sequence(new TestCase_Sequence(sequenceListModelObject.getSequence()));
+                }
+
+                @Override
+                protected void process(List<String> chunks) {
+                    dialogWaitlabel.setText(chunks.get(0));
+                    pleaseWaitDialog.pack();
+                    pleaseWaitDialog.setLocationRelativeTo(DialogTestCaseNew.this);
+                    pleaseWaitDialog.repaint();
+                }
+
+                @Override
+                protected void done() {
+                    pleaseWaitDialog.dispose();
+                }
+            };
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    worker.execute();
+                }
+            });
+            pleaseWaitDialog.setVisible(true);
         }
     }
 
@@ -220,7 +317,11 @@ public class DialogTestCaseNew extends AbstractDialog {
             btnRequest.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // TODO open dialog
+                    DialogTestCaseRequests dlg = new DialogTestCaseRequests(DialogTestCaseNew.this);
+                    TestCase_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getTestCase_sequence());
+                    if(data!=null){
+                        sequncesJlist.getSelectedValue().setTestCase_sequence(data);
+                    }
                 }
             });
 
@@ -274,4 +375,5 @@ public class DialogTestCaseNew extends AbstractDialog {
         }
         return list;
     }
+
 }

@@ -1,18 +1,18 @@
 package com.behsazan.model;
 
-import burp.BurpExtender;
-import burp.IHttpRequestResponse;
-import burp.IHttpService;
-import burp.IRequestInfo;
+import burp.*;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.settings.Settings;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,25 +59,67 @@ public class DataUtils {
     }
 
     public static String getBasePath(Request request) {
-        String line1 = request.getAnalysed().getHeaders().get(0);
+        String line1 = request.getAnalysedRequest().getHeaders().get(0);
         String[] line1parts = line1.split(" ");
         String[] pathes = line1parts[1].split("/");
         return "/" + ((pathes.length>1)? pathes[1]:"");
     }
 
     public static String getCookie(Request request) {
-        List<String> hds = request.getAnalysed().getHeaders();
-        for (String hd :
+        List<IParameter> hds = request.getAnalysedRequest().getParameters();
+        for (IParameter hd :
                 hds) {
-            if (hd.startsWith("Cookie")) {
-                Pattern pattern = Pattern.compile("JSESSIONID=([^;]+)");
-                Matcher matcher = pattern.matcher(hd);
-                if(matcher.find()){
-                    return matcher.group(1);
-                }
+            if (hd.getType() == IParameter.PARAM_COOKIE && hd.getName().equals("JSESSIONID")) {
+                return hd.getValue();
             }
-            }
+        }
         return "";
+    }
+
+    public static byte[] changeCookie(Request request, final String newCookie){
+        List<IParameter> hds = request.getAnalysedRequest().getParameters();
+        for (final IParameter hd :
+                hds) {
+            if (hd.getType() == IParameter.PARAM_COOKIE && hd.getName().equals("JSESSIONID")) {
+                return BurpExtender.getInstance().getHelpers().updateParameter(request.getRequest(), new IParameter() {
+                    @Override
+                    public byte getType() {
+                        return IParameter.PARAM_COOKIE;
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "JSESSIONID";
+                    }
+
+                    @Override
+                    public String getValue() {
+                        return newCookie;
+                    }
+
+                    @Override
+                    public int getNameStart() {
+                        return hd.getNameStart();
+                    }
+
+                    @Override
+                    public int getNameEnd() {
+                        return hd.getNameEnd();
+                    }
+
+                    @Override
+                    public int getValueStart() {
+                        return hd.getValueStart();
+                    }
+
+                    @Override
+                    public int getValueEnd() {
+                        return hd.getValueEnd();
+                    }
+                });
+            }
+        }
+        return request.getRequest();
     }
 
     public static String[] changeCookie(String[] msg,String newCookie){
@@ -188,6 +230,16 @@ public class DataUtils {
 
     public static String[] ExplodeRequest(byte[] request) {
         return BurpExtender.getInstance().getHelpers().bytesToString(request).split(CRLF,-1);
+    }
+
+    public static BufferedImage getImageObject(byte[] bytes){
+        InputStream in = new ByteArrayInputStream(bytes);
+        try {
+            return ImageIO.read(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

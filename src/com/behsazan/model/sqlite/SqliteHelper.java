@@ -2,9 +2,7 @@ package com.behsazan.model.sqlite;
 
 import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
-import com.behsazan.model.entity.Request;
-import com.behsazan.model.entity.Sequence;
-import com.behsazan.model.entity.TestCase;
+import com.behsazan.model.entity.*;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.File;
@@ -125,37 +123,51 @@ public class SqliteHelper {
     }
 
     private void update_v2(Statement stmt) throws SQLException {
-        String createTableTestCase = "CREATE TABLE TESTCASE " +
+
+        String createTableTestCase = "DROP TABLE IF EXISTS TESTCASE;"+
+                " CREATE TABLE TESTCASE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " NAME           TEXT    NOT NULL, " +
                 " SEQUENCE_COUNT            INTEGER     NOT NULL, " +
                 " REQUEST_COUNT            INTEGER     NOT NULL  " +
                 " )";
-        String createTableTestCaseSequence = "CREATE TABLE TESTCASE_SEQUENCE " +
+        String createTableTestCaseSequence = "DROP TABLE IF EXISTS TESTCASE_SEQUENCE;"+
+                " CREATE TABLE TESTCASE_SEQUENCE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " TID           INTEGER    NOT NULL, " +
                 " SID           INTEGER    NOT NULL, " +
                 " URL           TEXT    NOT NULL, " +
-                " PATH_BASE           TEXT    NOT NULL, " +
+                " PATH_BASE1           TEXT    NOT NULL, " +
+                " PATH_BASE2           TEXT    NOT NULL, " +
                 " COOKIE           TEXT    NOT NULL " +
                 " )";
-        String createTableRequestIn = "CREATE TABLE REQUEST_INPUT " +
+        String createTableTestCaseRequest = "DROP TABLE IF EXISTS TESTCASE_REQUEST;"+
+                " CREATE TABLE TESTCASE_REQUEST " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TID           INTEGER    NOT NULL, " +
                 " TSID           INTEGER    NOT NULL, " +
-                " RID           INTEGER    NOT NULL, " +
+                " REQUEST           BLOB    NOT NULL " +
+                " )";
+        String createTableRequestIn = "DROP TABLE IF EXISTS REQUEST_INPUT;"+
+                " CREATE TABLE REQUEST_INPUT " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " RSID           INTEGER    NOT NULL, " +
                 " PLACE_HOLDER        TEXT NOT NULL, " +
                 " PARAM_PARAMS        TEXT NOT NULL, " +
                 " PARAM_TYPE      INTEGER NOT NULL " +
                 " )";
-        String createTableResponseOut = "CREATE TABLE RESPONSE_OUTPUT " +
+        String createTableResponseOut = "DROP TABLE IF EXISTS RESPONSE_OUTPUT;"+
+                " CREATE TABLE RESPONSE_OUTPUT " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " TSID           INTEGER    NOT NULL, " +
-                " RID           INTEGER    NOT NULL, " +
+                " RSID           INTEGER    NOT NULL, " +
+                " IS_GLOBAL        INTEGER NOT NULL, " +
+                " PARAM_NAME        TEXT NOT NULL, " +
                 " PARAM_PARAMS        TEXT NOT NULL, " +
                 " PARAM_TYPE      INTEGER NOT NULL " +
                 " )";
         stmt.executeUpdate(createTableTestCase);
         stmt.executeUpdate(createTableTestCaseSequence);
+        stmt.executeUpdate(createTableTestCaseRequest);
         stmt.executeUpdate(createTableRequestIn);
         stmt.executeUpdate(createTableResponseOut);
     }
@@ -437,7 +449,112 @@ public class SqliteHelper {
         }
     }
 
-    public void insertTestCase(TestCase testCase) {
+    public void insertTestCase(TestCase testCase) throws SQLException {
+        Connection c = getConnection();
+        try {
+            c.setAutoCommit(false);
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO TESTCASE (NAME,SEQUENCE_COUNT,REQUEST_COUNT) VALUES (?,?,?)");
+            stmt.setString(1, testCase.getName());
+            stmt.setInt(2, testCase.getReqs().size());
+            int reqs = 0;
+            for (TestCase_Sequence tr : testCase.getReqs()) {
+                reqs += tr.getRequests().size();
+            }
+            stmt.setInt(3, reqs);
+            stmt.executeUpdate();
+            ResultSet rs1 = c.createStatement().executeQuery("select last_insert_rowid();");
+            rs1.next();
+            int newId = rs1.getInt(1);
+            testCase.setId(newId);
+            rs1.close();
+            stmt.close();
+            for (TestCase_Sequence sq : testCase.getReqs()) {
+                PreparedStatement stmt2 = c.prepareStatement("INSERT INTO TESTCASE_SEQUENCE (TID,SID,URL,PATH_BASE1,PATH_BASE2,COOKIE) VALUES (?,?,?,?,?,?)");
+                stmt2.setInt(1, testCase.getId());
+                stmt2.setInt(2, sq.getSequence().getId());
+                stmt2.setString(3, sq.getUrl().toString());
+                stmt2.setString(4, sq.getBase1());
+                stmt2.setString(5, sq.getBase2());
+                stmt2.setString(6, sq.getCookie());
+                stmt2.executeUpdate();
+                stmt2.close();
 
+                ResultSet rs2 = c.createStatement().executeQuery("select last_insert_rowid();");
+                rs2.next();
+                newId = rs2.getInt(1);
+                sq.setId(newId);
+                rs2.close();
+
+                for (TestCase_Request rq : sq.getRequests()) {
+                    PreparedStatement stmt3 = c.prepareStatement("INSERT INTO TESTCASE_REQUEST (TID,TSID,REQUEST) VALUES (?,?,?)");
+                    stmt3.setInt(1, testCase.getId());
+                    stmt3.setInt(2, sq.getId());
+                    stmt3.setBytes(3, rq.getModifiedRequest());
+                    stmt3.executeUpdate();
+                    stmt3.close();
+
+                    ResultSet rs3 = c.createStatement().executeQuery("select last_insert_rowid();");
+                    rs3.next();
+                    newId = rs3.getInt(1);
+                    rs3.close();
+
+                    rq.setId(newId);
+
+                    for (RequestIn paramIn: rq.getInputParams()) {
+                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT (RSID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE) VALUES (?,?,?,?)");
+                        stmt4.setInt(1, rq.getId());
+                        stmt4.setString(2, paramIn.getPlaceHoder());
+                        stmt4.setString(3, paramIn.getTxtValue());
+                        stmt4.setInt(4, paramIn.getType());
+                        stmt4.executeUpdate();
+                        stmt4.close();
+                    }
+                    for (ResponseOut paramOut: rq.getOutputParams()) {
+                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT (RSID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL) VALUES (?,?,?,?,?)");
+                        stmt4.setInt(1, rq.getId());
+                        stmt4.setString(2, paramOut.getName());
+                        stmt4.setString(3, paramOut.getParam());
+                        stmt4.setInt(4, paramOut.getType());
+                        stmt4.setInt(5,(paramOut.isGlobal())?1:0);
+                        stmt4.executeUpdate();
+                        stmt4.close();
+                    }
+                }
+            }
+            c.commit();
+            c.close();
+        }catch (Exception ex){
+            c.rollback();
+            throw ex;
+        }
+    }
+
+    public List<String> getAllVariables(boolean globals) {
+        List<String> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT PARAM_NAME from RESPONSE_OUTPUT WHERE IS_GLOBAL = ?");
+                stmt.setInt(1,(globals?1:0));
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    String name = rq.getString(1);
+                    res.add(name);
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 }

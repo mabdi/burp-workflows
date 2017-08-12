@@ -114,7 +114,7 @@ public class TabSequnces extends AbstractTab {
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     SqliteHelper db = new SqliteHelper();
-                    if(db.isPossibleToDeleteSequence(id)){
+                    if(!db.isPossibleToDeleteSequence(id)){
                         JOptionPane.showMessageDialog(TabSequnces.this,"The Sequence is used somewhere.","Oops!",JOptionPane.ERROR_MESSAGE);
                         return;
                     }

@@ -14,7 +14,6 @@ public class RequestListModelObject {
 //    private byte[] request;
 //    private byte[] response;
     private IHttpService httpService;
-    private String title;
     private IRequestInfo analysed;
     private Request requestObject;
 
@@ -29,7 +28,6 @@ public class RequestListModelObject {
         this.httpService = rq.getHttpService();
         BurpExtender ext = BurpExtender.getInstance();
         this.analysed = ext.getHelpers().analyzeRequest(httpService,requestObject.getRequest());
-        this.title = analysed.getMethod() + "  " + analysed.getUrl().getPath();
     }
 
     public RequestListModelObject(IHttpRequestResponse reqres) {
@@ -42,12 +40,11 @@ public class RequestListModelObject {
         this.requestObject = new Request(url,reqres.getRequest(),reqres.getResponse(),-1 );
         this.httpService = reqres.getHttpService();
         this.analysed = BurpExtender.getInstance().getHelpers().analyzeRequest(reqres);
-        this.title = analysed.getMethod() + "  " + analysed.getUrl().getPath();
     }
 
     @Override
     public String toString() {
-        return title;
+        return requestObject.toString();
     }
 
     public IHttpService getHttpService() {
@@ -67,9 +64,11 @@ public class RequestListModelObject {
     }
 
     public void setRequest(byte[] request) {
-        BurpExtender ext = BurpExtender.getInstance();
-        this.analysed = ext.getHelpers().analyzeRequest(httpService,request);
-        this.title = analysed.getMethod() + "  " + analysed.getUrl().getPath();
+        getRequestObject().setRequest(request);
+//        BurpExtender ext = BurpExtender.getInstance();
+//
+//        this.analysed = ext.getHelpers().analyzeRequest(httpService,request);
+//        this.title = analysed.getMethod() + "  " + analysed.getUrl().getPath();
     }
 
     public Request getRequestObject() {

@@ -3,6 +3,7 @@ package com.behsazan.model.entity;
 import burp.BurpExtender;
 import burp.IHttpService;
 import burp.IRequestInfo;
+import burp.IResponseInfo;
 import com.behsazan.model.DataUtils;
 
 import java.net.URL;
@@ -17,7 +18,9 @@ public class Request {
     private byte[] response;
     private URL url;
     private int id;
-    private IRequestInfo analyzed;
+    private IRequestInfo analyzedRequest;
+    private IResponseInfo analyzedResponse;
+    private IHttpService httpService;
 
     public Request(URL url, byte[] request,byte[] response, int order) {
         this.url = url;
@@ -46,11 +49,17 @@ public class Request {
 
     public void setResponse(byte[] response) {
         this.response = response;
+        analyzedResponse = null;
     }
 
     public void setRequest(byte[] request) {
         this.request = request;
-        analyzed = null;
+        analyzedRequest = null;
+    }
+
+    @Override
+    public String toString() {
+        return getAnalysedRequest().getMethod() + "  " + getAnalysedRequest().getUrl().getPath();
     }
 
     public URL getUrl() {
@@ -70,7 +79,10 @@ public class Request {
     }
 
     public IHttpService getHttpService() {
-        return DataUtils.makeHttpService(url);
+        if(httpService == null){
+            httpService = DataUtils.makeHttpService(url);
+        }
+        return httpService;
     }
 
     public void setId(int id) {
@@ -81,12 +93,21 @@ public class Request {
         return id;
     }
 
-    public IRequestInfo getAnalysed() {
-        if(analyzed!=null){
-            return analyzed;
+    public IRequestInfo getAnalysedRequest() {
+        if(analyzedRequest !=null){
+            return analyzedRequest;
         }
         BurpExtender ext = BurpExtender.getInstance();
-        analyzed = ext.getHelpers().analyzeRequest(request);
-        return analyzed;
+        analyzedRequest = ext.getHelpers().analyzeRequest(getHttpService(),request);
+        return analyzedRequest;
+    }
+
+    public IResponseInfo getAnalysedResponse() {
+        if(analyzedResponse !=null){
+            return analyzedResponse;
+        }
+        BurpExtender ext = BurpExtender.getInstance();
+        analyzedResponse = ext.getHelpers().analyzeResponse(response);
+        return analyzedResponse;
     }
 }
