@@ -45,7 +45,12 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
     }
 
     public TestCase_Sequence setData(TestCase_Sequence sequence){
-        this.sequence = new TestCase_Sequence(sequence.getSequence());
+        ArrayList<TestCase_Request> requests = new ArrayList<TestCase_Request>();
+        for(TestCase_Request seq : sequence.getRequests()){
+            requests.add(new TestCase_Request(seq.getId(),seq.getRequest(),seq.getInputParams(),seq.getOutputParams(),seq.getModifiedRequest()));
+        }
+        this.sequence = new TestCase_Sequence(sequence.getId(),sequence.getSequence(),sequence.getUrl(),
+                sequence.getBase1(),sequence.getBase2(),sequence.getCookie(),requests);
         for (TestCase_Request obj :
                 sequence.getRequests()) {
             modelRequests.addElement(obj);

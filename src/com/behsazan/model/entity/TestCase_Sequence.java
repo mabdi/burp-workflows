@@ -18,22 +18,39 @@ public class TestCase_Sequence {
     private String base2;
     private String cookie;
     private int Id;
+    private TestCase testCase;
 
-    public TestCase_Sequence(Sequence sequence) {
+    public TestCase_Sequence(int id, Sequence sequence , URL url, String base1, String base2, String cookie, List<TestCase_Request> requests ) {
+        this.Id = id;
         this.sequence = sequence;
-        this.requests = new ArrayList<>();
+        this.url = url;
+        this.base1 = base1;
+        this.base2 = base2;
+        this.cookie = cookie;
+        this.requests = requests;
+        for (TestCase_Request ri : requests ) {
+            ri.setTestCaseSequence(this);
+        }
+    }
+
+    public static TestCase_Sequence initBySequence(Sequence sequence) {
+
+
+        List<TestCase_Request> requests = new ArrayList<>();
         for (Request rq : sequence.getRequest()) {
-            requests.add(new TestCase_Request(rq));
+            requests.add(TestCase_Request.getInstaceFromRequest(rq));
         }
         Request req1 = sequence.getRequest().get(0);
+        URL url = null;
         try {
-            setUrl(new URL(DataUtils.getRootAddress(req1)));
+            url = new URL(DataUtils.getRootAddress(req1));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        setBase1(DataUtils.getBasePath(req1));
-        setBase2(DataUtils.getBasePath(req1));
-        setCookie(DataUtils.getCookie(req1));
+
+        TestCase_Sequence tsq = new TestCase_Sequence(-1,sequence,url,DataUtils.getBasePath(req1),DataUtils.getBasePath(req1),
+                DataUtils.getCookie(req1),requests);
+        return tsq;
     }
 
     public Sequence getSequence() {
@@ -82,5 +99,13 @@ public class TestCase_Sequence {
 
     public void setId(int id) {
         Id = id;
+    }
+
+    public TestCase getTestCase() {
+        return testCase;
+    }
+
+    public void setTestCase(TestCase testCase) {
+        this.testCase = testCase;
     }
 }

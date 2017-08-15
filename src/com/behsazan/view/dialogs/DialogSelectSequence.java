@@ -20,7 +20,6 @@ import java.util.List;
  */
 public class DialogSelectSequence extends AbstractDialog {
 
-    private ArrayList<Integer> listUsed;
     private JPanel buttonsPanel;
     private List<SequenceListModelObject> selectedItem;
     private JList<SequenceListModelObject> listSequences;
@@ -31,25 +30,10 @@ public class DialogSelectSequence extends AbstractDialog {
     }
 
 
-    public void setData(DefaultListModel<SequenceListModelObject> notshow){
-        this.listUsed = new ArrayList<Integer>();
-        Enumeration<SequenceListModelObject> notshowList = notshow.elements();
-        while(notshowList.hasMoreElements()){
-            SequenceListModelObject el = notshowList.nextElement();
-            listUsed.add(el.getSequence().getId());
-        }
+    public void setData(){
         java.util.List<Sequence> allSeq = new SqliteHelper().getAllSequences();
         for (Sequence seq : allSeq) {
-            boolean doadd = true;
-            for (int i = 0; i < listUsed.size(); i++) {
-                if(seq.getId() == listUsed.get(i)){
-                    doadd = false;
-                    break;
-                }
-            }
-            if(doadd) {
-                modelList.addElement(new SequenceListModelObject(seq));
-            }
+            modelList.addElement(new SequenceListModelObject(seq));
         }
     }
 

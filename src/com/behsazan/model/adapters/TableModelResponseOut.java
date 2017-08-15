@@ -50,7 +50,7 @@ public class TableModelResponseOut extends AbstractTableModel {
         return "";
     }
 
-    public void changeData(ArrayList<ResponseOut> outputParams) {
+    public void changeData(List<ResponseOut> outputParams) {
         this.data = outputParams;
         fireTableDataChanged();
     }

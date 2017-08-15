@@ -1,5 +1,7 @@
 package com.behsazan.model.entity;
 
+import com.behsazan.model.sqlite.SqliteHelper;
+
 import java.util.List;
 
 /**
@@ -7,20 +9,15 @@ import java.util.List;
  */
 public class TestCase {
     private String name;
-    private String base1;
-    private String base2;
-    private String url;
-    private String cookie;
     private List<TestCase_Sequence> reqs;
     private int Id;
 
-    public TestCase(String name, String base1, String base2, String url, String cookie, List<TestCase_Sequence> reqs) {
+    public TestCase(String name, List<TestCase_Sequence> reqs) {
         this.name = name;
-        this.base1 = base1;
-        this.base2 = base2;
-        this.url = url;
-        this.cookie = cookie;
         this.reqs = reqs;
+        for (TestCase_Sequence tcs : reqs) {
+            tcs.setTestCase(this);
+        }
     }
 
     public String getName() {
@@ -31,37 +28,6 @@ public class TestCase {
         this.name = name;
     }
 
-    public String getBase1() {
-        return base1;
-    }
-
-    public void setBase1(String base1) {
-        this.base1 = base1;
-    }
-
-    public String getBase2() {
-        return base2;
-    }
-
-    public void setBase2(String base2) {
-        this.base2 = base2;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getCookie() {
-        return cookie;
-    }
-
-    public void setCookie(String cookie) {
-        this.cookie = cookie;
-    }
 
     public List<TestCase_Sequence> getReqs() {
         return reqs;
@@ -77,5 +43,9 @@ public class TestCase {
 
     public void setId(int id) {
         Id = id;
+    }
+
+    public static TestCase getById(int id) {
+        return new SqliteHelper().getTestCaseById(id);
     }
 }

@@ -203,7 +203,7 @@ public class DialogRequestInput extends AbstractDialog{
     }
 
     public RequestIn getData(TestCase_Request request) {
-        requestIn = new RequestIn(-1, getSelectedType(), txtPlaceHolder.getText(),txtValues.getText(),request );
+        requestIn = new RequestIn(-1, getSelectedType(), txtPlaceHolder.getText(),txtValues.getText() );
         initData();
         setVisible(true);
         return result;

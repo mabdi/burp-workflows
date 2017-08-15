@@ -4,6 +4,7 @@ import burp.BurpExtender;
 import com.behsazan.model.adapters.TableModelTestCases;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.abstracts.AbstractTab;
+import com.behsazan.view.dialogs.DialogTestCaseEdit;
 import com.behsazan.view.dialogs.DialogTestCaseNew;
 import com.behsazan.view.dialogs.DialogTestCasePlay;
 
@@ -67,7 +68,8 @@ public class TabTestCases extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogTestCasePlay dlg = new DialogTestCasePlay(TabTestCases.this,id);
+                    DialogTestCaseEdit dlg = new DialogTestCaseEdit(TabTestCases.this);
+                    dlg.initData(id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
                         public void windowClosed(WindowEvent e) {
@@ -88,7 +90,7 @@ public class TabTestCases extends AbstractTab {
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     int response = JOptionPane.showConfirmDialog(TabTestCases.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
-                        new SqliteHelper().deleteSequence(id);
+                        new SqliteHelper().deleteTestCase(id);
                         refreshMainView();
                     }
                 }

@@ -142,7 +142,7 @@ public class DialogResponseOutput extends AbstractDialog {
 
     public ResponseOut getData(TestCase_Request request){
         initData();
-        responseOut = new ResponseOut(-1,getSelectedType(),txtPlaceHolder.getText(),txtValues.getText(),checkBoxGlobal.isSelected(),request);
+        responseOut = new ResponseOut(-1,getSelectedType(),txtPlaceHolder.getText(),txtValues.getText(),checkBoxGlobal.isSelected());
         setVisible(true);
         return result;
     }

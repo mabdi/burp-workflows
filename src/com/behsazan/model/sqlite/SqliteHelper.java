@@ -134,8 +134,8 @@ public class SqliteHelper {
         String createTableTestCaseSequence = "DROP TABLE IF EXISTS TESTCASE_SEQUENCE;"+
                 " CREATE TABLE TESTCASE_SEQUENCE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " TID           INTEGER    NOT NULL, " +
-                " SID           INTEGER    NOT NULL, " +
+                " TESTCASE_ID           INTEGER    NOT NULL, " +
+                " SEQUENCE_ID           INTEGER    NOT NULL, " +
                 " URL           TEXT    NOT NULL, " +
                 " PATH_BASE1           TEXT    NOT NULL, " +
                 " PATH_BASE2           TEXT    NOT NULL, " +
@@ -144,14 +144,14 @@ public class SqliteHelper {
         String createTableTestCaseRequest = "DROP TABLE IF EXISTS TESTCASE_REQUEST;"+
                 " CREATE TABLE TESTCASE_REQUEST " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " TID           INTEGER    NOT NULL, " +
-                " TSID           INTEGER    NOT NULL, " +
+                " TESTCASE_SEQUENCE_ID           INTEGER    NOT NULL, " +
+                " REQUEST_ID           INTEGER    NOT NULL, " +
                 " REQUEST           BLOB    NOT NULL " +
                 " )";
         String createTableRequestIn = "DROP TABLE IF EXISTS REQUEST_INPUT;"+
                 " CREATE TABLE REQUEST_INPUT " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " RSID           INTEGER    NOT NULL, " +
+                " TESTCASE_REQUEST_ID           INTEGER    NOT NULL, " +
                 " PLACE_HOLDER        TEXT NOT NULL, " +
                 " PARAM_PARAMS        TEXT NOT NULL, " +
                 " PARAM_TYPE      INTEGER NOT NULL " +
@@ -159,7 +159,7 @@ public class SqliteHelper {
         String createTableResponseOut = "DROP TABLE IF EXISTS RESPONSE_OUTPUT;"+
                 " CREATE TABLE RESPONSE_OUTPUT " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " RSID           INTEGER    NOT NULL, " +
+                " TESTCASE_REQUEST_ID           INTEGER    NOT NULL, " +
                 " IS_GLOBAL        INTEGER NOT NULL, " +
                 " PARAM_NAME        TEXT NOT NULL, " +
                 " PARAM_PARAMS        TEXT NOT NULL, " +
@@ -205,7 +205,8 @@ public class SqliteHelper {
     public Vector<Vector<Object>> getAllSequences_Table() throws SQLException {
         Connection c = getConnection();
         Statement stmt = c.createStatement();
-        ResultSet allRequests = stmt.executeQuery("SELECT ID as Id,NAME as Name,REQUEST_COUNT as 'Number Of Requests',FIRST_URL as 'First Url',LAST_URL as 'Last Url' from SEQUENCE");
+        ResultSet allRequests = stmt.executeQuery("SELECT ID as Id,NAME as Name,REQUEST_COUNT as 'Number Of Requests',"+
+                " FIRST_URL as 'First Url',LAST_URL as 'Last Url' from SEQUENCE");
         int columnCount = allRequests.getMetaData().getColumnCount();
         Vector<Vector<Object>> data = new Vector<Vector<Object>>();
         while (allRequests.next()) {
@@ -453,7 +454,8 @@ public class SqliteHelper {
         Connection c = getConnection();
         try {
             c.setAutoCommit(false);
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO TESTCASE (NAME,SEQUENCE_COUNT,REQUEST_COUNT) VALUES (?,?,?)");
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO TESTCASE "+
+                    "(NAME,SEQUENCE_COUNT,REQUEST_COUNT) VALUES (?,?,?)");
             stmt.setString(1, testCase.getName());
             stmt.setInt(2, testCase.getReqs().size());
             int reqs = 0;
@@ -469,7 +471,8 @@ public class SqliteHelper {
             rs1.close();
             stmt.close();
             for (TestCase_Sequence sq : testCase.getReqs()) {
-                PreparedStatement stmt2 = c.prepareStatement("INSERT INTO TESTCASE_SEQUENCE (TID,SID,URL,PATH_BASE1,PATH_BASE2,COOKIE) VALUES (?,?,?,?,?,?)");
+                PreparedStatement stmt2 = c.prepareStatement("INSERT INTO TESTCASE_SEQUENCE "+
+                        "(TESTCASE_ID,SEQUENCE_ID,URL,PATH_BASE1,PATH_BASE2,COOKIE) VALUES (?,?,?,?,?,?)");
                 stmt2.setInt(1, testCase.getId());
                 stmt2.setInt(2, sq.getSequence().getId());
                 stmt2.setString(3, sq.getUrl().toString());
@@ -486,7 +489,8 @@ public class SqliteHelper {
                 rs2.close();
 
                 for (TestCase_Request rq : sq.getRequests()) {
-                    PreparedStatement stmt3 = c.prepareStatement("INSERT INTO TESTCASE_REQUEST (TID,TSID,REQUEST) VALUES (?,?,?)");
+                    PreparedStatement stmt3 = c.prepareStatement("INSERT INTO TESTCASE_REQUEST "+
+                            "(TESTCASE_SEQUENCE_ID,REQUEST_ID,REQUEST) VALUES (?,?,?)");
                     stmt3.setInt(1, testCase.getId());
                     stmt3.setInt(2, sq.getId());
                     stmt3.setBytes(3, rq.getModifiedRequest());
@@ -501,7 +505,8 @@ public class SqliteHelper {
                     rq.setId(newId);
 
                     for (RequestIn paramIn: rq.getInputParams()) {
-                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT (RSID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE) VALUES (?,?,?,?)");
+                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT "+
+                                "(RSID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE) VALUES (?,?,?,?)");
                         stmt4.setInt(1, rq.getId());
                         stmt4.setString(2, paramIn.getPlaceHoder());
                         stmt4.setString(3, paramIn.getTxtValue());
@@ -510,7 +515,8 @@ public class SqliteHelper {
                         stmt4.close();
                     }
                     for (ResponseOut paramOut: rq.getOutputParams()) {
-                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT (RSID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL) VALUES (?,?,?,?,?)");
+                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT "+
+                                "(RSID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL) VALUES (?,?,?,?,?)");
                         stmt4.setInt(1, rq.getId());
                         stmt4.setString(2, paramOut.getName());
                         stmt4.setString(3, paramOut.getParam());
@@ -556,5 +562,248 @@ public class SqliteHelper {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public void deleteTestCase(int id) {
+        // TODO -- delete all dependent request and sequences
+    }
+
+    public boolean isTestCaseNameUsed(String name) {
+        Connection c = null;
+        try {
+            c = getConnection();
+            PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) from TESTCASE WHERE NAME =?");
+            stmt.setString(1,name);
+            ResultSet allRequests = stmt.executeQuery();
+            allRequests.next();
+            boolean res = allRequests.getInt(1)>0;
+            allRequests.close();
+            stmt.close();
+            c.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+
+    public TestCase getTestCaseById(int id) {
+        TestCase res = null;
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT from TESTCASE WHERE ID=?");
+                stmt.setInt(1, id);
+                rq = stmt.executeQuery();
+                if (!rq.next()){
+                    res = null;
+                }else {
+                    String name = rq.getString(2);
+                    List<TestCase_Sequence> reqs = getTestCaseSequenceById(id);
+                    TestCase s = new TestCase(name, reqs);
+                    s.setId(id);
+
+                    res = s;
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    private List<TestCase_Sequence> getTestCaseSequenceById(int id) {
+        List<TestCase_Sequence> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,TESTCASE_ID,SEQUENCE_ID,URL,PATH_BASE1,PATH_BASE2,COOKIE "+
+                        "from TESTCASE_SEQUENCE WHERE TESTCASE_ID= ?");
+                stmt.setInt(1, id);
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    int record_id = rq.getInt(1);
+                    int sid = rq.getInt(3);
+                    String url = rq.getString(4);
+                    String base1 = rq.getString(5);
+                    String base2 = rq.getString(6);
+                    String cookie = rq.getString(7);
+
+                    Sequence sequence = getSequenceById(sid);
+                    List<TestCase_Request> reqs = getTestCaseRequestById(record_id);
+                    TestCase_Sequence r = new TestCase_Sequence(record_id,sequence, new URL(url),base1,base2,cookie,reqs);
+
+                    res.add(r);
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    private List<TestCase_Request> getTestCaseRequestById(int testCaseSequenceId) {
+        List<TestCase_Request> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,TESTCASE_SEQUENCE_ID,REQUEST_ID,REQUEST  from TESTCASE_REQUEST "+
+                        "WHERE TESTCASE_SEQUENCE_ID = ?");
+                stmt.setInt(1, testCaseSequenceId);
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    int record_id = rq.getInt(1);
+                    int request_id = rq.getInt(3);
+                    byte[] data = rq.getBytes(4);
+                    List<RequestIn> inputParams = getRequestInFor(record_id);
+                    List<ResponseOut> outputParams = getResponseOutFor(record_id);
+                    Request request = getRequestById(request_id);
+                    TestCase_Request r = new TestCase_Request(record_id,request,inputParams,outputParams,data);
+                    res.add(r);
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    private List<ResponseOut> getResponseOutFor(int record_id) {
+        List<ResponseOut> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,TESTCASE_REQUEST_ID,IS_GLOBAL,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE  "+
+                        "from RESPONSE_OUTPUT WHERE TESTCASE_REQUEST_ID = ?");
+                stmt.setInt(1, record_id);
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    int id = rq.getInt(1);
+                    int type = rq.getInt(6);
+                    int isGlobal = rq.getInt(3);
+                    String params = rq.getString(5);
+                    String name = rq.getString(4);
+                    ResponseOut r = new ResponseOut(id,type,name,params,isGlobal==1);
+                    res.add(r);
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    private List<RequestIn> getRequestInFor(int record_id) {
+        List<RequestIn> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,TESTCASE_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE  "+
+                        "from REQUEST_INPUT WHERE TESTCASE_REQUEST_ID = ?");
+                stmt.setInt(1, record_id);
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    int id = rq.getInt(1);
+                    int type = rq.getInt(5);
+                    String params = rq.getString(4);
+                    String name = rq.getString(3);
+                    RequestIn r = new RequestIn(id,type,name,params);
+                    res.add(r);
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public Request getRequestById(int Id) {
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,SID,REQUEST,RESPONSE,URL,ORDER_NUM from REQUEST WHERE ID= ?");
+                stmt.setInt(1, Id);
+                rq = stmt.executeQuery();
+                if (rq.next()){
+                    String url = rq.getString(5);
+                    byte[] request = rq.getBytes(3);
+                    byte[] response = rq.getBytes(4);
+                    int order = rq.getInt(6);
+                    Request r = new Request(new URL(url),request,response,order);
+                    r.setId(rq.getInt(1));
+                    return  r;
+                }else{
+                    return null;
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

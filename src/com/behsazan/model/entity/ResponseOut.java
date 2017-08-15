@@ -46,13 +46,12 @@ public class ResponseOut {
     public String getTypeString() {
         return TYPES_STRING.get(type);
     }
-    public ResponseOut(int id,int type, String name, String param, boolean global, TestCase_Request testCase_request) {
+    public ResponseOut(int id,int type, String name, String param, boolean global) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.param = param;
         this.global = global;
-        this.testCase_request = testCase_request;
     }
 
     public void setId(int id) {

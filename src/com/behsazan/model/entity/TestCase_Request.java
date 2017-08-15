@@ -13,46 +13,64 @@ import java.util.List;
  * Created by admin on 08/07/2017.
  */
 public class TestCase_Request {
-    private final ArrayList<ResponseOut> outputParams;
+    private List<ResponseOut> outputParams;
     private List<RequestIn> inputParams;
-    private Document htmlDoc;
-    private Elements htmlforms;
     private Request request;
     private byte[] modifiedRequest;
     private int id;
+    private TestCase_Sequence testCaseSequence;
 
-    public TestCase_Request(Request rq) {
-        this.request = rq;
-        inputParams = new ArrayList<>();
-        outputParams = new ArrayList<>();
-        rq.getAnalysedRequest();
-        rq.getAnalysedResponse();
-//        initResponseOutForms(rq);
-        setModifiedRequest(rq.getRequest());
-    }
-
-    private void initResponseOutForms(Request rq) {
-        IResponseInfo response = rq.getAnalysedResponse();
-        if(!response.getInferredMimeType().equalsIgnoreCase("text/html")){
-            return;
+    public TestCase_Request(int id, Request request, List<RequestIn> inputParams, List<ResponseOut> outputParams, byte[] modifiedRequest) {
+        this.id = id;
+        this.request = request;
+        this.inputParams = inputParams;
+        this.outputParams = outputParams;
+        for (RequestIn ri : inputParams) {
+            ri.setTestCase_request(this);
         }
-        byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
-        System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);
-        String body = new String(bodyBytes, Charset.forName("UTF-8"));
-        this.htmlDoc = Jsoup.parse(body);
-        this.htmlforms = htmlDoc.getElementsByTag("form");
-
+        for (ResponseOut ro : outputParams) {
+            ro.setTestCase_request(this);
+        }
+        this.modifiedRequest = modifiedRequest;
     }
+
+    public static TestCase_Request getInstaceFromRequest(Request rq) {
+        TestCase_Request instance = new TestCase_Request(-1,rq,new ArrayList<RequestIn>(),new ArrayList<ResponseOut>(),rq.getRequest());
+        return instance;
+    }
+
+    public TestCase_Sequence getTestCaseSequence() {
+        return testCaseSequence;
+    }
+
+    public void setTestCaseSequence(TestCase_Sequence testCaseSequence) {
+        this.testCaseSequence = testCaseSequence;
+    }
+
+//    private void initResponseOutForms(Request rq) {
+//        IResponseInfo response = rq.getAnalysedResponse();
+//        if(!response.getInferredMimeType().equalsIgnoreCase("text/html")){
+//            return;
+//        }
+//        byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
+//        System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);
+//        String body = new String(bodyBytes, Charset.forName("UTF-8"));
+//        this.htmlDoc = Jsoup.parse(body);
+//        this.htmlforms = htmlDoc.getElementsByTag("form");
+//
+//    }
 
     public void addInputParam(RequestIn input){
         inputParams.add(input);
+        input.setTestCase_request(this);
     }
 
     public void addOutputParam(ResponseOut output){
         outputParams.add(output);
+        output.setTestCase_request(this);
     }
 
-    public ArrayList<ResponseOut> getOutputParams() {
+    public List<ResponseOut> getOutputParams() {
         return outputParams;
     }
 
