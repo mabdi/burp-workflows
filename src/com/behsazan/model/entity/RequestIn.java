@@ -74,7 +74,7 @@ public class RequestIn {
     }
 
     public String[] getTxtValueLines() {
-        if(txtValueLines != null) {
+        if(txtValueLines == null) {
             txtValueLines = txtValue.split("\n");
         }
         return txtValueLines;

@@ -111,6 +111,11 @@ public class DialogTestCaseNew extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogTestCaseNew.this,"Testcase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+                    if (!validateUpdate()) {
+                        JOptionPane.showMessageDialog(DialogTestCaseNew.this,"Invalid Data.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    updateSequenceDetail();
                     try {
                         List<TestCase_Sequence> ts = new ArrayList<>();
                         for (SequenceListModelObject req: reqs) {
@@ -147,12 +152,13 @@ public class DialogTestCaseNew extends AbstractDialog {
             sequncesJlist.addListSelectionListener(new ListSelectionListener() {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
-                    if(!validateUpdate()){
-                        sequncesJlist.setSelectedValue(activeSequence,true);
-                    }
-                    updateSequenceDetail();
-                    activeSequence = sequncesJlist.getSelectedValue();
-                    showSequenceDetail();
+
+                        if (!validateUpdate()) {
+                            sequncesJlist.setSelectedValue(activeSequence, true);
+                        }
+                        updateSequenceDetail();
+                        activeSequence = sequncesJlist.getSelectedValue();
+                        showSequenceDetail();
 
                 }
             });
@@ -218,7 +224,7 @@ public class DialogTestCaseNew extends AbstractDialog {
         }
         activeSequence.getTestCase_sequence().setBase1(txtBase1.getText());
         activeSequence.getTestCase_sequence().setBase2(txtBase2.getText());
-        activeSequence.getTestCase_sequence().setCookie(txtCookie.getText());
+        activeSequence.getTestCase_sequence().setCookie(txtCookie.getText().trim());
     }
 
     private void showSequenceDetail() {
@@ -323,9 +329,9 @@ public class DialogTestCaseNew extends AbstractDialog {
                 public void actionPerformed(ActionEvent e) {
                     DialogTestCaseRequests dlg = new DialogTestCaseRequests(DialogTestCaseNew.this);
                     TestCase_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getTestCase_sequence());
-                    if(data!=null){
-                        sequncesJlist.getSelectedValue().setTestCase_sequence(data);
-                    }
+//                    if(data!=null){
+//                        sequncesJlist.getSelectedValue().getTestCase_sequence().(data);
+//                    }
                 }
             });
 

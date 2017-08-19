@@ -96,7 +96,7 @@ public class DialogTestCasePlay extends AbstractDialog {
                 }
                 int order = 0;
                 for(Map<Integer,String> maps: pars){
-                    TestCaseInstance insta = new TestCaseInstance(testCase,maps, order);
+                    TestCaseInstance insta = new TestCaseInstance(tcase,maps, order);
                     testCaseInstances.add(insta);
                     publish(insta);
                 }
@@ -190,7 +190,8 @@ public class DialogTestCasePlay extends AbstractDialog {
                         forceStop = true;
                     }else {
                         forceStop = false;
-                        actionBtn.setText("Cancel");
+                        modelRequest.clear();
+                        actionBtn.setText("Stop");
                         runTest();
                     }
                 }
@@ -205,7 +206,6 @@ public class DialogTestCasePlay extends AbstractDialog {
         SwingWorker<Void,RequestListModelObject> worker = new SwingWorker<Void, RequestListModelObject>() {
             @Override
             protected Void doInBackground() throws Exception {
-                // TODO clean old run results
                 for (TestCaseInstance instance: testCaseInstances) {
                     if(forceStop){
                         break;
@@ -234,13 +234,15 @@ public class DialogTestCasePlay extends AbstractDialog {
                         List<ResponseOut> outPars = req.getOutputParams();
                         byte[] modReq = req.getModifiedRequest();
                         String[] msg = DataUtils.ExplodeRequest(modReq);
+                        msg = DataUtils.changeHost(msg,url.toString());
+                        msg = DataUtils.changeReferer(msg,url.toString());
+                        msg = DataUtils.changeUrlBase(msg,base1,base2);
+                        if(!cookie.isEmpty()) {
+                            msg = DataUtils.changeCookie(msg, cookie);
+                        }
                         for (RequestIn inPar : inPars) {
                             msg = DataUtils.applyParameter(msg,inPar,instance.getInitParamFor(inPar));
                         }
-                        msg = DataUtils.changeHost(msg,url.getHost());
-                        msg = DataUtils.changeReferer(msg,url.toString());
-                        msg = DataUtils.changeUrlBase(msg,base1,base2);
-                        msg = DataUtils.changeCookie(msg,cookie);
                         byte[] newRequest = DataUtils.buildRequest(msg);
                         IHttpService httpService = DataUtils.makeHttpService(url);
                         try {
@@ -264,7 +266,7 @@ public class DialogTestCasePlay extends AbstractDialog {
             @Override
             protected void process(List<RequestListModelObject> chunks) {
                 for (RequestListModelObject obj : chunks) {
-                    if(!instancesJlist.getSelectedValue().equals(obj.getTestInstance())) {
+                    if(instancesJlist.getSelectedValue() == null || !instancesJlist.getSelectedValue().equals(obj.getTestInstance())) {
                         instancesJlist.setSelectedValue(obj.getTestInstance(), true);
                     }
                     modelRequest.addElement(obj);
@@ -305,6 +307,7 @@ public class DialogTestCasePlay extends AbstractDialog {
         for(RequestListModelObject obj: currentlyDisplayedInstance.getRequestModelItem()){
             modelRequest.addElement(obj);
         }
+        jtableLocals.setModel(currentlyDisplayedInstance.localsToTableModel());
     }
 
     public JSplitPane getSplitPaneRequests() {
@@ -371,91 +374,19 @@ public class DialogTestCasePlay extends AbstractDialog {
 
     private void addTab_request() {
         IBurpExtenderCallbacks callbacks = getExt().getCallbacks();
-        requestViewer = callbacks.createMessageEditor(new IMessageEditorController() {
-            @Override
-            public IHttpService getHttpService() {
-                if(currentlyDisplayedRequest == null){
-                    return null;
-                }
-                return currentlyDisplayedRequest.getHttpService();
-            }
-
-            @Override
-            public byte[] getRequest() {
-                if(currentlyDisplayedRequest == null){
-                    return new byte[0];
-                }
-                return currentlyDisplayedRequest.getRequest();
-            }
-
-            @Override
-            public byte[] getResponse() {
-                if(currentlyDisplayedRequest == null){
-                    return new byte[0];
-                }
-                return currentlyDisplayedRequest.getResponse();
-            }
-        }, false);
+        requestViewer = callbacks.createMessageEditor(null, false);
         tabs.addTab("Request", requestViewer.getComponent());
     }
 
     private void addTab_response() {
         IBurpExtenderCallbacks callbacks = getExt().getCallbacks();
-        responseViewer = callbacks.createMessageEditor(new IMessageEditorController() {
-            @Override
-            public IHttpService getHttpService() {
-                if(currentlyDisplayedRequest == null){
-                    return null;
-                }
-                return currentlyDisplayedRequest.getHttpService();
-            }
-
-            @Override
-            public byte[] getRequest() {
-                if(currentlyDisplayedRequest == null){
-                    return new byte[0];
-                }
-                return currentlyDisplayedRequest.getRequest();
-            }
-
-            @Override
-            public byte[] getResponse() {
-                if(currentlyDisplayedRequest == null){
-                    return new byte[0];
-                }
-                return currentlyDisplayedRequest.getResponse();
-            }
-        }, true);
+        responseViewer = callbacks.createMessageEditor(null, false);
         tabs.addTab("Response", responseViewer.getComponent());
     }
 
     private void addTab_request_template() {
         IBurpExtenderCallbacks callbacks = getExt().getCallbacks();
-        requestTemplateViewer = callbacks.createMessageEditor(new IMessageEditorController() {
-            @Override
-            public IHttpService getHttpService() {
-                if(currentlyDisplayedRequest == null){
-                    return null;
-                }
-                return null;
-            }
-
-            @Override
-            public byte[] getRequest() {
-                if(currentlyDisplayedRequest == null){
-                    return new byte[0];
-                }
-                return currentlyDisplayedRequest.getTestRequest().getModifiedRequest();
-            }
-
-            @Override
-            public byte[] getResponse() {
-                if(currentlyDisplayedRequest == null){
-                    return new byte[0];
-                }
-                return new byte[0];
-            }
-        }, false);
+        requestTemplateViewer = callbacks.createMessageEditor(null, false);
         tabs.addTab("Request Template", requestTemplateViewer.getComponent());
     }
 
@@ -496,18 +427,15 @@ public class DialogTestCasePlay extends AbstractDialog {
 
     public JTable getJtableLocals() {
         if(jtableLocals== null){
-            modelLocals = new TableModelResponseOut();
             jtableLocals = new JTable();
-            jtableLocals.setModel(modelLocals);
         }
         return jtableLocals;
     }
 
     public JTable getJtableGlobals() {
         if(jtableGlobals== null){
-            modelGlobals = new TableModelResponseOut();
             jtableGlobals = new JTable();
-            jtableGlobals.setModel(modelGlobals);
+            jtableGlobals.setModel(TestCaseInstance.globalsToTableModel());
         }
         return jtableGlobals;
     }

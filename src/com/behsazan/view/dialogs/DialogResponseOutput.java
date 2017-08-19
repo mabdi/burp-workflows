@@ -59,7 +59,7 @@ public class DialogResponseOutput extends AbstractDialog {
                 if(comboType.getSelectedItem().equals(kvp.get(ResponseOut.TYPE_CAPTCHA))){
                     txtValues.setEnabled(false);
                 }else{
-                    txtValues.setVisible(true);
+                    txtValues.setEnabled(true);
                 }
             }
         });
@@ -72,6 +72,7 @@ public class DialogResponseOutput extends AbstractDialog {
         topPanel.add(comboType);
         topPanel.add(lblCookie);
         topPanel.add(txtValues);
+        topPanel.add(checkBoxGlobal);
 
         int PADD_WEST = 80;
         int PADD_EAST = -20;
@@ -97,7 +98,7 @@ public class DialogResponseOutput extends AbstractDialog {
 
         layoutTop.putConstraint(SpringLayout.WEST,checkBoxGlobal,PADD_WEST,SpringLayout.WEST,topPanel);
         layoutTop.putConstraint(SpringLayout.EAST,checkBoxGlobal,PADD_EAST,SpringLayout.EAST,topPanel);
-        layoutTop.putConstraint(SpringLayout.NORTH,checkBoxGlobal,0,SpringLayout.SOUTH,txtValues);
+        layoutTop.putConstraint(SpringLayout.NORTH,checkBoxGlobal,10,SpringLayout.SOUTH,txtValues);
 
 
         setLayout(new BorderLayout());

@@ -2,6 +2,9 @@ package com.behsazan.model.entity;
 
 import com.behsazan.model.adapters.RequestListModelObject;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.Map;
  */
 public class TestCaseInstance {
     private static Map<String,String> GLOBALS;
+    private static DefaultTableModel modelGlobal;
     private final TestCase testCase;
     private Map<Integer, String> initParams; // RequestIn -> String (variable name or constant)
     private Map<String,String> locals;
@@ -22,6 +26,7 @@ public class TestCaseInstance {
     }
 
     private final List<RequestListModelObject> requestModelItem;
+    private DefaultTableModel modelLocal;
 
     public TestCaseInstance(TestCase testCase, Map<Integer, String> maps, int order) {
 
@@ -39,6 +44,7 @@ public class TestCaseInstance {
 
     public void updateLocalVariable(String key, String value){
         locals.put(key,value);
+        localsToTableModel();
     }
 
     public String queryLocalVariable(String key){
@@ -47,6 +53,7 @@ public class TestCaseInstance {
 
     public static void updateGlobalVariable(String key, String value){
         GLOBALS.put(key,value);
+        globalsToTableModel();
     }
 
     public static String queryGlobalVariable(String key){
@@ -73,5 +80,33 @@ public class TestCaseInstance {
                 return queryGlobalVariable(val);
         }
         return val;
+    }
+
+    public static DefaultTableModel globalsToTableModel() {
+        if(modelGlobal==null) {
+            modelGlobal = new DefaultTableModel(
+                    new Object[]{"Key", "Value"}, 0
+            );
+        }
+        modelGlobal.getDataVector().removeAllElements();
+        for (Map.Entry<?,?> entry : GLOBALS.entrySet()) {
+            modelGlobal.addRow(new Object[] { entry.getKey(), entry.getValue() });
+        }
+        modelGlobal.fireTableDataChanged();
+        return modelGlobal;
+    }
+
+    public DefaultTableModel localsToTableModel() {
+        if(modelLocal == null) {
+            modelLocal = new DefaultTableModel(
+                    new Object[]{"Key", "Value"}, 0
+            );
+        }
+        modelLocal.getDataVector().removeAllElements();
+        for (Map.Entry<?,?> entry : locals.entrySet()) {
+            modelLocal.addRow(new Object[] { entry.getKey(), entry.getValue() });
+        }
+        modelLocal.fireTableDataChanged();
+        return modelLocal;
     }
 }

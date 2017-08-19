@@ -280,7 +280,7 @@ public class SqliteHelper {
         Connection c = null;
         try {
             c = getConnection();
-            PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) from TESTCASE_SEQUENCE WHERE SID =?");
+            PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) from TESTCASE_SEQUENCE WHERE SEQUENCE_ID =?");
             stmt.setInt(1,id);
             ResultSet allRequests = stmt.executeQuery();
             allRequests.next();
@@ -505,7 +505,7 @@ public class SqliteHelper {
 
                     for (RequestIn paramIn: rq.getInputParams()) {
                         PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT "+
-                                "(RSID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE) VALUES (?,?,?,?)");
+                                "(TESTCASE_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE) VALUES (?,?,?,?)");
                         stmt4.setInt(1, rq.getId());
                         stmt4.setString(2, paramIn.getPlaceHoder());
                         stmt4.setString(3, paramIn.getTxtValue());
@@ -515,7 +515,7 @@ public class SqliteHelper {
                     }
                     for (ResponseOut paramOut: rq.getOutputParams()) {
                         PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT "+
-                                "(RSID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL) VALUES (?,?,?,?,?)");
+                                "(TESTCASE_REQUEST_ID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL) VALUES (?,?,?,?,?)");
                         stmt4.setInt(1, rq.getId());
                         stmt4.setString(2, paramOut.getName());
                         stmt4.setString(3, paramOut.getParam());

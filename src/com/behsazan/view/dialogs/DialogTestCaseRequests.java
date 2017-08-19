@@ -20,7 +20,7 @@ import java.util.ArrayList;
 /**
  * Created by admin on 08/07/2017.
  */
-public class DialogTestCaseRequests extends AbstractDialog implements IMessageEditorController {
+public class DialogTestCaseRequests extends AbstractDialog {
     private TestCase_Sequence sequence;
     private TestCase_Sequence result;
     private JPanel buttonsPanel;
@@ -45,16 +45,17 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
     }
 
     public TestCase_Sequence setData(TestCase_Sequence sequence){
-        ArrayList<TestCase_Request> requests = new ArrayList<TestCase_Request>();
-        for(TestCase_Request seq : sequence.getRequests()){
-            requests.add(new TestCase_Request(seq.getId(),seq.getRequest(),seq.getInputParams(),seq.getOutputParams(),seq.getModifiedRequest()));
-        }
-        this.sequence = new TestCase_Sequence(sequence.getId(),sequence.getSequence(),sequence.getUrl(),
-                sequence.getBase1(),sequence.getBase2(),sequence.getCookie(),requests);
-        for (TestCase_Request obj :
-                sequence.getRequests()) {
+//        ArrayList<TestCase_Request> requests = new ArrayList<>();
+//        for(TestCase_Request seq : sequence.getRequests()){
+//            requests.add(new TestCase_Request(seq.getId(),seq.getRequest(),seq.getInputParams(),seq.getOutputParams(),seq.getModifiedRequest()));
+//        }
+//        this.sequence = new TestCase_Sequence(sequence.getId(),sequence.getSequence(),sequence.getUrl(),
+//                sequence.getBase1(),sequence.getBase2(),sequence.getCookie(),requests);
+        this.sequence = sequence;
+        for (TestCase_Request obj : sequence.getRequests()) {
             modelRequests.addElement(obj);
         }
+
         setVisible(true);
 
         return result;
@@ -64,6 +65,7 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
     protected void initUI() {
         setSize(1000, 700);
         setTitle("TestCase Sequence Requests");
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(getParentWindow());
 
         setLayout(new BorderLayout());
@@ -75,24 +77,26 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
     public JPanel getButtonsPanel() {
         if(buttonsPanel==null){
             buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            JButton cancelBtn = new JButton("Cancel");
+            JButton cancelBtn = new JButton("Close");
             cancelBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    result = null;dissmiss();
-                }
-            });
-            JButton addBtn = new JButton("Ok");
-            addBtn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    result = sequence;
+                    result = null;
+                    updateRequestDetail();
                     dissmiss();
-
                 }
             });
+//            JButton addBtn = new JButton("Ok");
+//            addBtn.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    result = sequence;
+//                    dissmiss();
+//
+//                }
+//            });
             buttonsPanel.add(cancelBtn);
-            buttonsPanel.add(addBtn);
+//            buttonsPanel.add(addBtn);
         }
         return buttonsPanel;
     }
@@ -103,7 +107,6 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
             splitPane.setLeftComponent(new JScrollPane(getRequestList()) );
             splitPane.setRightComponent(getVerticalSplitPane());
             splitPane.setDividerLocation(0.3);
-
         }
         return splitPane;
     }
@@ -116,9 +119,11 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
             listRequests.addListSelectionListener(new ListSelectionListener() {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
-                    updateRequestDetail();
-                    currentRequest = listRequests.getSelectedValue();
-                    showRequestDetail();
+                    if(e.getValueIsAdjusting()) {
+                        updateRequestDetail();
+                        currentRequest = listRequests.getSelectedValue();
+                        showRequestDetail();
+                    }
                 }
             });
         }
@@ -131,7 +136,10 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
     }
 
     private void showRequestDetail() {
-        requestViewer.setMessage(currentRequest.getRequest().getRequest(), true);
+        if(currentRequest.getModifiedRequest()==null){
+            currentRequest.setModifiedRequest(currentRequest.getRequest().getRequest());
+        }
+        requestViewer.setMessage(currentRequest.getModifiedRequest(), true);
         responseViewer.setMessage(currentRequest.getRequest().getResponse(),false);
         modelRequestIn.changeData(currentRequest.getInputParams());
         modelResponseOut.changeData(currentRequest.getOutputParams());
@@ -151,27 +159,12 @@ public class DialogTestCaseRequests extends AbstractDialog implements IMessageEd
         if(tabs == null){
             tabs = new JTabbedPane();
             IBurpExtenderCallbacks callbacks = BurpExtender.getInstance().getCallbacks();
-            requestViewer = callbacks.createMessageEditor(this, true);
-            responseViewer = callbacks.createMessageEditor(this, false);
+            requestViewer = callbacks.createMessageEditor(null, true);
+            responseViewer = callbacks.createMessageEditor(null, false);
             tabs.addTab("Request", requestViewer.getComponent());
             tabs.addTab("Response", responseViewer.getComponent());
         }
         return tabs;
-    }
-
-    @Override
-    public IHttpService getHttpService() {
-        return null;
-    }
-
-    @Override
-    public byte[] getRequest() {
-        return new byte[0];
-    }
-
-    @Override
-    public byte[] getResponse() {
-        return new byte[0];
     }
 
     public JTabbedPane getParametersTabs() {

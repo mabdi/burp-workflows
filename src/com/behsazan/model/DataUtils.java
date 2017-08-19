@@ -267,13 +267,21 @@ public class DataUtils {
         IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
         if(outPar.getType() == ResponseOut.TYPE_CAPTCHA){
             String captcha = showCaptcha(parent,obj);
-            instance.updateLocalVariable(outPar.getName(),captcha);
+            if(outPar.isGlobal()) {
+                instance.updateGlobalVariable(outPar.getName(),captcha);
+            } else {
+                instance.updateLocalVariable(outPar.getName(),captcha);
+            }
             return;
         }
         if(outPar.getType() == ResponseOut.TYPE_COOKIE){
             for (ICookie coo :response.getCookies()) {
-                if(coo.getName().equals(outPar.getParam())){
-                    instance.updateLocalVariable(outPar.getName(),coo.getValue());
+                if(coo.getName().equals("JSESSIONID")){
+                    if(outPar.isGlobal()) {
+                        instance.updateGlobalVariable(outPar.getName(),coo.getValue());
+                    } else {
+                        instance.updateLocalVariable(outPar.getName(),coo.getValue());
+                    }
                     return;
                 }
             }
@@ -284,20 +292,26 @@ public class DataUtils {
             Pattern p = Pattern.compile(outPar.getParam());
             Matcher m = p.matcher(allres);
             if(m.find()) {
-                instance.updateLocalVariable(outPar.getName(), m.group());
+                if(outPar.isGlobal()) {
+                    instance.updateGlobalVariable(outPar.getName(),m.group());
+                } else {
+                    instance.updateLocalVariable(outPar.getName(),m.group());
+                }
             }
             return;
         }
-        if(!response.getStatedMimeType().equalsIgnoreCase("text/html")){
-            return;
-        }
+
         byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
         System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);
         String body = new String(bodyBytes, Charset.forName("UTF-8"));
         Document htmlDoc = Jsoup.parse(body);
         if(outPar.getType() == ResponseOut.TYPE_HIDDEN){
             Elements hidden = htmlDoc.getElementsByTag("input[name=\""+outPar.getParam().replaceAll("\"","\\\"")+"\"]");
-            instance.updateLocalVariable(outPar.getName(),hidden.val());
+            if(outPar.isGlobal()) {
+                instance.updateGlobalVariable(outPar.getName(),hidden.val());
+            } else {
+                instance.updateLocalVariable(outPar.getName(),hidden.val());
+            }
             return;
         }
         if(outPar.getType() == ResponseOut.TYPE_CSS){
@@ -310,16 +324,18 @@ public class DataUtils {
             if(val.isEmpty()){
                 val = res.html();
             }
-            instance.updateLocalVariable(outPar.getName(),val);
+            if(outPar.isGlobal()) {
+                instance.updateGlobalVariable(outPar.getName(),val);
+            } else {
+                instance.updateLocalVariable(outPar.getName(),val);
+            }
             return;
         }
     }
 
     private static String showCaptcha(Component parent, RequestListModelObject obj) {
         IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
-        if(!response.getStatedMimeType().equalsIgnoreCase("image")){
-            return "";
-        }
+
         Request rq = obj.getRequestObject();
         byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
         System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);

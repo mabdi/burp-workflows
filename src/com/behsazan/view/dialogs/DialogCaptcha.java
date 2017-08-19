@@ -34,6 +34,7 @@ public class DialogCaptcha extends AbstractDialog {
     protected void initUI() {
         setTitle("Enter Captcha");
         setLayout(new BorderLayout());
+        setLocationRelativeTo(getParentWindow());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         add(getControlls(), BorderLayout.SOUTH);
         // TODO add a refresh Captcha button
@@ -59,7 +60,7 @@ public class DialogCaptcha extends AbstractDialog {
 
     public JTextField getTextField() {
         if(textField == null){
-            textField = new JTextField();
+            textField = new JTextField("",10);
         }
         return textField;
     }
