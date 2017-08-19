@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
  */
 public class Settings {
 
+    public static final long DELAY = 300;
     public static String TADAROKAT_protocol = "http";
     public static String TADAROKAT_HOST = "172.16.27.12";
     public static int TADAROKAT_PORT = 9080;

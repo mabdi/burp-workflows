@@ -3,6 +3,8 @@ package com.behsazan.model.adapters;
 import burp.*;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.Request;
+import com.behsazan.model.entity.TestCaseInstance;
+import com.behsazan.model.entity.TestCase_Request;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,6 +18,8 @@ public class RequestListModelObject {
     private IHttpService httpService;
     private IRequestInfo analysed;
     private Request requestObject;
+    private TestCaseInstance testInstance;
+    private TestCase_Request testRequest;
 
     public RequestListModelObject(IInterceptedProxyMessage reqres) {
         this(reqres.getMessageInfo());
@@ -73,5 +77,21 @@ public class RequestListModelObject {
 
     public Request getRequestObject() {
         return requestObject;
+    }
+
+    public void setTestInstance(TestCaseInstance testInstance) {
+        this.testInstance = testInstance;
+    }
+
+    public TestCaseInstance getTestInstance() {
+        return testInstance;
+    }
+
+    public void setTestRequest(TestCase_Request testRequest) {
+        this.testRequest = testRequest;
+    }
+
+    public TestCase_Request getTestRequest() {
+        return testRequest;
     }
 }

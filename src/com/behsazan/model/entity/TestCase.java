@@ -2,6 +2,7 @@ package com.behsazan.model.entity;
 
 import com.behsazan.model.sqlite.SqliteHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,13 +10,13 @@ import java.util.List;
  */
 public class TestCase {
     private String name;
-    private List<TestCase_Sequence> reqs;
+    private List<TestCase_Sequence> seqs;
     private int Id;
 
-    public TestCase(String name, List<TestCase_Sequence> reqs) {
+    public TestCase(String name, List<TestCase_Sequence> seqs) {
         this.name = name;
-        this.reqs = reqs;
-        for (TestCase_Sequence tcs : reqs) {
+        this.seqs = seqs;
+        for (TestCase_Sequence tcs : seqs) {
             tcs.setTestCase(this);
         }
     }
@@ -29,12 +30,12 @@ public class TestCase {
     }
 
 
-    public List<TestCase_Sequence> getReqs() {
-        return reqs;
+    public List<TestCase_Sequence> getSeqs() {
+        return seqs;
     }
 
-    public void setReqs(List<TestCase_Sequence> reqs) {
-        this.reqs = reqs;
+    public void setSeqs(List<TestCase_Sequence> seqs) {
+        this.seqs = seqs;
     }
 
     public int getId() {
@@ -48,4 +49,5 @@ public class TestCase {
     public static TestCase getById(int id) {
         return new SqliteHelper().getTestCaseById(id);
     }
+
 }

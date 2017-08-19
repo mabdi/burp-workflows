@@ -4,7 +4,6 @@ import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.*;
 
-import javax.sql.rowset.serial.SerialBlob;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -457,9 +456,9 @@ public class SqliteHelper {
             PreparedStatement stmt = c.prepareStatement("INSERT INTO TESTCASE "+
                     "(NAME,SEQUENCE_COUNT,REQUEST_COUNT) VALUES (?,?,?)");
             stmt.setString(1, testCase.getName());
-            stmt.setInt(2, testCase.getReqs().size());
+            stmt.setInt(2, testCase.getSeqs().size());
             int reqs = 0;
-            for (TestCase_Sequence tr : testCase.getReqs()) {
+            for (TestCase_Sequence tr : testCase.getSeqs()) {
                 reqs += tr.getRequests().size();
             }
             stmt.setInt(3, reqs);
@@ -470,7 +469,7 @@ public class SqliteHelper {
             testCase.setId(newId);
             rs1.close();
             stmt.close();
-            for (TestCase_Sequence sq : testCase.getReqs()) {
+            for (TestCase_Sequence sq : testCase.getSeqs()) {
                 PreparedStatement stmt2 = c.prepareStatement("INSERT INTO TESTCASE_SEQUENCE "+
                         "(TESTCASE_ID,SEQUENCE_ID,URL,PATH_BASE1,PATH_BASE2,COOKIE) VALUES (?,?,?,?,?,?)");
                 stmt2.setInt(1, testCase.getId());

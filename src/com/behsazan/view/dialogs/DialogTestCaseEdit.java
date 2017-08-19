@@ -50,7 +50,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
 
     public void initData(int testCaseid) {
         this.testCase = TestCase.getById(testCaseid);
-        for (TestCase_Sequence seq: testCase.getReqs()) {
+        for (TestCase_Sequence seq: testCase.getSeqs()) {
             SequenceListModelObject s = new SequenceListModelObject(seq.getSequence());
             modelSequeces.addElement(s);
             sequncesJlist.setSelectedValue(s,true);

@@ -1,11 +1,20 @@
 package com.behsazan.model;
 
 import burp.*;
+import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
+import com.behsazan.model.entity.RequestIn;
+import com.behsazan.model.entity.ResponseOut;
+import com.behsazan.model.entity.TestCaseInstance;
 import com.behsazan.model.settings.Settings;
+import com.behsazan.view.dialogs.DialogCaptcha;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -13,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -242,4 +252,79 @@ public class DataUtils {
         return null;
     }
 
+    public static String[] applyParameter(String[] msg, RequestIn inPar, String value) {
+        for (int i=0;i<msg.length;i++) {
+            String line = msg[i];
+            if (line.contains(inPar.getPlaceHoder())) {
+                msg[i] = line.replace(inPar.getPlaceHoder(),value);
+            }
+        }
+        return msg;
+    }
+
+    public static void setOutParameters(Component parent,RequestListModelObject obj, ResponseOut outPar, TestCaseInstance instance) {
+        Request rq = obj.getRequestObject();
+        IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
+        if(outPar.getType() == ResponseOut.TYPE_CAPTCHA){
+            String captcha = showCaptcha(parent,obj);
+            instance.updateLocalVariable(outPar.getName(),captcha);
+            return;
+        }
+        if(outPar.getType() == ResponseOut.TYPE_COOKIE){
+            for (ICookie coo :response.getCookies()) {
+                if(coo.getName().equals(outPar.getParam())){
+                    instance.updateLocalVariable(outPar.getName(),coo.getValue());
+                    return;
+                }
+            }
+            return;
+        }
+        if(outPar.getType() == ResponseOut.TYPE_REGEX){
+            String allres = new String(rq.getResponse(), Charset.forName("UTF-8"));
+            Pattern p = Pattern.compile(outPar.getParam());
+            Matcher m = p.matcher(allres);
+            if(m.find()) {
+                instance.updateLocalVariable(outPar.getName(), m.group());
+            }
+            return;
+        }
+        if(!response.getStatedMimeType().equalsIgnoreCase("text/html")){
+            return;
+        }
+        byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
+        System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);
+        String body = new String(bodyBytes, Charset.forName("UTF-8"));
+        Document htmlDoc = Jsoup.parse(body);
+        if(outPar.getType() == ResponseOut.TYPE_HIDDEN){
+            Elements hidden = htmlDoc.getElementsByTag("input[name=\""+outPar.getParam().replaceAll("\"","\\\"")+"\"]");
+            instance.updateLocalVariable(outPar.getName(),hidden.val());
+            return;
+        }
+        if(outPar.getType() == ResponseOut.TYPE_CSS){
+            Elements res = htmlDoc.select(outPar.getParam());
+            // TODO get a second parameter for attribute of element, after css selector
+            String val = res.val();
+            if(val.isEmpty()){
+                val = res.text();
+            }
+            if(val.isEmpty()){
+                val = res.html();
+            }
+            instance.updateLocalVariable(outPar.getName(),val);
+            return;
+        }
+    }
+
+    private static String showCaptcha(Component parent, RequestListModelObject obj) {
+        IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
+        if(!response.getStatedMimeType().equalsIgnoreCase("image")){
+            return "";
+        }
+        Request rq = obj.getRequestObject();
+        byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
+        System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);
+        BufferedImage img = getImageObject(bodyBytes);
+        DialogCaptcha dlg = new DialogCaptcha(parent);
+        return dlg.setData(img);
+    }
 }

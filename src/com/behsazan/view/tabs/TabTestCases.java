@@ -105,7 +105,8 @@ public class TabTestCases extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogTestCasePlay dlg = new DialogTestCasePlay(TabTestCases.this,id);
+                    DialogTestCasePlay dlg = new DialogTestCasePlay(TabTestCases.this);
+                    dlg.setData(id);
 
                 }
             });

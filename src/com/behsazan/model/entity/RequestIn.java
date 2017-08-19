@@ -21,6 +21,8 @@ public class RequestIn {
         TYPES_STRING.put(TYPE_GLOBAL,"From Global Variables");
     }
 
+    private String[] txtValueLines;
+
     public static Map<Integer, String> getTypesString() {
         return TYPES_STRING;
     }
@@ -69,6 +71,13 @@ public class RequestIn {
 
     public String getTxtValue() {
         return txtValue;
+    }
+
+    public String[] getTxtValueLines() {
+        if(txtValueLines != null) {
+            txtValueLines = txtValue.split("\n");
+        }
+        return txtValueLines;
     }
 
     public void setTxtValue(String txtValue) {
