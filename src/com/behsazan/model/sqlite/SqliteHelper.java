@@ -97,6 +97,10 @@ public class SqliteHelper {
             update_v2(stmt);
             ver++;
         }
+        if(ver<3){
+            update_v3(stmt);
+            ver++;
+        }
     }
 
     private void update_v1(Statement stmt) throws SQLException {
@@ -171,6 +175,43 @@ public class SqliteHelper {
         stmt.executeUpdate(createTableResponseOut);
     }
 
+    private void update_v3(Statement stmt) throws SQLException {
+        String createTableGlobals = "DROP TABLE IF EXISTS GLOBAL_VARIABLES;"+
+                "CREATE TABLE GLOBAL_VARIABLES " +
+                "(KEY  TEXT PRIMARY KEY," +
+                " VALUE         TEXT NOT NULL)";
+        String createTableLogins = "DROP TABLE IF EXISTS LOGIN;"+
+                "CREATE TABLE LOGIN " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " USER_NAME        TEXT NOT NULL, " +
+                " PASSWORD        TEXT NOT NULL, " +
+                " SEQUENCE_ID        INTEGER NOT NULL, " +
+                " OUT_PARAM_NAME        TEXT NOT NULL, " +
+                " SESSION_VALUE        TEXT NOT NULL, " +
+                " SESSION_CREATE_TIME         INTEGER NOT NULL)";
+        String createTableSuite = "DROP TABLE IF EXISTS SUITE;"+
+                "CREATE TABLE SUITE " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " NAME        TEXT NOT NULL, " +
+                " DESCRIPTION        TEXT NOT NULL, " +
+                " CATEGORY        TEXT NOT NULL, " +
+                ")";
+        String createTableSuiteTestCase = "DROP TABLE IF EXISTS SUITE_TESTCASE;"+
+                "CREATE TABLE SUITE_TESTCASE " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TESTCASE_ID        INTEGER NOT NULL, " +
+                " SUITE_ID        INTEGER NOT NULL, " +
+                ")";
+        String alterTableSequenceAddDescription = "ALTER TABLE SEQUENCE ADD COLUMN DESCRIPTION TEXT";
+        String alterTableTestCaseAddDescription = "ALTER TABLE TESTCASE ADD COLUMN DESCRIPTION TEXT";
+
+        stmt.executeUpdate(createTableGlobals);
+        stmt.executeUpdate(createTableLogins);
+        stmt.executeUpdate(createTableSuite);
+        stmt.executeUpdate(createTableSuiteTestCase);
+        stmt.executeUpdate(alterTableSequenceAddDescription);
+        stmt.executeUpdate(alterTableTestCaseAddDescription);
+    }
 
     public void insertSequence(Sequence sq) throws Exception {
         Connection c = getConnection();
@@ -317,13 +358,14 @@ public class SqliteHelper {
         try {
             try {
                 c = getConnection();
-                stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL from SEQUENCE");
+                stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL,DESCRIPTION from SEQUENCE");
                 rq = stmt.executeQuery();
                 while (rq.next()){
                     int id = rq.getInt(1);
                     String name = rq.getString(2);
+                    String descr = rq.getString(6);
                     List<Request> reqs = getSequenceRequestById(id);
-                    Sequence s = new Sequence(name, reqs);
+                    Sequence s = new Sequence(name, descr, reqs);
                     s.setId(id);
                     res.add(s);
                 }
@@ -349,15 +391,16 @@ public class SqliteHelper {
         try {
             try {
                 c = getConnection();
-                stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL from SEQUENCE WHERE ID=?");
+                stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL,DESCRIPTION from SEQUENCE WHERE ID=?");
                 stmt.setInt(1, id);
                 rq = stmt.executeQuery();
                 if (!rq.next()){
                     res = null;
                 }else {
                     String name = rq.getString(2);
+                    String desc = rq.getString(6);
                     List<Request> reqs = getSequenceRequestById(id);
-                    Sequence s = new Sequence(name, reqs);
+                    Sequence s = new Sequence(name, desc, reqs);
                     s.setId(id);
                     res = s;
                 }
@@ -595,15 +638,16 @@ public class SqliteHelper {
         try {
             try {
                 c = getConnection();
-                stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT from TESTCASE WHERE ID=?");
+                stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT,DESCRIPTION from TESTCASE WHERE ID=?");
                 stmt.setInt(1, id);
                 rq = stmt.executeQuery();
                 if (!rq.next()){
                     res = null;
                 }else {
                     String name = rq.getString(2);
+                    String descr = rq.getString(5);
                     List<TestCase_Sequence> reqs = getTestCaseSequenceById(id);
-                    TestCase s = new TestCase(name, reqs);
+                    TestCase s = new TestCase(name, descr, reqs);
                     s.setId(id);
 
                     res = s;

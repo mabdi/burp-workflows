@@ -68,8 +68,9 @@ public class DialogSequenceNew extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+                    String description = "";
                     try {
-                        db.insertSequence(new Sequence(name,reqs));
+                        db.insertSequence(new Sequence(name, description,reqs));
                         choosePanel.shutDown();
                         dissmiss();
 

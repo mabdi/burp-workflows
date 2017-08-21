@@ -12,10 +12,12 @@ public class TestCase {
     private String name;
     private List<TestCase_Sequence> seqs;
     private int Id;
+    private String description;
 
-    public TestCase(String name, List<TestCase_Sequence> seqs) {
+    public TestCase(String name,String description, List<TestCase_Sequence> seqs) {
         this.name = name;
         this.seqs = seqs;
+        this.description = description;
         for (TestCase_Sequence tcs : seqs) {
             tcs.setTestCase(this);
         }
@@ -50,4 +52,11 @@ public class TestCase {
         return new SqliteHelper().getTestCaseById(id);
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

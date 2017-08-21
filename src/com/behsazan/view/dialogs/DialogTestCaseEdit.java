@@ -141,12 +141,13 @@ public class DialogTestCaseEdit extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"Testcase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+                    String description = "";
                     try {
                         List<TestCase_Sequence> ts = new ArrayList<>();
                         for (SequenceListModelObject req: reqs) {
                             ts.add(req.getTestCase_sequence());
                         }
-                        db.insertTestCase(new TestCase(name ,ts));
+                        db.insertTestCase(new TestCase(name, description ,ts));
                         dissmiss();
 
                     }catch (Exception x){

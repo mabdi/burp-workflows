@@ -116,12 +116,13 @@ public class DialogTestCaseNew extends AbstractDialog {
                         return;
                     }
                     updateSequenceDetail();
+                    String description = "";
                     try {
                         List<TestCase_Sequence> ts = new ArrayList<>();
                         for (SequenceListModelObject req: reqs) {
                             ts.add(req.getTestCase_sequence());
                         }
-                        db.insertTestCase(new TestCase(name ,ts));
+                        db.insertTestCase(new TestCase(name, description ,ts));
                         dissmiss();
 
                     }catch (Exception x){

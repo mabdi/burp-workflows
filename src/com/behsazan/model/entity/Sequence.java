@@ -13,9 +13,11 @@ public class Sequence {
     private int id;
     private List<Request> request;
     private String name;
+    private String description;
 
-    public Sequence(String sequenceName, List<Request> selectedRequests) {
+    public Sequence(String sequenceName,String description, List<Request> selectedRequests) {
         this.name = sequenceName;
+        this.description = description;
         this.request = selectedRequests;
         for (Request r : request) {
             r.setSequence(this);
@@ -53,5 +55,13 @@ public class Sequence {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
