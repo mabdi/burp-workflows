@@ -1,5 +1,6 @@
 package com.behsazan.model.adapters;
 
+import com.behsazan.model.entity.Login;
 import com.behsazan.model.sqlite.SqliteHelper;
 
 import javax.swing.table.AbstractTableModel;
@@ -21,11 +22,7 @@ public class TableModelLogins extends AbstractTableModel {
     }
 
     public void updateData() {
-        try {
-            data = new SqliteHelper().getAllLogins_Table();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        data = Login.getAllLogins_Table();
     }
 
     @Override

@@ -2,9 +2,12 @@ package com.behsazan.view.tabs;
 
 import com.behsazan.model.adapters.TableModelLogins;
 import com.behsazan.model.adapters.TableModelTestCases;
+import com.behsazan.model.entity.Login;
 import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractTab;
 import com.behsazan.view.dialogs.*;
+import sun.rmi.runtime.Log;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 /**
  * Created by admin on 07/29/2017.
@@ -93,10 +97,14 @@ public class TabLogins extends AbstractTab {
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
 
-                    SqliteHelper db = new SqliteHelper();
+                    try {
+                        Login.cloneLogin(id);
+                        refreshMainView();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                        UIUtils.showGenerealError(TabLogins.this);
+                    }
 
-                    db.cloneLogin(id);
-                    refreshMainView();
 
                 }
             });
@@ -116,8 +124,8 @@ public class TabLogins extends AbstractTab {
                         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
                             @Override
-                            protected Void doInBackground() throws Exception {
-                                new SqliteHelper().deleteLogin(id);
+                            protected Void doInBackground() throws SQLException {
+                                Login.deleteLogin(id);
                                 return null;
                             }
 

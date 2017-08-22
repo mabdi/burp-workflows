@@ -14,6 +14,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 
@@ -69,17 +70,20 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
             @Override
             public void actionPerformed(ActionEvent e) {
                 String name = sqName.getText();
-                SqliteHelper db = new SqliteHelper();
                 if(name.isEmpty()){
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Sequence name is not set.","Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                if(db.isSequenceNameUsed(name)){
+                if(Sequence.isSequenceNameUsed(name)){
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                db.updateSequenceName(sequence.getId(),name);
-                dissmiss();
+                try {
+                    Sequence.updateSequenceName(sequence.getId(),name);
+                    dissmiss();
+                } catch (SQLException e1) {
+                    UIUtils.showGenerealError(DialogSequenceEdit.this);
+                }
             }
         });
         topPanel.add(updateName);
@@ -105,10 +109,14 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Messeage is Empty.","Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                SqliteHelper db = new SqliteHelper();
                 currentlyDisplayedItem.getRequestObject().setRequest(requestViewer.getMessage());
-                db.updateRequestRequest(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getRequest());
-                JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Request Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    Request.updateRequestRequest(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getRequest());
+                    JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Request Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
+                } catch (SQLException e1) {
+                    UIUtils.showGenerealError(DialogSequenceEdit.this);
+                }
+
 
             }
         });
@@ -126,10 +134,14 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Messeage is Empty.","Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                SqliteHelper db = new SqliteHelper();
                 currentlyDisplayedItem.getRequestObject().setResponse(responseViewer.getMessage());
-                db.updateRequestResponse(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getResponse());
-                JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Response Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    Request.updateRequestResponse(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getResponse());
+                    JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Response Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
+                } catch (SQLException e1) {
+                    UIUtils.showGenerealError(DialogSequenceEdit.this);
+                }
+
             }
         });
         closePanel.add(updateRequest);

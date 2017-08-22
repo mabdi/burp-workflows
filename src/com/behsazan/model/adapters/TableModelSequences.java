@@ -1,5 +1,6 @@
 package com.behsazan.model.adapters;
 
+import com.behsazan.model.entity.Sequence;
 import com.behsazan.model.sqlite.SqliteHelper;
 
 import javax.swing.table.AbstractTableModel;
@@ -23,11 +24,7 @@ public class TableModelSequences extends AbstractTableModel {
     }
 
     public void updateData() {
-        try {
-            data = new SqliteHelper().getAllSequences_Table();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        data = Sequence.getAllSequences_Table();
     }
 
     @Override

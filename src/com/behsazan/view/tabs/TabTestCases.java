@@ -3,6 +3,7 @@ package com.behsazan.view.tabs;
 import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.TableModelTestCases;
+import com.behsazan.model.entity.TestCase;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractTab;
@@ -18,6 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.sql.SQLException;
 
 /**
  * Created by admin on 08/02/2017.
@@ -95,13 +97,18 @@ public class TabTestCases extends AbstractTab {
                     String name = (String) tableModel.getValueAt(tableSelectedRow,1);
                     String response = JOptionPane.showInputDialog(TabTestCases.this,"Enter new TestCase Name: ","Copy Of " + name);
                     if(!response.isEmpty()){
-                        SqliteHelper db = new SqliteHelper();
-                        if(db.isTestCaseNameUsed(response)){
+                        if(TestCase.isTestCaseNameUsed(response)){
                             JOptionPane.showMessageDialog(TabTestCases.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                        db.cloneTestCase(id,response);
-                        refreshMainView();
+                        try {
+                            TestCase.cloneTestCase(id,response);
+                            refreshMainView();
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
+                            UIUtils.showGenerealError(TabTestCases.this);
+                        }
+
                     }
                 }
             });
@@ -121,8 +128,8 @@ public class TabTestCases extends AbstractTab {
                         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
                             @Override
-                            protected Void doInBackground() throws Exception {
-                                new SqliteHelper().deleteTestCase(id);
+                            protected Void doInBackground() throws SQLException {
+                                TestCase.deleteTestCase(id);
                                 return null;
                             }
 

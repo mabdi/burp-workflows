@@ -4,9 +4,11 @@ import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.SequenceListModelObject;
 import com.behsazan.model.entity.Request;
+import com.behsazan.model.entity.Sequence;
 import com.behsazan.model.entity.TestCase;
 import com.behsazan.model.entity.TestCase_Sequence;
 import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.abstracts.AbstractTab;
 
@@ -18,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -96,16 +99,20 @@ public class DialogTestCaseEdit extends AbstractDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String name = getTxtTestCaseName().getText();
-                    SqliteHelper db = new SqliteHelper();
                     if(name.isEmpty()){
                         JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"TestCase name is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if(db.isTestCaseNameUsed(name)){
+                    if(TestCase.isTestCaseNameUsed(name)){
                         JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"TestCase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    db.updateSequenceName(testCase.getId(),name);
+                    try {
+                        Sequence.updateSequenceName(testCase.getId(),name);
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                        UIUtils.showGenerealError(DialogTestCaseEdit.this);
+                    }
                 }
             });
             topPanel.add(new JLabel("TestCase Name: "));
@@ -142,7 +149,6 @@ public class DialogTestCaseEdit extends AbstractDialog {
             addBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    SqliteHelper db = new SqliteHelper();
                     List<SequenceListModelObject> reqs = getSelectedSequences();
                     String name = txtTestCaseName.getText();
                     if(name.isEmpty() ){
@@ -153,7 +159,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"No sequence is added.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if(db.isSequenceNameUsed(name)){
+                    if(Sequence.isSequenceNameUsed(name)){
                         JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"Testcase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -166,7 +172,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
                         testCase.setSeqs(ts);
                         testCase.setName(name);
                         testCase.setDescription(description);
-                        db.updateTestCase(testCase);
+                        TestCase.updateTestCase(testCase);
                         dissmiss();
 
                     }catch (Exception x){

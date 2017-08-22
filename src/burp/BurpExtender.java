@@ -8,6 +8,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +26,11 @@ public class BurpExtender implements IBurpExtender {
         helpers = callbacks.getHelpers();
         stdout = new PrintWriter(callbacks.getStdout(),true);
         callbacks.setExtensionName(EXTENSION_NAME);
-        new SqliteHelper().initDb();
+        try {
+            new SqliteHelper().initDb();
+        } catch (SQLException e) {
+            e.printStackTrace(stdout);
+        }
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

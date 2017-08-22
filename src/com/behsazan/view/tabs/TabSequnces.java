@@ -2,7 +2,9 @@ package com.behsazan.view.tabs;
 
 import burp.BurpExtender;
 import com.behsazan.model.adapters.TableModelSequences;
+import com.behsazan.model.entity.Sequence;
 import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractTab;
 import com.behsazan.view.dialogs.DialogSequenceEdit;
 import com.behsazan.view.dialogs.DialogSequenceNew;
@@ -15,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 /**
  * Created by admin on 07/29/2017.
@@ -93,12 +96,16 @@ public class TabSequnces extends AbstractTab {
                     String name = (String) tableModel.getValueAt(tableSelectedRow,1);
                     String response = JOptionPane.showInputDialog(TabSequnces.this,"Enter new sequence Name: ","Copy Of " + name);
                     if(!response.isEmpty()){
-                        SqliteHelper db = new SqliteHelper();
-                        if(db.isSequenceNameUsed(response)){
+                        if(Sequence.isSequenceNameUsed(response)){
                             JOptionPane.showMessageDialog(TabSequnces.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                        db.cloneSequence(id,response);
+                        try {
+                            Sequence.cloneSequence(id,response);
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
+                            UIUtils.showGenerealError(TabSequnces.this);
+                        }
                         refreshMainView();
                     }
                 }
@@ -113,15 +120,19 @@ public class TabSequnces extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    SqliteHelper db = new SqliteHelper();
-                    if(!db.isPossibleToDeleteSequence(id)){
+                    if(!Sequence.isPossibleToDeleteSequence(id)){
                         JOptionPane.showMessageDialog(TabSequnces.this,"The Sequence is used somewhere.","Oops!",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     int response = JOptionPane.showConfirmDialog(TabSequnces.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
-                        db.deleteSequence(id);
-                        refreshMainView();
+                        try {
+                            Sequence.deleteSequence(id);
+                            refreshMainView();
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
+                            UIUtils.showGenerealError(TabSequnces.this);
+                        }
                     }
                 }
             });

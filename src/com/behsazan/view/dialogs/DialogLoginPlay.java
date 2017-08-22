@@ -203,7 +203,7 @@ public class DialogLoginPlay extends AbstractDialog {
                 if(!TestCaseInstance.queryGlobalVariable(login.getOutParam()).isEmpty()) {
                     login.setLast_seen((int) new Date().getTime());
                     login.setSession(TestCaseInstance.queryGlobalVariable(login.getOutParam()));
-                    new SqliteHelper().updateLogin(login);
+                    Login.updateLogin(login);
                 }
                 return lastResponse;
             }

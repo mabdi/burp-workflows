@@ -2,6 +2,9 @@ package com.behsazan.model.entity;
 
 import com.behsazan.model.sqlite.SqliteHelper;
 
+import java.sql.SQLException;
+import java.util.Vector;
+
 /**
  * Created by admin on 08/21/2017.
  */
@@ -111,6 +114,40 @@ public class Login {
     }
 
     public static Login getById(int id) {
-        return new SqliteHelper().getLoginById(id);
+        try {
+            return new SqliteHelper().getLoginById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void updateLogin(Login login) {
+        try {
+            new SqliteHelper().updateLogin(login);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void cloneLogin(int id) throws SQLException {
+        new SqliteHelper().cloneLogin(id);
+    }
+
+    public static Vector<Vector<Object>> getAllLogins_Table() {
+        try {
+            return new SqliteHelper().getAllLogins_Table();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void insertLogin(Login login) throws SQLException {
+        new SqliteHelper().insertLogin(login);
+    }
+
+    public static void deleteLogin(int id) throws SQLException {
+        new SqliteHelper().deleteLogin(id);
     }
 }

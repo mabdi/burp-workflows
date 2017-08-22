@@ -2,6 +2,8 @@ package com.behsazan.view;
 
 import com.behsazan.model.adapters.SequenceListModelObject;
 import com.behsazan.model.entity.TestCase_Sequence;
+import com.behsazan.view.abstracts.AbstractDialog;
+import com.behsazan.view.dialogs.DialogSequenceEdit;
 import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
@@ -57,6 +59,10 @@ public class UIUtils {
             }
         };
         worker.execute();
+    }
+
+    public static void showGenerealError(Component dialogSequenceEdit) {
+        JOptionPane.showMessageDialog(dialogSequenceEdit,"Error occurred.","Error",JOptionPane.ERROR_MESSAGE);
     }
 
     public static class FormUtility {

@@ -31,7 +31,7 @@ public class DialogSelectSequence extends AbstractDialog {
 
 
     public void setData(){
-        java.util.List<Sequence> allSeq = new SqliteHelper().getAllSequences();
+        java.util.List<Sequence> allSeq = Sequence.getAllSequences();
         for (Sequence seq : allSeq) {
             modelList.addElement(new SequenceListModelObject(seq));
         }

@@ -5,8 +5,10 @@ import burp.IHttpService;
 import burp.IRequestInfo;
 import burp.IResponseInfo;
 import com.behsazan.model.DataUtils;
+import com.behsazan.model.sqlite.SqliteHelper;
 
 import java.net.URL;
+import java.sql.SQLException;
 
 /**
  * Created by admin on 07/31/2017.
@@ -109,5 +111,13 @@ public class Request {
         BurpExtender ext = BurpExtender.getInstance();
         analyzedResponse = ext.getHelpers().analyzeResponse(response);
         return analyzedResponse;
+    }
+
+    public static void updateRequestRequest(int id, byte[] request) throws SQLException {
+        new SqliteHelper().updateRequestRequest(id,request);
+    }
+
+    public static void updateRequestResponse(int id, byte[] response) throws SQLException {
+        new SqliteHelper().updateRequestResponse(id,response);
     }
 }

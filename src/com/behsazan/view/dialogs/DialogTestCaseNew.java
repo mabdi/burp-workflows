@@ -4,6 +4,7 @@ import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.SequenceListModelObject;
 import com.behsazan.model.entity.Request;
+import com.behsazan.model.entity.Sequence;
 import com.behsazan.model.entity.TestCase;
 import com.behsazan.model.entity.TestCase_Sequence;
 import com.behsazan.model.sqlite.SqliteHelper;
@@ -96,7 +97,6 @@ public class DialogTestCaseNew extends AbstractDialog {
             addBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    SqliteHelper db = new SqliteHelper();
                     List<SequenceListModelObject> reqs = getSelectedSequences();
                     String name = txtTestCaseName.getText();
                     if(name.isEmpty() ){
@@ -107,7 +107,7 @@ public class DialogTestCaseNew extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogTestCaseNew.this,"No sequence is added.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if(db.isSequenceNameUsed(name)){
+                    if(Sequence.isSequenceNameUsed(name)){
                         JOptionPane.showMessageDialog(DialogTestCaseNew.this,"Testcase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -122,7 +122,7 @@ public class DialogTestCaseNew extends AbstractDialog {
                         for (SequenceListModelObject req: reqs) {
                             ts.add(req.getTestCase_sequence());
                         }
-                        db.insertTestCase(new TestCase(name, description ,ts));
+                        TestCase.insertTestCase(new TestCase(name, description ,ts));
                         dissmiss();
 
                     }catch (Exception x){

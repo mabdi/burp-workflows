@@ -5,6 +5,7 @@ import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
 import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.panels.PanelEditSequence;
 import com.behsazan.view.panels.PanelNewSequenceChooseRequests;
@@ -53,7 +54,6 @@ public class DialogSequenceNew extends AbstractDialog {
             btnfinish.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    SqliteHelper db = new SqliteHelper();
                     List<Request> reqs = choosePanel.getSelectedRequests();
                     String name = choosePanel.getSequenceName().trim();
                     if(name.isEmpty()){
@@ -64,19 +64,20 @@ public class DialogSequenceNew extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"No request is selected.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if(db.isSequenceNameUsed(name)){
+                    if(Sequence.isSequenceNameUsed(name)){
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     String description = "";
                     try {
-                        db.insertSequence(new Sequence(name, description,reqs));
+                        Sequence.insertSequence(new Sequence(name, description,reqs));
                         choosePanel.shutDown();
                         dissmiss();
 
                     }catch (Exception x){
                         BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");
                         x.printStackTrace(BurpExtender.getInstance().getStdout());
+                        UIUtils.showGenerealError(DialogSequenceNew.this);
                     }
 
                 }

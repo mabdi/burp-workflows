@@ -87,8 +87,7 @@ public class DialogLoginEdit extends AbstractDialog {
             formUtility.addLabel("TestCase :", formPanel);
             modelCombo = new DefaultComboBoxModel<>();
             cmbTestCase = new JComboBox<>(modelCombo);
-            SqliteHelper db = new SqliteHelper();
-            List<String> tests = db.getAllTestCaseName();
+            List<String> tests = TestCase.getAllTestCaseName();
             for (String t: tests) {
                 modelCombo.addElement(t);
             }
@@ -111,7 +110,6 @@ public class DialogLoginEdit extends AbstractDialog {
             addBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    SqliteHelper db = new SqliteHelper();
                     String username = txtUsername.getText();
                     String password = txtPassword.getText();
                     String param = txtParam.getText();
@@ -137,7 +135,7 @@ public class DialogLoginEdit extends AbstractDialog {
                         loging.setPassword(password);
                         loging.setOutParam(param);
                         loging.setTestCase(testCase);
-                        db.updateLogin(loging);
+                        Login.updateLogin(loging);
                         dissmiss();
                     }catch (Exception x){
                         BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");

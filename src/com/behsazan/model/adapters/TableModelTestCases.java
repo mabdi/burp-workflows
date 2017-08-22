@@ -1,5 +1,6 @@
 package com.behsazan.model.adapters;
 
+import com.behsazan.model.entity.TestCase;
 import com.behsazan.model.sqlite.SqliteHelper;
 
 import javax.swing.table.AbstractTableModel;
@@ -20,11 +21,7 @@ public class TableModelTestCases extends AbstractTableModel {
     }
 
     public void updateData() {
-        try {
-            data = new SqliteHelper().getAllTestCases_Table();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        data = TestCase.getAllTestCases_Table();
     }
 
     @Override
