@@ -361,7 +361,8 @@ public class DataUtils {
     }
 
     private static void exportTestCase(TestCase[] testcases, File file) {
-        Gson gson = new Gson();
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
         String json = gson.toJson(testcases);
         try {
             FileUtils.write(file,json,"UTF-8");

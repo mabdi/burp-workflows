@@ -48,17 +48,32 @@ public class DialogTestCaseEdit extends AbstractDialog {
         super(tabTestCases,false);
     }
 
-    public void initData(int testCaseid) {
-        setVisible(true);
-        this.testCase = TestCase.getById(testCaseid);
-        for (TestCase_Sequence seq: testCase.getSeqs()) {
-            SequenceListModelObject s = new SequenceListModelObject(seq.getSequence());
-            modelSequeces.addElement(s);
-            sequncesJlist.setSelectedValue(s,true);
-        }
-        parseAndshowWaitDialog();
-        txtTestCaseName.setText(testCase.getName());
+    public void initData(final int testCaseid) {
+        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(this);
+        final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
+            @Override
+            protected Void doInBackground() throws Exception {
+                testCase = TestCase.getById(testCaseid);
+                for (TestCase_Sequence seq: testCase.getSeqs()) {
+                    SequenceListModelObject s = new SequenceListModelObject(seq.getSequence());
+                    modelSequeces.addElement(s);
+                    sequncesJlist.setSelectedValue(s,true);
+                }
+                parseAndshowWaitDialog(pleaseWaitDialog);
+                return null;
+            }
+
+
+            @Override
+            protected void done() {
+                pleaseWaitDialog.dispose();
+            }
+        };
+        worker.execute();
+        pleaseWaitDialog.setVisible(true);
+        txtTestCaseName.setText(testCase.getName());
+        setVisible(true);
     }
 
     @Override
@@ -148,7 +163,10 @@ public class DialogTestCaseEdit extends AbstractDialog {
                         for (SequenceListModelObject req: reqs) {
                             ts.add(req.getTestCase_sequence());
                         }
-                        db.insertTestCase(new TestCase(name, description ,ts));
+                        testCase.setSeqs(ts);
+                        testCase.setName(name);
+                        testCase.setDescription(description);
+                        db.updateTestCase(testCase);
                         dissmiss();
 
                     }catch (Exception x){
@@ -278,8 +296,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
         }
     }
 
-    private void parseAndshowWaitDialog() {
-        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(this);
+    private void parseAndshowWaitDialog(final DialogWaiting pleaseWaitDialog) {
         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
             @Override
@@ -309,12 +326,12 @@ public class DialogTestCaseEdit extends AbstractDialog {
                 pleaseWaitDialog.dispose();
             }
         };
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                worker.execute();
-            }
-        });
+        worker.execute();
+    }
+
+    private void parseAndshowWaitDialog() {
+        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(this);
+        parseAndshowWaitDialog(pleaseWaitDialog);
         pleaseWaitDialog.setVisible(true);
     }
 

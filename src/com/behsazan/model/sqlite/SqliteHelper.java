@@ -595,71 +595,77 @@ public class SqliteHelper {
             testCase.setId(newId);
             rs1.close();
             stmt.close();
-            for (TestCase_Sequence sq : testCase.getSeqs()) {
-                PreparedStatement stmt2 = c.prepareStatement("INSERT INTO TESTCASE_SEQUENCE "+
-                        "(TESTCASE_ID,SEQUENCE_ID,URL,PATH_BASE1,PATH_BASE2,COOKIE) VALUES (?,?,?,?,?,?)");
-                stmt2.setInt(1, testCase.getId());
-                stmt2.setInt(2, sq.getSequence().getId());
-                stmt2.setString(3, sq.getUrl().toString());
-                stmt2.setString(4, sq.getBase1());
-                stmt2.setString(5, sq.getBase2());
-                stmt2.setString(6, sq.getCookie());
-                stmt2.executeUpdate();
-                stmt2.close();
 
-                ResultSet rs2 = c.createStatement().executeQuery("select last_insert_rowid();");
-                rs2.next();
-                newId = rs2.getInt(1);
-                sq.setId(newId);
-                rs2.close();
+            insertTestCaseParts(c,testCase);
 
-                for (TestCase_Request rq : sq.getRequests()) {
-                    PreparedStatement stmt3 = c.prepareStatement("INSERT INTO TESTCASE_REQUEST "+
-                            "(TESTCASE_SEQUENCE_ID,REQUEST_ID,REQUEST,TESTCASE_ID) VALUES (?,?,?,?)");
-                    stmt3.setInt(1, sq.getId());
-                    stmt3.setInt(2, rq.getId());
-                    stmt3.setBytes(3, rq.getModifiedRequest());
-                    stmt3.setInt(4,testCase.getId());
-                    stmt3.executeUpdate();
-                    stmt3.close();
-
-                    ResultSet rs3 = c.createStatement().executeQuery("select last_insert_rowid();");
-                    rs3.next();
-                    newId = rs3.getInt(1);
-                    rs3.close();
-
-                    rq.setId(newId);
-
-                    for (RequestIn paramIn: rq.getInputParams()) {
-                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT "+
-                                "(TESTCASE_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE,TESTCASE_ID) VALUES (?,?,?,?,?)");
-                        stmt4.setInt(1, rq.getId());
-                        stmt4.setString(2, paramIn.getPlaceHoder());
-                        stmt4.setString(3, paramIn.getTxtValue());
-                        stmt4.setInt(4, paramIn.getType());
-                        stmt4.setInt(5,testCase.getId());
-                        stmt4.executeUpdate();
-                        stmt4.close();
-                    }
-                    for (ResponseOut paramOut: rq.getOutputParams()) {
-                        PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT "+
-                                "(TESTCASE_REQUEST_ID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL,TESTCASE_ID) VALUES (?,?,?,?,?,?)");
-                        stmt4.setInt(1, rq.getId());
-                        stmt4.setString(2, paramOut.getName());
-                        stmt4.setString(3, paramOut.getParam());
-                        stmt4.setInt(4, paramOut.getType());
-                        stmt4.setInt(5,(paramOut.isGlobal())?1:0);
-                        stmt4.setInt(6,testCase.getId());
-                        stmt4.executeUpdate();
-                        stmt4.close();
-                    }
-                }
-            }
             c.commit();
             c.close();
         }catch (Exception ex){
             c.rollback();
             throw ex;
+        }
+    }
+
+    private void insertTestCaseParts(Connection c, TestCase testCase) throws SQLException {
+        for (TestCase_Sequence sq : testCase.getSeqs()) {
+            PreparedStatement stmt2 = c.prepareStatement("INSERT INTO TESTCASE_SEQUENCE "+
+                    "(TESTCASE_ID,SEQUENCE_ID,URL,PATH_BASE1,PATH_BASE2,COOKIE) VALUES (?,?,?,?,?,?)");
+            stmt2.setInt(1, testCase.getId());
+            stmt2.setInt(2, sq.getSequence().getId());
+            stmt2.setString(3, sq.getUrl().toString());
+            stmt2.setString(4, sq.getBase1());
+            stmt2.setString(5, sq.getBase2());
+            stmt2.setString(6, sq.getCookie());
+            stmt2.executeUpdate();
+            stmt2.close();
+
+            ResultSet rs2 = c.createStatement().executeQuery("select last_insert_rowid();");
+            rs2.next();
+            int newId = rs2.getInt(1);
+            sq.setId(newId);
+            rs2.close();
+
+            for (TestCase_Request rq : sq.getRequests()) {
+                PreparedStatement stmt3 = c.prepareStatement("INSERT INTO TESTCASE_REQUEST "+
+                        "(TESTCASE_SEQUENCE_ID,REQUEST_ID,REQUEST,TESTCASE_ID) VALUES (?,?,?,?)");
+                stmt3.setInt(1, sq.getId());
+                stmt3.setInt(2, rq.getId());
+                stmt3.setBytes(3, rq.getModifiedRequest());
+                stmt3.setInt(4,testCase.getId());
+                stmt3.executeUpdate();
+                stmt3.close();
+
+                ResultSet rs3 = c.createStatement().executeQuery("select last_insert_rowid();");
+                rs3.next();
+                newId = rs3.getInt(1);
+                rs3.close();
+
+                rq.setId(newId);
+
+                for (RequestIn paramIn: rq.getInputParams()) {
+                    PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT "+
+                            "(TESTCASE_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE,TESTCASE_ID) VALUES (?,?,?,?,?)");
+                    stmt4.setInt(1, rq.getId());
+                    stmt4.setString(2, paramIn.getPlaceHoder());
+                    stmt4.setString(3, paramIn.getTxtValue());
+                    stmt4.setInt(4, paramIn.getType());
+                    stmt4.setInt(5,testCase.getId());
+                    stmt4.executeUpdate();
+                    stmt4.close();
+                }
+                for (ResponseOut paramOut: rq.getOutputParams()) {
+                    PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT "+
+                            "(TESTCASE_REQUEST_ID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL,TESTCASE_ID) VALUES (?,?,?,?,?,?)");
+                    stmt4.setInt(1, rq.getId());
+                    stmt4.setString(2, paramOut.getName());
+                    stmt4.setString(3, paramOut.getParam());
+                    stmt4.setInt(4, paramOut.getType());
+                    stmt4.setInt(5,(paramOut.isGlobal())?1:0);
+                    stmt4.setInt(6,testCase.getId());
+                    stmt4.executeUpdate();
+                    stmt4.close();
+                }
+            }
         }
     }
 
@@ -1067,14 +1073,14 @@ public class SqliteHelper {
         try {
             c = getConnection();
 
-            PreparedStatement stmt = c.prepareStatement("SELECT TESTCASE_ID from LOGIN WHERE ID = ?");
-            stmt.setInt(1, id);
-            ResultSet rq = stmt.executeQuery();
-            while (rq.next()){
-                int tid = rq.getInt(1);
-                deleteTestCase(tid);
-            }
-            stmt = c.prepareStatement("DELETE from LOGIN WHERE ID =?");
+//            PreparedStatement stmt = c.prepareStatement("SELECT TESTCASE_ID from LOGIN WHERE ID = ?");
+//            stmt.setInt(1, id);
+//            ResultSet rq = stmt.executeQuery();
+//            while (rq.next()){
+//                int tid = rq.getInt(1);
+//                deleteTestCase(tid);
+//            }
+            PreparedStatement stmt = c.prepareStatement("DELETE from LOGIN WHERE ID =?");
             stmt.setInt(1,id);
             stmt.executeUpdate();
 
@@ -1125,4 +1131,50 @@ public class SqliteHelper {
         }
     }
 
+    public void updateTestCase(TestCase testCase) {
+        Connection c = null;
+        try {
+            c = getConnection();
+            c.setAutoCommit(false);
+            PreparedStatement stmt = c.prepareStatement(
+                    "UPDATE TESTCASE SET NAME = ?,DESCRIPTION=?,SEQUENCE_COUNT=?,REQUEST_COUNT=?, "+
+                    " WHERE ID =?");
+            stmt.setString(1, testCase.getName());
+            stmt.setString(1, testCase.getDescription());
+            stmt.setInt(3, testCase.getSeqs().size());
+            int reqs = 0;
+            for (TestCase_Sequence tr : testCase.getSeqs()) {
+                reqs += tr.getRequests().size();
+            }
+            stmt.setInt(4, reqs);
+            stmt.executeUpdate();
+            stmt.close();
+
+            stmt = c.prepareStatement("DELETE from TESTCASE_SEQUENCE WHERE TESTCASE_ID =?");
+            stmt.setInt(1,testCase.getId());
+            stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from TESTCASE_REQUEST WHERE TESTCASE_ID =?");
+            stmt.setInt(1,testCase.getId());
+            stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from REQUEST_INPUT WHERE TESTCASE_ID =?");
+            stmt.setInt(1,testCase.getId());
+            stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from RESPONSE_OUTPUT WHERE TESTCASE_ID =?");
+            stmt.setInt(1,testCase.getId());
+            stmt.executeUpdate();
+
+            insertTestCaseParts(c,testCase);
+            c.commit();
+            c.close();
+        } catch (SQLException e) {
+            if(c!=null){
+                try {
+                    c.rollback();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        }
+    }
 }
