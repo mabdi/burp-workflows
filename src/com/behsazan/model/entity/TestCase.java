@@ -59,4 +59,13 @@ public class TestCase {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    public static TestCase getByName(String selectedTestCase) {
+        return new SqliteHelper().getTestCaseByName(selectedTestCase);
+    }
 }

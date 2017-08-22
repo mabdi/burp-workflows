@@ -1,12 +1,15 @@
 package com.behsazan.view.tabs;
 
 import burp.BurpExtender;
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.TableModelTestCases;
 import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractTab;
 import com.behsazan.view.dialogs.DialogTestCaseEdit;
 import com.behsazan.view.dialogs.DialogTestCaseNew;
 import com.behsazan.view.dialogs.DialogTestCasePlay;
+import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 /**
  * Created by admin on 08/02/2017.
@@ -78,6 +82,29 @@ public class TabTestCases extends AbstractTab {
                     });
                 }
             });
+            JButton clone = new JButton("Clone");
+            clone.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int tableSelectedRow = table.getSelectedRow();
+                    if(tableSelectedRow<0){
+                        JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+                    String name = (String) tableModel.getValueAt(tableSelectedRow,1);
+                    String response = JOptionPane.showInputDialog(TabTestCases.this,"Enter new TestCase Name: ","Copy Of " + name);
+                    if(!response.isEmpty()){
+                        SqliteHelper db = new SqliteHelper();
+                        if(db.isTestCaseNameUsed(response)){
+                            JOptionPane.showMessageDialog(TabTestCases.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        db.cloneTestCase(id,response);
+                        refreshMainView();
+                    }
+                }
+            });
             JButton delete = new JButton("Delete");
             delete.addActionListener(new ActionListener() {
                 @Override
@@ -87,11 +114,26 @@ public class TabTestCases extends AbstractTab {
                         JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    int response = JOptionPane.showConfirmDialog(TabTestCases.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+                    final int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+                    int response = JOptionPane.showConfirmDialog(TabTestCases.this,"Are you sure to delete TestCase with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
-                        new SqliteHelper().deleteTestCase(id);
-                        refreshMainView();
+                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabTestCases.this);
+                        final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                new SqliteHelper().deleteTestCase(id);
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                pleaseWaitDialog.dispose();
+                                refreshMainView();
+                            }
+                        };
+                        worker.execute();
+                        pleaseWaitDialog.setVisible(true);
                     }
                 }
             });
@@ -110,10 +152,47 @@ public class TabTestCases extends AbstractTab {
 
                 }
             });
+            JButton export = new JButton("Export");
+            export.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int tableSelectedRow = table.getSelectedRow();
+                    if(tableSelectedRow<0){
+                        JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    final int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+
+                    JFileChooser fc = new JFileChooser();
+                    int returnVal = fc.showSaveDialog(TabTestCases.this);
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        final File file = fc.getSelectedFile();
+                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabTestCases.this);
+                        final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                DataUtils.exportTestCase(id,file);
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                pleaseWaitDialog.dispose();
+                                refreshMainView();
+                            }
+                        };
+                        worker.execute();
+                        pleaseWaitDialog.setVisible(true);
+                    }
+                }
+            });
             toolbar.add(newTestCase);
             toolbar.add(editView);
+            toolbar.add(clone);
             toolbar.add(delete);
             toolbar.add(playTest);
+            toolbar.add(export);
         }
         return toolbar;
     }

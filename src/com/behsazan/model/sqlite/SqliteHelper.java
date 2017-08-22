@@ -16,7 +16,7 @@ import java.util.Vector;
  * Created by admin on 07/31/2017.
  */
 public class SqliteHelper {
-    public static final int DB_VERSION = 2;
+    public static final int DB_VERSION = 3;
     private List<Connection> connections = new ArrayList<>();
 
 
@@ -147,6 +147,7 @@ public class SqliteHelper {
         String createTableTestCaseRequest = "DROP TABLE IF EXISTS TESTCASE_REQUEST;"+
                 " CREATE TABLE TESTCASE_REQUEST " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TESTCASE_ID           INTEGER    NOT NULL, " +
                 " TESTCASE_SEQUENCE_ID           INTEGER    NOT NULL, " +
                 " REQUEST_ID           INTEGER    NOT NULL, " +
                 " REQUEST           BLOB    NOT NULL " +
@@ -154,6 +155,7 @@ public class SqliteHelper {
         String createTableRequestIn = "DROP TABLE IF EXISTS REQUEST_INPUT;"+
                 " CREATE TABLE REQUEST_INPUT " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TESTCASE_ID           INTEGER    NOT NULL, " +
                 " TESTCASE_REQUEST_ID           INTEGER    NOT NULL, " +
                 " PLACE_HOLDER        TEXT NOT NULL, " +
                 " PARAM_PARAMS        TEXT NOT NULL, " +
@@ -162,6 +164,7 @@ public class SqliteHelper {
         String createTableResponseOut = "DROP TABLE IF EXISTS RESPONSE_OUTPUT;"+
                 " CREATE TABLE RESPONSE_OUTPUT " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " TESTCASE_ID           INTEGER    NOT NULL, " +
                 " TESTCASE_REQUEST_ID           INTEGER    NOT NULL, " +
                 " IS_GLOBAL        INTEGER NOT NULL, " +
                 " PARAM_NAME        TEXT NOT NULL, " +
@@ -185,7 +188,9 @@ public class SqliteHelper {
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " USER_NAME        TEXT NOT NULL, " +
                 " PASSWORD        TEXT NOT NULL, " +
-                " SEQUENCE_ID        INTEGER NOT NULL, " +
+                " URL        TEXT NOT NULL, " +
+                " BASE        TEXT NOT NULL, " +
+                " TESTCASE_ID        INTEGER NOT NULL, " +
                 " OUT_PARAM_NAME        TEXT NOT NULL, " +
                 " SESSION_VALUE        TEXT NOT NULL, " +
                 " SESSION_CREATE_TIME         INTEGER NOT NULL)";
@@ -194,13 +199,13 @@ public class SqliteHelper {
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " NAME        TEXT NOT NULL, " +
                 " DESCRIPTION        TEXT NOT NULL, " +
-                " CATEGORY        TEXT NOT NULL, " +
+                " CATEGORY        TEXT NOT NULL  " +
                 ")";
         String createTableSuiteTestCase = "DROP TABLE IF EXISTS SUITE_TESTCASE;"+
                 "CREATE TABLE SUITE_TESTCASE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " TESTCASE_ID        INTEGER NOT NULL, " +
-                " SUITE_ID        INTEGER NOT NULL, " +
+                " SUITE_ID        INTEGER NOT NULL  " +
                 ")";
         String alterTableSequenceAddDescription = "ALTER TABLE SEQUENCE ADD COLUMN DESCRIPTION TEXT";
         String alterTableTestCaseAddDescription = "ALTER TABLE TESTCASE ADD COLUMN DESCRIPTION TEXT";
@@ -267,6 +272,27 @@ public class SqliteHelper {
         Connection c = getConnection();
         Statement stmt = c.createStatement();
         ResultSet allRequests = stmt.executeQuery("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT from TESTCASE");
+        int columnCount = allRequests.getMetaData().getColumnCount();
+        Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+        while (allRequests.next()) {
+            Vector<Object> vector = new Vector<Object>();
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                vector.add(allRequests.getObject(columnIndex));
+            }
+            data.add(vector);
+        }
+        allRequests.close();
+        stmt.close();
+        c.close();
+        return data;
+    }
+
+    public Vector<Vector<Object>> getAllLogins_Table() throws SQLException {
+        Connection c = getConnection();
+        Statement stmt = c.createStatement();
+
+        ResultSet allRequests = stmt.executeQuery("SELECT LOGIN.ID,LOGIN.USER_NAME,LOGIN.PASSWORD,LOGIN.OUT_PARAM_NAME,TESTCASE.NAME,LOGIN.SESSION_CREATE_TIME from LOGIN"+
+                        " INNER JOIN TESTCASE ON TESTCASE.ID = LOGIN.TESTCASE_ID");
         int columnCount = allRequests.getMetaData().getColumnCount();
         Vector<Vector<Object>> data = new Vector<Vector<Object>>();
         while (allRequests.next()) {
@@ -368,6 +394,63 @@ public class SqliteHelper {
                     Sequence s = new Sequence(name, descr, reqs);
                     s.setId(id);
                     res.add(s);
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public List<TestCase> getAllTestCase() {
+        List<TestCase> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID from TESTCASE");
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    int id = rq.getInt(1);
+                    TestCase t = getTestCaseById(id);
+                    res.add(t);
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+
+    public List<String> getAllTestCaseName() {
+        List<String> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT NAME from TESTCASE");
+                rq = stmt.executeQuery();
+                while (rq.next()){
+                    res.add(rq.getString(1));
                 }
             } finally {
                 if (rq != null)
@@ -532,10 +615,11 @@ public class SqliteHelper {
 
                 for (TestCase_Request rq : sq.getRequests()) {
                     PreparedStatement stmt3 = c.prepareStatement("INSERT INTO TESTCASE_REQUEST "+
-                            "(TESTCASE_SEQUENCE_ID,REQUEST_ID,REQUEST) VALUES (?,?,?)");
-                    stmt3.setInt(1, testCase.getId());
-                    stmt3.setInt(2, sq.getId());
+                            "(TESTCASE_SEQUENCE_ID,REQUEST_ID,REQUEST,TESTCASE_ID) VALUES (?,?,?,?)");
+                    stmt3.setInt(1, sq.getId());
+                    stmt3.setInt(2, rq.getId());
                     stmt3.setBytes(3, rq.getModifiedRequest());
+                    stmt3.setInt(4,testCase.getId());
                     stmt3.executeUpdate();
                     stmt3.close();
 
@@ -548,22 +632,24 @@ public class SqliteHelper {
 
                     for (RequestIn paramIn: rq.getInputParams()) {
                         PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT "+
-                                "(TESTCASE_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE) VALUES (?,?,?,?)");
+                                "(TESTCASE_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE,TESTCASE_ID) VALUES (?,?,?,?,?)");
                         stmt4.setInt(1, rq.getId());
                         stmt4.setString(2, paramIn.getPlaceHoder());
                         stmt4.setString(3, paramIn.getTxtValue());
                         stmt4.setInt(4, paramIn.getType());
+                        stmt4.setInt(5,testCase.getId());
                         stmt4.executeUpdate();
                         stmt4.close();
                     }
                     for (ResponseOut paramOut: rq.getOutputParams()) {
                         PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT "+
-                                "(TESTCASE_REQUEST_ID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL) VALUES (?,?,?,?,?)");
+                                "(TESTCASE_REQUEST_ID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL,TESTCASE_ID) VALUES (?,?,?,?,?,?)");
                         stmt4.setInt(1, rq.getId());
                         stmt4.setString(2, paramOut.getName());
                         stmt4.setString(3, paramOut.getParam());
                         stmt4.setInt(4, paramOut.getType());
                         stmt4.setInt(5,(paramOut.isGlobal())?1:0);
+                        stmt4.setInt(6,testCase.getId());
                         stmt4.executeUpdate();
                         stmt4.close();
                     }
@@ -577,37 +663,69 @@ public class SqliteHelper {
         }
     }
 
-    public List<String> getAllVariables(boolean globals) {
-        List<String> res = new ArrayList<>();
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rq = null;
-        try {
-            try {
-                c = getConnection();
-                stmt = c.prepareStatement("SELECT PARAM_NAME from RESPONSE_OUTPUT WHERE IS_GLOBAL = ?");
-                stmt.setInt(1,(globals?1:0));
-                rq = stmt.executeQuery();
-                while (rq.next()){
-                    String name = rq.getString(1);
-                    res.add(name);
-                }
-            } finally {
-                if (rq != null)
-                    rq.close();
-                if (stmt != null)
-                    stmt.close();
-                if (c != null)
-                    c.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
+//    public List<String> getAllVariables(boolean globals) {
+//        List<String> res = new ArrayList<>();
+//        Connection c = null;
+//        PreparedStatement stmt = null;
+//        ResultSet rq = null;
+//        try {
+//            try {
+//                c = getConnection();
+//                stmt = c.prepareStatement("SELECT PARAM_NAME from RESPONSE_OUTPUT WHERE IS_GLOBAL = ?");
+//                stmt.setInt(1,(globals?1:0));
+//                rq = stmt.executeQuery();
+//                while (rq.next()){
+//                    String name = rq.getString(1);
+//                    res.add(name);
+//                }
+//            } finally {
+//                if (rq != null)
+//                    rq.close();
+//                if (stmt != null)
+//                    stmt.close();
+//                if (c != null)
+//                    c.close();
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return res;
+//    }
 
     public void deleteTestCase(int id) {
-        // TODO -- delete all dependent request and sequences
+        Connection c = null;
+        try {
+            c = getConnection();
+            c.setAutoCommit(false);
+            PreparedStatement stmt = c.prepareStatement("DELETE from TESTCASE WHERE ID =?");
+            stmt.setInt(1,id);
+            stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from TESTCASE_SEQUENCE WHERE TESTCASE_ID =?");
+            stmt.setInt(1,id);
+            stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from TESTCASE_REQUEST WHERE TESTCASE_ID =?");
+            stmt.setInt(1,id);
+            stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from REQUEST_INPUT WHERE TESTCASE_ID =?");
+            stmt.setInt(1,id);
+            stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from RESPONSE_OUTPUT WHERE TESTCASE_ID =?");
+            stmt.setInt(1,id);
+            stmt.executeUpdate();
+
+            c.commit();
+            stmt.close();
+            c.close();
+        } catch (SQLException e) {
+            if(c!=null){
+                try {
+                    c.rollback();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        }
     }
 
     public boolean isTestCaseNameUsed(String name) {
@@ -648,6 +766,43 @@ public class SqliteHelper {
                     String descr = rq.getString(5);
                     List<TestCase_Sequence> reqs = getTestCaseSequenceById(id);
                     TestCase s = new TestCase(name, descr, reqs);
+                    s.setId(id);
+
+                    res = s;
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+
+    public TestCase getTestCaseByName(String selectedTestCase) {
+        TestCase res = null;
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT,DESCRIPTION from TESTCASE WHERE NAME=?");
+                stmt.setString(1, selectedTestCase);
+                rq = stmt.executeQuery();
+                if (!rq.next()){
+                    res = null;
+                }else {
+                    int id = rq.getInt(1);
+                    String descr = rq.getString(5);
+                    List<TestCase_Sequence> reqs = getTestCaseSequenceById(id);
+                    TestCase s = new TestCase(selectedTestCase, descr, reqs);
                     s.setId(id);
 
                     res = s;
@@ -849,4 +1004,125 @@ public class SqliteHelper {
         }
         return null;
     }
+
+    public void insertLogin(Login login) throws SQLException {
+        Connection c = getConnection();
+        PreparedStatement  stmt = c.prepareStatement("INSERT INTO LOGIN "+
+                "(USER_NAME,PASSWORD,URL,BASE,TESTCASE_ID,OUT_PARAM_NAME,SESSION_VALUE,SESSION_CREATE_TIME) VALUES (?,?,?,?,?,?,'',0)");
+        stmt.setString(1,login.getUsername());
+        stmt.setString(2,login.getPassword());
+        stmt.setString(3,login.getUrl());
+        stmt.setString(4,login.getBase());
+        stmt.setInt(5,login.getTestcaseId());
+        stmt.setString(6,login.getOutParam());
+        stmt.executeUpdate();
+
+        stmt.close();
+        c.close();
+    }
+
+
+    public Login getLoginById(int id) {
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            try {
+                c = getConnection();
+                stmt = c.prepareStatement("SELECT ID,USER_NAME,PASSWORD,URL,BASE,TESTCASE_ID,OUT_PARAM_NAME,"+
+                        "SESSION_VALUE,SESSION_CREATE_TIME from LOGIN WHERE ID= ?");
+                stmt.setInt(1, id);
+                rq = stmt.executeQuery();
+                if (rq.next()){
+                    String username = rq.getString(2);
+                    String password = rq.getString(3);
+                    String url = rq.getString(4);
+                    String base = rq.getString(5);
+                    int testcaseId = rq.getInt(6);
+                    String outParam = rq.getString(7);
+                    String session = rq.getString(8);
+                    int last_seen = rq.getInt(9);
+                    TestCase testcase = getTestCaseById(testcaseId);
+                    Login r = new Login(id,username,password,outParam,url,base,session,last_seen,testcase);
+                    return  r;
+                }else{
+                    return null;
+                }
+            } finally {
+                if (rq != null)
+                    rq.close();
+                if (stmt != null)
+                    stmt.close();
+                if (c != null)
+                    c.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void deleteLogin(int id) {
+        Connection c = null;
+        try {
+            c = getConnection();
+
+            PreparedStatement stmt = c.prepareStatement("SELECT TESTCASE_ID from LOGIN WHERE ID = ?");
+            stmt.setInt(1, id);
+            ResultSet rq = stmt.executeQuery();
+            while (rq.next()){
+                int tid = rq.getInt(1);
+                deleteTestCase(tid);
+            }
+            stmt = c.prepareStatement("DELETE from LOGIN WHERE ID =?");
+            stmt.setInt(1,id);
+            stmt.executeUpdate();
+
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateLogin(Login login) {
+        try {
+            Connection c = getConnection();
+            PreparedStatement stmt = c.prepareStatement("UPDATE LOGIN SET USER_NAME = ?,PASSWORD=?,URL=?,BASE=?, "+
+                    "TESTCASE_ID=?,OUT_PARAM_NAME=?,SESSION_VALUE=?,SESSION_CREATE_TIME=? WHERE ID =?");
+            stmt.setString(1,login.getUsername());
+            stmt.setString(2,login.getPassword());
+            stmt.setString(3,login.getUrl());
+            stmt.setString(4,login.getBase());
+            stmt.setInt(5,login.getTestcaseId());
+            stmt.setString(6,login.getOutParam());
+            stmt.setString(7,login.getSession());
+            stmt.setInt(8,login.getLast_seen());
+            stmt.setInt(9,login.getId());
+            stmt.executeUpdate();
+            stmt.close();
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void cloneLogin(int id) {
+        Login log = getLoginById(id);
+        try {
+            insertLogin(log);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void cloneTestCase(int id, String newName) {
+        TestCase tcase = getTestCaseById(id);
+        try {
+            tcase.setName(newName);
+            insertTestCase(tcase);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

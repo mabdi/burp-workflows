@@ -31,10 +31,10 @@ public class DialogSelectVariable extends AbstractDialog {
 
 
     public void setData(boolean globals){
-        List<String> allSeq = new SqliteHelper().getAllVariables(globals);
-        for (String seq : allSeq) {
-            modelList.addElement(seq);
-        }
+//        List<String> allSeq = new SqliteHelper().getAllVariables(globals);
+//        for (String seq : allSeq) {
+//            modelList.addElement(seq);
+//        }
     }
 
     @Override

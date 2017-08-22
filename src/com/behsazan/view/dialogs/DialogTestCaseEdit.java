@@ -49,6 +49,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
     }
 
     public void initData(int testCaseid) {
+        setVisible(true);
         this.testCase = TestCase.getById(testCaseid);
         for (TestCase_Sequence seq: testCase.getSeqs()) {
             SequenceListModelObject s = new SequenceListModelObject(seq.getSequence());
@@ -57,7 +58,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
         }
         parseAndshowWaitDialog();
         txtTestCaseName.setText(testCase.getName());
-        setVisible(true);
+
     }
 
     @Override
@@ -278,16 +279,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
     }
 
     private void parseAndshowWaitDialog() {
-        final JDialog pleaseWaitDialog = new JDialog(this);
-        JPanel panel = new JPanel();
-        final JLabel dialogWaitlabel = new JLabel("Please wait...");
-        panel.add(dialogWaitlabel );
-        pleaseWaitDialog.add(panel);
-        pleaseWaitDialog.setTitle("Please wait...");
-        pleaseWaitDialog.setModalityType(ModalityType.APPLICATION_MODAL);
-        pleaseWaitDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        pleaseWaitDialog.pack();
-        pleaseWaitDialog.setLocationRelativeTo(this);
+        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(this);
         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
             @Override
@@ -309,10 +301,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
 
             @Override
             protected void process(List<String> chunks) {
-                dialogWaitlabel.setText(chunks.get(0));
-                pleaseWaitDialog.pack();
-                pleaseWaitDialog.setLocationRelativeTo(DialogTestCaseEdit.this);
-                pleaseWaitDialog.repaint();
+                DialogWaiting.updateMessage(pleaseWaitDialog,chunks.get(0));
             }
 
             @Override

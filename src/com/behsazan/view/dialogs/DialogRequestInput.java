@@ -57,19 +57,19 @@ public class DialogRequestInput extends AbstractDialog{
         }
         comboType.setModel(modelCombo);
 
-        final JButton btnFile = new JButton("Load From Variables");
+        final JButton btnFile = new JButton("Import From File");
         comboType.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Map<Integer, String> kvp = RequestIn.getTypesString();
                 if(comboType.getSelectedItem().equals(kvp.get(RequestIn.TYPE_FROM_LIST))){
-                    btnFile.setText("Import From File");
+                    btnFile.setEnabled(true);
                 }
                 if(comboType.getSelectedItem().equals(kvp.get(RequestIn.TYPE_LOCAL))){
-                    btnFile.setText("Load From Local Variables");
+                    btnFile.setEnabled(false);
                 }
                 if(comboType.getSelectedItem().equals(kvp.get(RequestIn.TYPE_GLOBAL))){
-                    btnFile.setText("Load From Global Variables");
+                    btnFile.setEnabled(false);
                 }
             }
         });
@@ -108,25 +108,25 @@ public class DialogRequestInput extends AbstractDialog{
                         }
                     }
                 }
-                if(comboType.getSelectedItem().equals(kvp.get(RequestIn.TYPE_LOCAL))){
-                    DialogSelectVariable dlg = new DialogSelectVariable(DialogRequestInput.this);
-                    dlg.setData(false);
-                    List<String> items = dlg.getSelectedItem();
-
-                    for (String line :
-                            items) {
-                        appendLine(line);
-                    }
-                }
-                if(comboType.getSelectedItem().equals(kvp.get(RequestIn.TYPE_GLOBAL))){
-                    DialogSelectVariable dlg = new DialogSelectVariable(DialogRequestInput.this);
-                    dlg.setData(true);
-                    List<String> items = dlg.getSelectedItem();
-                    for (String line :
-                            items) {
-                        appendLine(line);
-                    }
-                }
+//                if(comboType.getSelectedItem().equals(kvp.get(RequestIn.TYPE_LOCAL))){
+//                    DialogSelectVariable dlg = new DialogSelectVariable(DialogRequestInput.this);
+//                    dlg.setData(false);
+//                    List<String> items = dlg.getSelectedItem();
+//
+//                    for (String line :
+//                            items) {
+//                        appendLine(line);
+//                    }
+//                }
+//                if(comboType.getSelectedItem().equals(kvp.get(RequestIn.TYPE_GLOBAL))){
+//                    DialogSelectVariable dlg = new DialogSelectVariable(DialogRequestInput.this);
+//                    dlg.setData(true);
+//                    List<String> items = dlg.getSelectedItem();
+//                    for (String line :
+//                            items) {
+//                        appendLine(line);
+//                    }
+//                }
             }
         });
 

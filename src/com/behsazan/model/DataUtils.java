@@ -2,12 +2,12 @@ package com.behsazan.model;
 
 import burp.*;
 import com.behsazan.model.adapters.RequestListModelObject;
-import com.behsazan.model.entity.Request;
-import com.behsazan.model.entity.RequestIn;
-import com.behsazan.model.entity.ResponseOut;
-import com.behsazan.model.entity.TestCaseInstance;
+import com.behsazan.model.entity.*;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.dialogs.DialogCaptcha;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -253,6 +254,9 @@ public class DataUtils {
     }
 
     public static String[] applyParameter(String[] msg, RequestIn inPar, String value) {
+        if(value==null || value.isEmpty()){
+            return msg;
+        }
         for (int i=0;i<msg.length;i++) {
             String line = msg[i];
             if (line.contains(inPar.getPlaceHoder())) {
@@ -343,4 +347,27 @@ public class DataUtils {
         DialogCaptcha dlg = new DialogCaptcha(parent);
         return dlg.setData(img);
     }
+
+    public static void exportTestCase(int id, File file) {
+        exportTestCase(new int[]{id},file);
+    }
+
+    public static void exportTestCase(int[] ids, File file) {
+        TestCase[] testcase = new TestCase[ids.length];
+        for (int i = 0; i < ids.length; i++) {
+            testcase[i] = TestCase.getById(ids[i]);
+        }
+        exportTestCase(testcase,file);
+    }
+
+    private static void exportTestCase(TestCase[] testcases, File file) {
+        Gson gson = new Gson();
+        String json = gson.toJson(testcases);
+        try {
+            FileUtils.write(file,json,"UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
