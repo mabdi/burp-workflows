@@ -17,7 +17,10 @@ public class Sequence {
     private String name;
     private String description;
 
-    public Sequence(String sequenceName,String description, List<Request> selectedRequests) {
+    public Sequence() {
+    }
+
+    public Sequence(String sequenceName, String description, List<Request> selectedRequests) {
         this.name = sequenceName;
         this.description = description;
         this.request = selectedRequests;

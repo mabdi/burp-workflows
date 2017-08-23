@@ -20,6 +20,9 @@ public class TestCase_Sequence {
     private int Id;
     private TestCase testCase;
 
+    public TestCase_Sequence() {
+    }
+
     public TestCase_Sequence(int id, Sequence sequence , URL url, String base1, String base2, String cookie, List<TestCase_Request> requests ) {
         this.Id = id;
         this.sequence = sequence;

@@ -16,7 +16,10 @@ public class TestCase {
     private int Id;
     private String description;
 
-    public TestCase(String name,String description, List<TestCase_Sequence> seqs) {
+    public TestCase() {
+    }
+
+    public TestCase(String name, String description, List<TestCase_Sequence> seqs) {
         this.name = name;
         this.seqs = seqs;
         this.description = description;

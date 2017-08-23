@@ -3,10 +3,7 @@ package com.behsazan.view.dialogs;
 import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.SequenceListModelObject;
-import com.behsazan.model.entity.Request;
-import com.behsazan.model.entity.Sequence;
-import com.behsazan.model.entity.TestCase;
-import com.behsazan.model.entity.TestCase_Sequence;
+import com.behsazan.model.entity.*;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.abstracts.AbstractTab;
@@ -38,11 +35,13 @@ public class DialogTestCaseNew extends AbstractDialog {
     private JTextField txtRootAddress;
     private JTextField txtBase1;
     private JTextField txtBase2;
-    private JTextField txtCookie;
+    private JComboBox<String> cmbCookie;
     private JPanel centerPanel;
     private DefaultListModel<SequenceListModelObject> modelSequeces;
     private JButton btnRequest;
     private SequenceListModelObject activeSequence;
+    private DefaultComboBoxModel<String> modelCookie;
+    private Vector<Vector<Object>> vectorCookie;
 
     public DialogTestCaseNew(AbstractTab tabTestCases) {
         super(tabTestCases);
@@ -107,7 +106,7 @@ public class DialogTestCaseNew extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogTestCaseNew.this,"No sequence is added.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if(Sequence.isSequenceNameUsed(name)){
+                    if(TestCase.isTestCaseNameUsed(name)){
                         JOptionPane.showMessageDialog(DialogTestCaseNew.this,"Testcase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -225,7 +224,12 @@ public class DialogTestCaseNew extends AbstractDialog {
         }
         activeSequence.getTestCase_sequence().setBase1(txtBase1.getText());
         activeSequence.getTestCase_sequence().setBase2(txtBase2.getText());
-        activeSequence.getTestCase_sequence().setCookie(txtCookie.getText().trim());
+        if(cmbCookie.getSelectedIndex()>0) {
+            String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
+            activeSequence.getTestCase_sequence().setCookie(param);
+        }else{
+            activeSequence.getTestCase_sequence().setCookie("");
+        }
     }
 
     private void showSequenceDetail() {
@@ -236,8 +240,19 @@ public class DialogTestCaseNew extends AbstractDialog {
         txtBase1.setText(DataUtils.getBasePath(req1));
         txtBase2.setEnabled(true);
         txtBase2.setText(DataUtils.getBasePath(req1));
-        txtCookie.setEnabled(true);
-        txtCookie.setText(DataUtils.getCookie(req1));
+        cmbCookie.setEnabled(true);
+        String cookeOutParam = activeSequence.getTestCase_sequence().getCookie();
+        cmbCookie.setSelectedIndex(0);
+        if(!cookeOutParam.isEmpty()){
+            int i=1;
+            for(Vector<Object> obj: vectorCookie){
+                if(obj.get(3).equals(cookeOutParam)){
+                    cmbCookie.setSelectedIndex(i);
+                    break;
+                }
+                i++;
+            }
+        }
         btnRequest.setEnabled(true);
     }
 
@@ -246,7 +261,6 @@ public class DialogTestCaseNew extends AbstractDialog {
             for (SequenceListModelObject s:
                     selectedItem) {
                 modelSequeces.addElement(s);
-                sequncesJlist.setSelectedValue(s,true);
             }
             ParseAndshowWaitDialog();
         }
@@ -263,7 +277,7 @@ public class DialogTestCaseNew extends AbstractDialog {
         pleaseWaitDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         pleaseWaitDialog.pack();
         pleaseWaitDialog.setLocationRelativeTo(this);
-        final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+        final SwingWorker<Void, SequenceListModelObject> worker = new SwingWorker<Void, SequenceListModelObject>() {
 
             @Override
             protected Void doInBackground() throws Exception {
@@ -278,13 +292,15 @@ public class DialogTestCaseNew extends AbstractDialog {
                 if(sequenceListModelObject.getTestCase_sequence()!=null){
                     return;
                 }
-                publish("Parsing " + sequenceListModelObject.getSequence().getName());
+                publish(sequenceListModelObject);
                 sequenceListModelObject.setTestCase_sequence(TestCase_Sequence.initBySequence(sequenceListModelObject.getSequence()));
             }
 
             @Override
-            protected void process(List<String> chunks) {
-                dialogWaitlabel.setText(chunks.get(0));
+            protected void process(List<SequenceListModelObject> chunks) {
+
+                String msg = "Parsing " + chunks.get(0).getSequence().getName();
+                dialogWaitlabel.setText(msg);
                 pleaseWaitDialog.pack();
                 pleaseWaitDialog.setLocationRelativeTo(DialogTestCaseNew.this);
                 pleaseWaitDialog.repaint();
@@ -319,8 +335,14 @@ public class DialogTestCaseNew extends AbstractDialog {
             txtBase2.setEnabled(false);
 
             JLabel lblCookie = new JLabel("Change Cookie: ");
-            txtCookie = new JTextField("",42);
-            txtCookie.setEnabled(false);
+            modelCookie = new DefaultComboBoxModel<String>();
+            vectorCookie = Login.getAllLogins_Table();
+            modelCookie.addElement("none");
+            for(Vector<Object> login: vectorCookie){
+                modelCookie.addElement(""+ login.get(0) + ". " + login.get(1) + " (" + login.get(3) + ")");
+            }
+            cmbCookie = new JComboBox<String>(modelCookie);
+            cmbCookie.setEnabled(false);
 
             JLabel lblRequests = new JLabel("Edit Requests: ");
             btnRequest = new JButton("Edit Requests");
@@ -342,7 +364,7 @@ public class DialogTestCaseNew extends AbstractDialog {
             sequenceDetailPanel.add(txtBase1);
             sequenceDetailPanel.add(txtBase2);
             sequenceDetailPanel.add(lblCookie);
-            sequenceDetailPanel.add(txtCookie);
+            sequenceDetailPanel.add(cmbCookie);
             sequenceDetailPanel.add(lblRequests);
             sequenceDetailPanel.add(btnRequest);
 
@@ -361,8 +383,8 @@ public class DialogTestCaseNew extends AbstractDialog {
 
             spring.putConstraint(SpringLayout.WEST,lblCookie,10,SpringLayout.WEST,sequenceDetailPanel);
             spring.putConstraint(SpringLayout.NORTH,lblCookie,10,SpringLayout.SOUTH,lblBase);
-            spring.putConstraint(SpringLayout.WEST,txtCookie,140,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,txtCookie,0,SpringLayout.NORTH,lblCookie);
+            spring.putConstraint(SpringLayout.WEST,cmbCookie,140,SpringLayout.WEST,sequenceDetailPanel);
+            spring.putConstraint(SpringLayout.NORTH,cmbCookie,0,SpringLayout.NORTH,lblCookie);
 
 
             spring.putConstraint(SpringLayout.WEST,lblRequests,10,SpringLayout.WEST,sequenceDetailPanel);

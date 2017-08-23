@@ -100,6 +100,7 @@ public class PanelTestCaseRequests extends AbstractPanel {
         responseViewer.setMessage(currentRequest.getRequest().getResponse(),false);
         modelRequestIn.changeData(currentRequest.getInputParams());
         modelResponseOut.changeData(currentRequest.getOutputParams());
+        getRequestTabs().setSelectedIndex(0);
     }
 
     public JTabbedPane getRequestTabs() {

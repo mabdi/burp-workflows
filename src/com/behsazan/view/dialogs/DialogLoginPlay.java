@@ -1,19 +1,17 @@
 package com.behsazan.view.dialogs;
 
 import burp.BurpExtender;
+import burp.ICookie;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
 import com.behsazan.model.settings.Settings;
-import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.panels.PanelPlayInstance;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,7 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by admin on 08/02/2017.
@@ -141,10 +138,11 @@ public class DialogLoginPlay extends AbstractDialog {
     }
 
     private void runTest() {
-        SwingWorker<RequestListModelObject ,RequestListModelObject> worker = new SwingWorker<RequestListModelObject , RequestListModelObject>() {
+        SwingWorker<Void ,RequestListModelObject> worker = new SwingWorker<Void , RequestListModelObject>() {
             @Override
-            protected RequestListModelObject doInBackground() throws Exception {
-                return  runTestCase(currentlyDisplayedInstance);
+            protected Void doInBackground() throws Exception {
+                runTestCase(currentlyDisplayedInstance);
+                return null;
             }
 
             private RequestListModelObject runTestCase(TestCaseInstance instance) {
@@ -162,7 +160,7 @@ public class DialogLoginPlay extends AbstractDialog {
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
-                RequestListModelObject lastResponse = null;
+                String lastCookie = null;
                 for (TestCase_Request req: reqs) {
                     if(forceStop){
                         break;
@@ -189,23 +187,26 @@ public class DialogLoginPlay extends AbstractDialog {
                     }
                     final IHttpRequestResponse response = BurpExtender.getInstance().getCallbacks().makeHttpRequest(httpService,newRequest);
                     RequestListModelObject obj = new RequestListModelObject(response);
-                    lastResponse = obj;
                     obj.setTestInstance(instance);
                     obj.setTestRequest(req);
+                    for (ICookie coo : obj.getRequestObject().getAnalysedResponse().getCookies()) {
+                        if(coo.getName().equals("JSESSIONID")){
+                            lastCookie = coo.getValue();
+                        }
+                    }
                     for (ResponseOut outPar : outPars) {
                         DataUtils.setOutParameters(DialogLoginPlay.this,obj,outPar,instance);
                     }
                     instance.getRequestModelItem().add(obj);
                     publish(obj);
                 }
-                ResponseOut out = new ResponseOut(-1,ResponseOut.TYPE_COOKIE,login.getOutParam(),"",true);
-                DataUtils.setOutParameters(null,lastResponse,out,currentlyDisplayedInstance);
+                instance.updateGlobalVariable(login.getOutParam(),lastCookie);
                 if(!TestCaseInstance.queryGlobalVariable(login.getOutParam()).isEmpty()) {
                     login.setLast_seen((int) new Date().getTime());
                     login.setSession(TestCaseInstance.queryGlobalVariable(login.getOutParam()));
                     Login.updateLogin(login);
                 }
-                return lastResponse;
+                return null;
             }
 
             @Override

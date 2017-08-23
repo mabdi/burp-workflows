@@ -83,6 +83,8 @@ public class PanelPlayInstance extends AbstractPanel {
 
     private void updateRequestInfo() {
         currentlyDisplayedRequest = (RequestListModelObject) requestJlist.getSelectedValue();
+        if(currentlyDisplayedRequest==null)
+            return;
         requestViewer.setMessage(currentlyDisplayedRequest.getRequest(), true);
         responseViewer.setMessage(currentlyDisplayedRequest.getResponse(), false);
         requestTemplateViewer.setMessage(currentlyDisplayedRequest.getTestRequest().getModifiedRequest(), true);

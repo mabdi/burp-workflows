@@ -20,6 +20,9 @@ public class Login {
     private TestCase testCase;
     private int testcaseId;
 
+    public Login() {
+    }
+
     public Login(int id, String username, String password, String outParam, String url, String base, String session, int last_seen, TestCase testcase) {
         this.id = id;
         this.username = username;

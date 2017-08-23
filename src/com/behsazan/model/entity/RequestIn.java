@@ -33,6 +33,9 @@ public class RequestIn {
     private String txtValue;
     private TestCase_Request testCase_request;
 
+    public RequestIn() {
+    }
+
     public RequestIn(int id, int type, String placeHoder, String txtValue) {
         this.id = id;
         this.type = type;

@@ -24,7 +24,10 @@ public class Request {
     private IResponseInfo analyzedResponse;
     private IHttpService httpService;
 
-    public Request(URL url, byte[] request,byte[] response, int order) {
+    public Request() {
+    }
+
+    public Request(URL url, byte[] request, byte[] response, int order) {
         this.url = url;
         this.request = request;
         this.response = response;

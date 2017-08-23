@@ -579,7 +579,7 @@ public class SqliteHelper {
                 PreparedStatement stmt3 = c.prepareStatement("INSERT INTO TESTCASE_REQUEST " +
                         "(TESTCASE_SEQUENCE_ID,REQUEST_ID,REQUEST,TESTCASE_ID) VALUES (?,?,?,?)");
                 stmt3.setInt(1, sq.getId());
-                stmt3.setInt(2, rq.getId());
+                stmt3.setInt(2, rq.getRequest().getId());
                 stmt3.setBytes(3, rq.getModifiedRequest());
                 stmt3.setInt(4, testCase.getId());
                 stmt3.executeUpdate();
@@ -999,7 +999,7 @@ public class SqliteHelper {
             c = getConnection();
             c.setAutoCommit(false);
             PreparedStatement stmt = c.prepareStatement(
-                    "UPDATE TESTCASE SET NAME = ?,DESCRIPTION=?,SEQUENCE_COUNT=?,REQUEST_COUNT=?, " +
+                    "UPDATE TESTCASE SET NAME = ?,DESCRIPTION=?,SEQUENCE_COUNT=?,REQUEST_COUNT=?  " +
                             " WHERE ID =?");
             stmt.setString(1, testCase.getName());
             stmt.setString(1, testCase.getDescription());

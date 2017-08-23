@@ -224,7 +224,7 @@ public class DialogTestCasePlay extends AbstractDialog {
                         msg = DataUtils.changeReferer(msg,url.toString());
                         msg = DataUtils.changeUrlBase(msg,base1,base2);
                         if(!cookie.isEmpty()) {
-                            msg = DataUtils.changeCookie(msg, cookie);
+                            msg = DataUtils.changeCookie(msg, TestCaseInstance.queryGlobalVariable(cookie) );
                         }
                         for (RequestIn inPar : inPars) {
                             msg = DataUtils.applyParameter(msg,inPar,instance.getInitParamFor(inPar));

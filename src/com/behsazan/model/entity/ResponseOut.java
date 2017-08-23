@@ -31,6 +31,9 @@ public class ResponseOut {
         TYPES_STRING.put(TYPE_REGEX,"Regex");
     }
 
+    public ResponseOut() {
+    }
+
     public static Map<Integer, String> getTypesString() {
         return TYPES_STRING;
     }

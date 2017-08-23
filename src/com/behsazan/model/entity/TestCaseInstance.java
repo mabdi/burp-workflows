@@ -16,7 +16,7 @@ import java.util.Map;
 public class TestCaseInstance {
     private static Map<String,String> GLOBALS;
     private static DefaultTableModel modelGlobal;
-    private final TestCase testCase;
+    private TestCase testCase;
     private Map<Integer, String> initParams; // RequestIn -> String (variable name or constant)
     private Map<String,String> locals;
     private int order;
@@ -25,8 +25,11 @@ public class TestCaseInstance {
         GLOBALS = new HashMap<>();
     }
 
-    private final List<RequestListModelObject> requestModelItem;
+    private List<RequestListModelObject> requestModelItem;
     private DefaultTableModel modelLocal;
+
+    public TestCaseInstance() {
+    }
 
     public TestCaseInstance(TestCase testCase, Map<Integer, String> maps, int order) {
 

@@ -20,6 +20,9 @@ public class TestCase_Request {
     private int id;
     private TestCase_Sequence testCaseSequence;
 
+    public TestCase_Request() {
+    }
+
     public TestCase_Request(int id, Request request, List<RequestIn> inputParams, List<ResponseOut> outputParams, byte[] modifiedRequest) {
         this.id = id;
         this.request = request;
