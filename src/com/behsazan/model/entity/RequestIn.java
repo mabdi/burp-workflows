@@ -31,7 +31,7 @@ public class RequestIn {
     private int type;
     private String placeHoder;
     private String txtValue;
-    private TestCase_Request testCase_request;
+    private Flow_Request flow_request;
 
     public RequestIn() {
     }
@@ -41,7 +41,7 @@ public class RequestIn {
         this.type = type;
         this.placeHoder = placeHoder;
         this.txtValue = txtValue;
-        this.testCase_request = testCase_request;
+        this.flow_request = flow_request;
     }
 
     public int getId() {
@@ -87,11 +87,11 @@ public class RequestIn {
         this.txtValue = txtValue;
     }
 
-    public TestCase_Request getTestCase_request() {
-        return testCase_request;
+    public Flow_Request getFlow_request() {
+        return flow_request;
     }
 
-    public void setTestCase_request(TestCase_Request testCase_request) {
-        this.testCase_request = testCase_request;
+    public void setFlow_request(Flow_Request flow_request) {
+        this.flow_request = flow_request;
     }
 }

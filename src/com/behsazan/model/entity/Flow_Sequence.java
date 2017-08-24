@@ -10,20 +10,20 @@ import java.util.List;
 /**
  * Created by admin on 08/07/2017.
  */
-public class TestCase_Sequence {
+public class Flow_Sequence {
     private Sequence sequence;
-    private List<TestCase_Request> requests;
+    private List<Flow_Request> requests;
     private URL url;
     private String base1;
     private String base2;
     private String cookie;
     private int Id;
-    private TestCase testCase;
+    private Flow flow;
 
-    public TestCase_Sequence() {
+    public Flow_Sequence() {
     }
 
-    public TestCase_Sequence(int id, Sequence sequence , URL url, String base1, String base2, String cookie, List<TestCase_Request> requests ) {
+    public Flow_Sequence(int id, Sequence sequence , URL url, String base1, String base2, String cookie, List<Flow_Request> requests ) {
         this.Id = id;
         this.sequence = sequence;
         this.url = url;
@@ -31,17 +31,17 @@ public class TestCase_Sequence {
         this.base2 = base2;
         this.cookie = cookie;
         this.requests = requests;
-        for (TestCase_Request ri : requests ) {
-            ri.setTestCaseSequence(this);
+        for (Flow_Request ri : requests ) {
+            ri.setFlowSequence(this);
         }
     }
 
-    public static TestCase_Sequence initBySequence(Sequence sequence) {
+    public static Flow_Sequence initBySequence(Sequence sequence) {
 
 
-        List<TestCase_Request> requests = new ArrayList<>();
+        List<Flow_Request> requests = new ArrayList<>();
         for (Request rq : sequence.getRequest()) {
-            requests.add(TestCase_Request.getInstaceFromRequest(rq));
+            requests.add(Flow_Request.getInstaceFromRequest(rq));
         }
         Request req1 = sequence.getRequest().get(0);
         URL url = null;
@@ -51,7 +51,7 @@ public class TestCase_Sequence {
             e.printStackTrace();
         }
 
-        TestCase_Sequence tsq = new TestCase_Sequence(-1,sequence,url,DataUtils.getBasePath(req1),DataUtils.getBasePath(req1),
+        Flow_Sequence tsq = new Flow_Sequence(-1,sequence,url,DataUtils.getBasePath(req1),DataUtils.getBasePath(req1),
                 DataUtils.getCookie(req1),requests);
         return tsq;
     }
@@ -60,7 +60,7 @@ public class TestCase_Sequence {
         return sequence;
     }
 
-    public List<TestCase_Request> getRequests() {
+    public List<Flow_Request> getRequests() {
         return requests;
     }
 
@@ -104,11 +104,11 @@ public class TestCase_Sequence {
         Id = id;
     }
 
-    public TestCase getTestCase() {
-        return testCase;
+    public Flow getFlow() {
+        return flow;
     }
 
-    public void setTestCase(TestCase testCase) {
-        this.testCase = testCase;
+    public void setFlow(Flow flow) {
+        this.flow = flow;
     }
 }

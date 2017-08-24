@@ -25,8 +25,8 @@ public class Interface implements ITab {
         tabsPane = new JTabbedPane();
         AbstractTab[] tabs = new AbstractTab[]{
                 new TabSequnces(),
+                new TabFlow(),
                 new TabLogins(),
-                new TabTestCases(),
                 new TabTestSuites(),
                 new TabSettings(),
         };

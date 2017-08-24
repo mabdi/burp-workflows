@@ -23,6 +23,7 @@ public class Settings {
     public static final String SECTION_CHAR = "\u00A7";
     public static final String LOCALIDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
     public static final String GLOBALIDENTIFIER = "\u00A7" + "var@globals" + "\u00A7";
+    public static final String PARAMIDENTIFIER = "\u00A7" + "var@params" + "\u00A7";
 
     public static void backupDb(TabSettings tabSettings) {
         SqliteHelper db = new SqliteHelper();

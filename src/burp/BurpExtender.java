@@ -17,6 +17,7 @@ public class BurpExtender implements IBurpExtender {
     private static BurpExtender instance = null;
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
+    private static ITab UI_PARENT;
     PrintWriter stdout;
 
     @Override
@@ -63,5 +64,9 @@ public class BurpExtender implements IBurpExtender {
 
     public static void logText(String s){
         getInstance().getStdout().println(s);
+    }
+
+    public static ITab getUiParent() {
+        return UI_PARENT;
     }
 }

@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -259,7 +258,7 @@ public class DataUtils {
         return msg;
     }
 
-    public static void setOutParameters(Component parent,RequestListModelObject obj, ResponseOut outPar, TestCaseInstance instance) {
+    public static void setOutParameters(Component parent,RequestListModelObject obj, ResponseOut outPar, Flow_Running instance) {
         Request rq = obj.getRequestObject();
         IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
         if(outPar.getType() == ResponseOut.TYPE_CAPTCHA){
@@ -341,22 +340,22 @@ public class DataUtils {
         return dlg.setData(img);
     }
 
-    public static void exportTestCase(int id, File file) {
-        exportTestCase(new int[]{id},file);
+    public static void exportFlow(int id, File file) {
+        exportFlow(new int[]{id},file);
     }
 
-    public static void exportTestCase(int[] ids, File file) {
-        TestCase[] testcase = new TestCase[ids.length];
+    public static void exportFlow(int[] ids, File file) {
+        Flow[] flows = new Flow[ids.length];
         for (int i = 0; i < ids.length; i++) {
-            testcase[i] = TestCase.getById(ids[i]);
+            flows[i] = Flow.getById(ids[i]);
         }
-        exportTestCase(testcase,file);
+        exportFlow(flows,file);
     }
 
-    private static void exportTestCase(TestCase[] testcases, File file) {
+    private static void exportFlow(Flow[] flows, File file) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        String json = gson.toJson(testcases);
+        String json = gson.toJson(flows);
         try {
             FileUtils.write(file,json,"UTF-8");
         } catch (IOException e) {

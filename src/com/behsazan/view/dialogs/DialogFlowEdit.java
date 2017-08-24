@@ -4,8 +4,6 @@ import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.SequenceListModelObject;
 import com.behsazan.model.entity.*;
-import com.behsazan.model.sqlite.SqliteHelper;
-import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.abstracts.AbstractTab;
 
@@ -17,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -26,12 +23,12 @@ import java.util.Vector;
 /**
  * Created by admin on 08/02/2017.
  */
-public class DialogTestCaseEdit extends AbstractDialog {
+public class DialogFlowEdit extends AbstractDialog {
 
     private JPanel topPanel;
     private JSplitPane centerSplitPanel;
     private JPanel buttonsPanel;
-    private JTextField txtTestCaseName;
+    private JTextField txtFlowName;
     private JPanel sequenceJListPanel;
     private JPanel sequenceDetailPanel;
     private JList<SequenceListModelObject> sequncesJlist;
@@ -42,25 +39,25 @@ public class DialogTestCaseEdit extends AbstractDialog {
     private DefaultListModel<SequenceListModelObject> modelSequeces;
     private JButton btnRequest;
     private SequenceListModelObject activeSequence;
-    private TestCase testCase;
+    private Flow flow;
     private JComboBox<String> cmbCookie;
     private DefaultComboBoxModel<String> modelCookie;
     private Vector<Vector<Object>> vectorCookie;
 
-    public DialogTestCaseEdit(AbstractTab tabTestCases) {
-        super(tabTestCases,false);
+    public DialogFlowEdit(AbstractTab tab) {
+        super(tab,false);
     }
 
-    public void initData(final int testCaseid) {
+    public void initData(final int flowId) {
         final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(this);
         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
             @Override
             protected Void doInBackground() throws Exception {
-                testCase = TestCase.getById(testCaseid);
-                for (TestCase_Sequence seq: testCase.getSeqs()) {
+                flow = Flow.getById(flowId);
+                for (Flow_Sequence seq: flow.getSeqs()) {
                     SequenceListModelObject s = new SequenceListModelObject(seq.getSequence());
-                    s.setTestCase_sequence(seq);
+                    s.setFlow_sequence(seq);
                     modelSequeces.addElement(s);
                 }
                 return null;
@@ -74,14 +71,14 @@ public class DialogTestCaseEdit extends AbstractDialog {
         };
         worker.execute();
         pleaseWaitDialog.setVisible(true);
-        txtTestCaseName.setText(testCase.getName());
+        txtFlowName.setText(flow.getName());
         setVisible(true);
     }
 
     @Override
     protected void initUI() {
         setSize(800,600);
-        setTitle("Edit TestCase");
+        setTitle("Edit Flow");
         setLocationRelativeTo(getParentWindow());
 
         setLayout(new BorderLayout());
@@ -97,25 +94,25 @@ public class DialogTestCaseEdit extends AbstractDialog {
 //            btnUpdateName.addActionListener(new ActionListener() {
 //                @Override
 //                public void actionPerformed(ActionEvent e) {
-//                    String name = getTxtTestCaseName().getText();
+//                    String name = getTxtFlowName().getText();
 //                    if(name.isEmpty()){
 //                        JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"TestCase name is not set.","Error",JOptionPane.ERROR_MESSAGE);
 //                        return;
 //                    }
-//                    if(TestCase.isTestCaseNameUsed(name)){
+//                    if(TestCase.isFlowNameUsed(name)){
 //                        JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"TestCase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
 //                        return;
 //                    }
 //                    try {
-//                        Sequence.updateSequenceName(testCase.getId(),name);
+//                        Sequence.updateSequenceName(flow.getId(),name);
 //                    } catch (SQLException e1) {
 //                        e1.printStackTrace();
 //                        UIUtils.showGenerealError(DialogTestCaseEdit.this);
 //                    }
 //                }
 //            });
-            topPanel.add(new JLabel("TestCase Name: "));
-            topPanel.add(getTxtTestCaseName());
+            topPanel.add(new JLabel("Flow Name: "));
+            topPanel.add(getTxtFlowName());
 //            topPanel.add(btnUpdateName);
         }
         return topPanel;
@@ -149,25 +146,25 @@ public class DialogTestCaseEdit extends AbstractDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     List<SequenceListModelObject> reqs = getSelectedSequences();
-                    String name = txtTestCaseName.getText();
+                    String name = txtFlowName.getText();
                     if(name.isEmpty() ){
-                        JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(DialogFlowEdit.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     if(reqs.size()==0){
-                        JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"No sequence is added.","Error",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(DialogFlowEdit.this,"No sequence is added.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     String description = "";
                     try {
-                        List<TestCase_Sequence> ts = new ArrayList<>();
+                        List<Flow_Sequence> ts = new ArrayList<>();
                         for (SequenceListModelObject req: reqs) {
-                            ts.add(req.getTestCase_sequence());
+                            ts.add(req.getFlow_sequence());
                         }
-                        testCase.setSeqs(ts);
-                        testCase.setName(name);
-                        testCase.setDescription(description);
-                        TestCase.updateTestCase(testCase);
+                        flow.setSeqs(ts);
+                        flow.setName(name);
+                        flow.setDescription(description);
+                        Flow.updateFlow(flow);
                         dissmiss();
 
                     }catch (Exception x){
@@ -182,11 +179,11 @@ public class DialogTestCaseEdit extends AbstractDialog {
         return buttonsPanel;
     }
 
-    public JTextField getTxtTestCaseName() {
-        if(txtTestCaseName == null){
-            txtTestCaseName = new JTextField("",20);
+    public JTextField getTxtFlowName() {
+        if(txtFlowName == null){
+            txtFlowName = new JTextField("",20);
         }
-        return txtTestCaseName;
+        return txtFlowName;
     }
 
     public JPanel getSequenceJListPanel() {
@@ -212,7 +209,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
             addSequence.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    final DialogSelectSequence dlg = new DialogSelectSequence(DialogTestCaseEdit.this);
+                    final DialogSelectSequence dlg = new DialogSelectSequence(DialogFlowEdit.this);
                     dlg.setData();
                     addNewSequence(dlg.getSelectedItem());
                     dlg.dissmiss();
@@ -225,7 +222,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
                     if(sequncesJlist.getSelectedIndex()<0){
                         return;
                     }
-                    int rsp = JOptionPane.showConfirmDialog(DialogTestCaseEdit.this,"Are you sure to delete?","Delete",JOptionPane.YES_NO_OPTION);
+                    int rsp = JOptionPane.showConfirmDialog(DialogFlowEdit.this,"Are you sure to delete?","Delete",JOptionPane.YES_NO_OPTION);
                     if(rsp == JOptionPane.YES_OPTION){
                         int sel = sequncesJlist.getSelectedIndex();
                         sequncesJlist.setSelectedIndex(0);
@@ -264,17 +261,17 @@ public class DialogTestCaseEdit extends AbstractDialog {
         if(activeSequence==null)
             return;
         try {
-            activeSequence.getTestCase_sequence().setUrl(new URL(txtRootAddress.getText()));
+            activeSequence.getFlow_sequence().setUrl(new URL(txtRootAddress.getText()));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        activeSequence.getTestCase_sequence().setBase1(txtBase1.getText());
-        activeSequence.getTestCase_sequence().setBase2(txtBase2.getText());
+        activeSequence.getFlow_sequence().setBase1(txtBase1.getText());
+        activeSequence.getFlow_sequence().setBase2(txtBase2.getText());
         if(cmbCookie.getSelectedIndex()>0) {
             String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
-            activeSequence.getTestCase_sequence().setCookie(param);
+            activeSequence.getFlow_sequence().setCookie(param);
         }else{
-            activeSequence.getTestCase_sequence().setCookie("");
+            activeSequence.getFlow_sequence().setCookie("");
         }
     }
 
@@ -287,7 +284,7 @@ public class DialogTestCaseEdit extends AbstractDialog {
         txtBase2.setEnabled(true);
         txtBase2.setText(DataUtils.getBasePath(req1));
         cmbCookie.setEnabled(true);
-        String cookeOutParam = activeSequence.getTestCase_sequence().getCookie();
+        String cookeOutParam = activeSequence.getFlow_sequence().getCookie();
         cmbCookie.setSelectedIndex(0);
         if(!cookeOutParam.isEmpty()){
             int i=1;
@@ -325,11 +322,11 @@ public class DialogTestCaseEdit extends AbstractDialog {
             }
 
             private void parse(SequenceListModelObject sequenceListModelObject) {
-                if(sequenceListModelObject.getTestCase_sequence()!=null){
+                if(sequenceListModelObject.getFlow_sequence()!=null){
                     return;
                 }
                 publish("Parsing " + sequenceListModelObject.getSequence().getName());
-                sequenceListModelObject.setTestCase_sequence(TestCase_Sequence.initBySequence(sequenceListModelObject.getSequence()));
+                sequenceListModelObject.setFlow_sequence(Flow_Sequence.initBySequence(sequenceListModelObject.getSequence()));
             }
 
             @Override
@@ -381,10 +378,10 @@ public class DialogTestCaseEdit extends AbstractDialog {
             btnRequest.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DialogTestCaseRequests dlg = new DialogTestCaseRequests(DialogTestCaseEdit.this);
-                    TestCase_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getTestCase_sequence());
+                    DialogFlowRequests dlg = new DialogFlowRequests(DialogFlowEdit.this);
+                    Flow_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getFlow_sequence());
                     if(data!=null){
-                        sequncesJlist.getSelectedValue().setTestCase_sequence(data);
+                        sequncesJlist.getSelectedValue().setFlow_sequence(data);
                     }
                 }
             });

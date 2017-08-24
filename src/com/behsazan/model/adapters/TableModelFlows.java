@@ -1,27 +1,25 @@
 package com.behsazan.model.adapters;
 
-import com.behsazan.model.entity.TestCase;
-import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.model.entity.Flow;
 
 import javax.swing.table.AbstractTableModel;
-import java.sql.SQLException;
 import java.util.Vector;
 
 /**
  * Created by admin on 07/31/2017.
  */
-public class TableModelTestCases extends AbstractTableModel {
+public class TableModelFlows extends AbstractTableModel {
     private Vector<Vector<Object>> data;
     private String[] columns = new String[]{
         "Id","Name","#Sequence","#Request"
     };
 
-    public TableModelTestCases() {
+    public TableModelFlows() {
         updateData();
     }
 
     public void updateData() {
-        data = TestCase.getAllTestCases_Table();
+        data = Flow.getAllFlows_Table();
     }
 
     @Override

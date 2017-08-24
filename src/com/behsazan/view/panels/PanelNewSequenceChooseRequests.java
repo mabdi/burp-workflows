@@ -3,6 +3,7 @@ package com.behsazan.view.panels;
 import burp.*;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractPanel;
 
 import javax.swing.*;
@@ -34,6 +35,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     private JList listSelectedReqs;
     private JTextField txtSeqName;
     private JCheckBox enableFilter;
+    private JTextField txtUrl;
 
     @Override
     public String getName() {
@@ -53,11 +55,36 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
 
     @Override
     protected void initUI() {
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel lblSeqName = new JLabel("Sequence Name: ");
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        UIUtils.FormUtility form = new UIUtils.FormUtility();
         txtSeqName = new JTextField("", 20);
+        txtUrl = new JTextField("", 20);
+
+
+        form.addLabel("Sequence Name: ",topPanel);
+        form.addLastField(txtSeqName,topPanel);
+
+        form.addLabel("Base URL: ",topPanel);
+        form.addLastField(txtUrl,topPanel);
+
+        enableFilter = new JCheckBox("Show Only .do requests");
+        enableFilter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (enableFilter.isSelected()) {
+                    listAllRequests.setModel(modelDoRequests);
+                } else {
+                    listAllRequests.setModel(modelAllRequests);
+                }
+            }
+        });
+        form.addLabel("",topPanel);
+        form.addLastField(enableFilter,topPanel);
+
+
         final JButton startRecord = new JButton("Record");
         final JButton stopRecord = new JButton("Stop");
+
         startRecord.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -75,23 +102,20 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
                 stopRecord.setEnabled(false);
             }
         });
-        enableFilter = new JCheckBox("Show Only .do requests");
-        enableFilter.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (enableFilter.isSelected()) {
-                    listAllRequests.setModel(modelDoRequests);
-                } else {
-                    listAllRequests.setModel(modelAllRequests);
-                }
-            }
-        });
+
         stopRecord.setEnabled(false);
-        topPanel.add(lblSeqName);
-        topPanel.add(txtSeqName);
-        topPanel.add(startRecord);
-        topPanel.add(stopRecord);
-        topPanel.add(enableFilter);
+        JPanel btnBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        btnBar.add(startRecord);
+        btnBar.add(stopRecord);
+        form.addLabel("",topPanel);
+        form.addLastField(btnBar,topPanel);
+//        topPanel.add(txtSeqName);
+//        topPanel.add(startRecord);
+//        topPanel.add(stopRecord);
+//        topPanel.add(enableFilter);
+
+
+
 
         callbacks = BurpExtender.getInstance().getCallbacks();
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);

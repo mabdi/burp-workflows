@@ -3,7 +3,6 @@ package com.behsazan.view.dialogs;
 import com.behsazan.controller.Controller;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
-import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.panels.PanelPlayInstance;
 
@@ -19,34 +18,34 @@ import java.util.List;
 /**
  * Created by admin on 08/02/2017.
  */
-public class DialogTestCasePlay extends AbstractDialog {
+public class DialogFlowPlay extends AbstractDialog {
 
-    private TestCase testCase;
+    private Flow flow;
     private JPanel centerPanel;
     private JSplitPane centerSplitPanel;
     private JPanel buttonsPanel;
-    private DefaultListModel<TestCaseInstance> modelInstances;
-    private TestCaseInstance currentlyDisplayedInstance;
+    private DefaultListModel<Flow_Running> modelInstances;
+    private Flow_Running currentlyDisplayedInstance;
     private JList instancesJlist;
-    private List<TestCaseInstance> testCaseInstances;
+    private List<Flow_Running> flow_runnings;
     private JToggleButton actionBtn;
     private PanelPlayInstance mPlayInstancePanel;
     private boolean forceStop;
 
-    public DialogTestCasePlay(JPanel parent) {
+    public DialogFlowPlay(JPanel parent) {
         super(parent,false);
-        testCaseInstances = new ArrayList<>();
+        flow_runnings = new ArrayList<>();
     }
 
     public void setData(final int id){
         final DialogWaiting waitDialog = DialogWaiting.showWaitingDialog(this);
-        final SwingWorker<Void,TestCaseInstance> worker = new SwingWorker<Void,TestCaseInstance>() {
+        final SwingWorker<Void,Flow_Running> worker = new SwingWorker<Void,Flow_Running>() {
             @Override
             protected Void doInBackground() throws Exception {
-                DialogTestCasePlay.this.testCase = TestCase.getById(id);
-                testCaseInstances = Controller.buildTestCaseInstances(DialogTestCasePlay.this.testCase, new Controller.BuildTestCaseInstancesListener() {
+                DialogFlowPlay.this.flow = Flow.getById(id);
+                flow_runnings = Controller.buildTestCaseInstances(DialogFlowPlay.this.flow, new Controller.BuildTestCaseInstancesListener() {
                     @Override
-                    public void publishInstance(TestCaseInstance instance) {
+                    public void publishInstance(Flow_Running instance) {
                         publishInstance(instance);
                     }
                 });
@@ -59,8 +58,8 @@ public class DialogTestCasePlay extends AbstractDialog {
             }
 
             @Override
-            protected void process(List<TestCaseInstance> chunks) {
-                for (TestCaseInstance ins : chunks) {
+            protected void process(List<Flow_Running> chunks) {
+                for (Flow_Running ins : chunks) {
                     modelInstances.addElement(ins);
                 }
             }
@@ -79,7 +78,7 @@ public class DialogTestCasePlay extends AbstractDialog {
     @Override
     protected void initUI() {
         setSize(800,600);
-        setTitle("Play TestCase");
+        setTitle("Play Flow");
         setLocationRelativeTo(getParentWindow());
 
         setLayout(new BorderLayout());
@@ -136,11 +135,11 @@ public class DialogTestCasePlay extends AbstractDialog {
         SwingWorker<Void,RequestListModelObject> worker = new SwingWorker<Void, RequestListModelObject>() {
             @Override
             protected Void doInBackground() throws Exception {
-                for (TestCaseInstance instance: testCaseInstances) {
+                for (Flow_Running instance: flow_runnings) {
                     if(forceStop){
                         break;
                     }
-                    Controller.runTestCase(DialogTestCasePlay.this, instance, new Controller.RunTestCaseListener() {
+                    Controller.runTestCase(DialogFlowPlay.this, instance, new Controller.RunTestCaseListener() {
                         @Override
                         public boolean isRunFinished() {
                             return forceStop;
@@ -186,7 +185,7 @@ public class DialogTestCasePlay extends AbstractDialog {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
                     if(e.getValueIsAdjusting()) {
-                        currentlyDisplayedInstance = (TestCaseInstance) instancesJlist.getSelectedValue();
+                        currentlyDisplayedInstance = (Flow_Running) instancesJlist.getSelectedValue();
                         mPlayInstancePanel.updateInstance(currentlyDisplayedInstance);
                     }
                 }

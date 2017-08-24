@@ -1,10 +1,8 @@
 package com.behsazan.view.dialogs;
 
-import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.RequestIn;
-import com.behsazan.model.entity.TestCase_Request;
+import com.behsazan.model.entity.Flow_Request;
 import com.behsazan.view.abstracts.AbstractDialog;
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
@@ -202,7 +200,7 @@ public class DialogRequestInput extends AbstractDialog{
         return toolbar;
     }
 
-    public RequestIn getData(TestCase_Request request) {
+    public RequestIn getData(Flow_Request request) {
         requestIn = new RequestIn(-1, getSelectedType(), txtPlaceHolder.getText(),txtValues.getText() );
         initData();
         setVisible(true);

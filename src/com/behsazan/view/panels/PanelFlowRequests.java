@@ -2,48 +2,42 @@ package com.behsazan.view.panels;
 
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
-import burp.IMessageEditor;
 import burp.ITextEditor;
 import com.behsazan.model.adapters.TableModelRequestIn;
 import com.behsazan.model.adapters.TableModelResponseOut;
-import com.behsazan.model.entity.RequestIn;
 import com.behsazan.model.entity.ResponseOut;
-import com.behsazan.model.entity.TestCase_Request;
-import com.behsazan.model.entity.TestCase_Sequence;
+import com.behsazan.model.entity.Flow_Request;
+import com.behsazan.model.entity.Flow_Sequence;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.abstracts.AbstractPanel;
-import com.behsazan.view.dialogs.DialogRequestInput;
 import com.behsazan.view.dialogs.DialogResponseOutput;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Set;
 
 /**
  * Created by admin on 08/21/2017.
  */
-public class PanelTestCaseRequests extends AbstractPanel {
+public class PanelFlowRequests extends AbstractPanel {
     private JSplitPane splitPane;
-    private JList<TestCase_Request> listRequests;
+    private JList<Flow_Request> listRequests;
     private JSplitPane verticalSplitPane;
-    private DefaultListModel<TestCase_Request> modelRequests;
+    private DefaultListModel<Flow_Request> modelRequests;
     private JTabbedPane tabs;
     private ITextEditor requestViewer;
     private ITextEditor responseViewer;
-    private JTabbedPane parametersTabs;
-    private JPanel requestInputPanel;
+//    private JTabbedPane parametersTabs;
+//    private JPanel requestInputPanel;
     private JPanel responseOutputPanel;
     private JTable jtableResponseOut;
     private JTable jtableRequestIn;
     private TableModelRequestIn modelRequestIn;
     private TableModelResponseOut modelResponseOut;
-    private TestCase_Request currentRequest;
+    private Flow_Request currentRequest;
 
     @Override
     protected void initUI() {
@@ -55,7 +49,7 @@ public class PanelTestCaseRequests extends AbstractPanel {
         if (splitPane == null) {
             splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
             splitPane.setLeftComponent(new JScrollPane(getRequestList()));
-            splitPane.setRightComponent(getVerticalSplitPane());
+            splitPane.setRightComponent(getRequestTabs());
             splitPane.setDividerLocation(0.3);
         }
         return splitPane;
@@ -84,8 +78,10 @@ public class PanelTestCaseRequests extends AbstractPanel {
     public JSplitPane getVerticalSplitPane() {
         if (verticalSplitPane == null) {
             verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-            verticalSplitPane.setTopComponent(getRequestTabs());
-            verticalSplitPane.setBottomComponent(getParametersTabs());
+            IBurpExtenderCallbacks callbacks = BurpExtender.getInstance().getCallbacks();
+            responseViewer = callbacks.createTextEditor();
+            verticalSplitPane.setTopComponent(responseViewer.getComponent());
+            verticalSplitPane.setBottomComponent(getResponseOutputPanel());
             verticalSplitPane.setResizeWeight(0.5);
         }
         return verticalSplitPane;
@@ -115,10 +111,15 @@ public class PanelTestCaseRequests extends AbstractPanel {
 //            requestViewer = callbacks.createMessageEditor(null, true);
 //            responseViewer = callbacks.createMessageEditor(null, false);
             requestViewer = callbacks.createTextEditor();
-            responseViewer = callbacks.createTextEditor();
             JPanel reqPanel = new JPanel(new BorderLayout());
             JPanel reqToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
+            JButton btnReqParam = new JButton("Add param var");
+            btnReqParam.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    addPlaceHolder(requestViewer, Settings.PARAMIDENTIFIER);
+                }
+            });
             JButton btnReqLocal = new JButton("Add local var");
             btnReqLocal.addActionListener(new ActionListener() {
                 @Override
@@ -133,19 +134,21 @@ public class PanelTestCaseRequests extends AbstractPanel {
                     addPlaceHolder(requestViewer, Settings.GLOBALIDENTIFIER);
                 }
             });
+            reqToolbar.add(btnReqParam);
             reqToolbar.add(btnReqLocal);
             reqToolbar.add(btnReqGlobal);
 
             reqPanel.add(requestViewer.getComponent(), BorderLayout.CENTER);
             reqPanel.add(reqToolbar, BorderLayout.NORTH);
+
             tabs.addTab("Request", reqPanel);
-            tabs.addTab("Response", responseViewer.getComponent());
-            tabs.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    getParametersTabs().setSelectedIndex(tabs.getSelectedIndex());
-                }
-            });
+            tabs.addTab("Response", getVerticalSplitPane());
+//            tabs.addChangeListener(new ChangeListener() {
+//                @Override
+//                public void stateChanged(ChangeEvent e) {
+//                    getParametersTabs().setSelectedIndex(tabs.getSelectedIndex());
+//                }
+//            });
         }
         return tabs;
     }
@@ -163,65 +166,65 @@ public class PanelTestCaseRequests extends AbstractPanel {
         }
     }
 
-    public JTabbedPane getParametersTabs() {
-        if (parametersTabs == null) {
-            parametersTabs = new JTabbedPane();
+//    public JTabbedPane getParametersTabs() {
+//        if (parametersTabs == null) {
+//            parametersTabs = new JTabbedPane();
+//
+////            parametersTabs.addTab("Request Input", getRequestInputPanel());
+//            parametersTabs.addTab("Response Output", getResponseOutputPanel());
+//        }
+//        return parametersTabs;
+//    }
 
-            parametersTabs.addTab("Request Input", getRequestInputPanel());
-            parametersTabs.addTab("Response Output", getResponseOutputPanel());
-        }
-        return parametersTabs;
-    }
-
-    public JPanel getRequestInputPanel() {
-        if (requestInputPanel == null) {
-            requestInputPanel = new JPanel(new BorderLayout());
-            JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JButton addSequence = new JButton("+");
-            addSequence.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (listRequests.getSelectedIndex() < 0) {
-                        return;
-                    }
-                    DialogRequestInput dlg = new DialogRequestInput(PanelTestCaseRequests.this);
-                    RequestIn requestIn = dlg.getData(listRequests.getSelectedValue());
-                    if (requestIn != null) {
-                        listRequests.getSelectedValue().addInputParam(requestIn);
-                        modelRequestIn.fireTableDataChanged();
-                    }
-                }
-            });
-            JButton edit = new JButton("?");
-            edit.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (getJtableRequestIn().getSelectedRow() < 0) {
-                        return;
-                    }
-                    DialogRequestInput dlg = new DialogRequestInput(PanelTestCaseRequests.this);
-                    dlg.getEditData(modelRequestIn.getItem(getJtableRequestIn().getSelectedRow()));
-                }
-            });
-            JButton removeSequence = new JButton("-");
-            removeSequence.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (getJtableRequestIn().getSelectedRow() < 0) {
-                        return;
-                    }
-                    listRequests.getSelectedValue().getInputParams().remove(getJtableRequestIn().getSelectedRow());
-                    modelRequestIn.fireTableDataChanged();
-                }
-            });
-            btns.add(addSequence);
-            btns.add(edit);
-            btns.add(removeSequence);
-            requestInputPanel.add(btns, BorderLayout.NORTH);
-            requestInputPanel.add(new JScrollPane(getJtableRequestIn()), BorderLayout.CENTER);
-        }
-        return requestInputPanel;
-    }
+//    public JPanel getRequestInputPanel() {
+//        if (requestInputPanel == null) {
+//            requestInputPanel = new JPanel(new BorderLayout());
+//            JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//            JButton addSequence = new JButton("+");
+//            addSequence.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    if (listRequests.getSelectedIndex() < 0) {
+//                        return;
+//                    }
+//                    DialogRequestInput dlg = new DialogRequestInput(PanelParamSequenceRequests.this);
+//                    RequestIn requestIn = dlg.getData(listRequests.getSelectedValue());
+//                    if (requestIn != null) {
+//                        listRequests.getSelectedValue().addInputParam(requestIn);
+//                        modelRequestIn.fireTableDataChanged();
+//                    }
+//                }
+//            });
+//            JButton edit = new JButton("?");
+//            edit.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    if (getJtableRequestIn().getSelectedRow() < 0) {
+//                        return;
+//                    }
+//                    DialogRequestInput dlg = new DialogRequestInput(PanelParamSequenceRequests.this);
+//                    dlg.getEditData(modelRequestIn.getItem(getJtableRequestIn().getSelectedRow()));
+//                }
+//            });
+//            JButton removeSequence = new JButton("-");
+//            removeSequence.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    if (getJtableRequestIn().getSelectedRow() < 0) {
+//                        return;
+//                    }
+//                    listRequests.getSelectedValue().getInputParams().remove(getJtableRequestIn().getSelectedRow());
+//                    modelRequestIn.fireTableDataChanged();
+//                }
+//            });
+//            btns.add(addSequence);
+//            btns.add(edit);
+//            btns.add(removeSequence);
+//            requestInputPanel.add(btns, BorderLayout.NORTH);
+//            requestInputPanel.add(new JScrollPane(getJtableRequestIn()), BorderLayout.CENTER);
+//        }
+//        return requestInputPanel;
+//    }
 
     public JPanel getResponseOutputPanel() {
         if (responseOutputPanel == null) {
@@ -234,7 +237,7 @@ public class PanelTestCaseRequests extends AbstractPanel {
                     if (listRequests.getSelectedIndex() < 0) {
                         return;
                     }
-                    DialogResponseOutput dlg = new DialogResponseOutput(PanelTestCaseRequests.this);
+                    DialogResponseOutput dlg = new DialogResponseOutput(PanelFlowRequests.this);
                     ResponseOut responseOut = dlg.getData(listRequests.getSelectedValue());
                     if (responseOut != null) {
                         listRequests.getSelectedValue().addOutputParam(responseOut);
@@ -249,7 +252,7 @@ public class PanelTestCaseRequests extends AbstractPanel {
                     if (getJtableResponseOut().getSelectedRow() < 0) {
                         return;
                     }
-                    DialogResponseOutput dlg = new DialogResponseOutput(PanelTestCaseRequests.this);
+                    DialogResponseOutput dlg = new DialogResponseOutput(PanelFlowRequests.this);
                     dlg.getEditData(modelResponseOut.getItem(getJtableResponseOut().getSelectedRow()));
                 }
             });
@@ -291,8 +294,8 @@ public class PanelTestCaseRequests extends AbstractPanel {
         return jtableRequestIn;
     }
 
-    public void setData(TestCase_Sequence sequence) {
-        for (TestCase_Request obj : sequence.getRequests()) {
+    public void setData(Flow_Sequence sequence) {
+        for (Flow_Request obj : sequence.getRequests()) {
             modelRequests.addElement(obj);
         }
     }

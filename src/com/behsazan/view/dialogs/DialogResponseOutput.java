@@ -2,7 +2,7 @@ package com.behsazan.view.dialogs;
 
 import com.behsazan.model.entity.RequestIn;
 import com.behsazan.model.entity.ResponseOut;
-import com.behsazan.model.entity.TestCase_Request;
+import com.behsazan.model.entity.Flow_Request;
 import com.behsazan.view.abstracts.AbstractDialog;
 
 import javax.swing.*;
@@ -33,7 +33,7 @@ public class DialogResponseOutput extends AbstractDialog {
     @Override
     protected void initUI() {
         setSize(300,350);
-        setTitle("Request Input");
+        setTitle("Make Variable");
         setLocationRelativeTo(getParentWindow());
 
         SpringLayout layoutTop = new SpringLayout();
@@ -141,7 +141,7 @@ public class DialogResponseOutput extends AbstractDialog {
 //        return new ResponseOut(-1,);
 //    }
 
-    public ResponseOut getData(TestCase_Request request){
+    public ResponseOut getData(Flow_Request request){
         initData();
         responseOut = new ResponseOut(-1,getSelectedType(),txtPlaceHolder.getText(),txtValues.getText(),checkBoxGlobal.isSelected());
         setVisible(true);

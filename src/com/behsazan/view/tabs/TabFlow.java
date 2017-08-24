@@ -1,15 +1,13 @@
 package com.behsazan.view.tabs;
 
-import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
-import com.behsazan.model.adapters.TableModelTestCases;
-import com.behsazan.model.entity.TestCase;
-import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.model.adapters.TableModelFlows;
+import com.behsazan.model.entity.Flow;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractTab;
-import com.behsazan.view.dialogs.DialogTestCaseEdit;
-import com.behsazan.view.dialogs.DialogTestCaseNew;
-import com.behsazan.view.dialogs.DialogTestCasePlay;
+import com.behsazan.view.dialogs.DialogFlowEdit;
+import com.behsazan.view.dialogs.DialogFlowNew;
+import com.behsazan.view.dialogs.DialogFlowPlay;
 import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
@@ -24,12 +22,12 @@ import java.sql.SQLException;
 /**
  * Created by admin on 08/02/2017.
  */
-public class TabTestCases extends AbstractTab {
+public class TabFlow extends AbstractTab {
 
     private JPanel toolbar;
     private JTable table;
     private Component tableScroll;
-    private TableModelTestCases tableModel;
+    private TableModelFlows tableModel;
 
     @Override
     protected void initUI() {
@@ -45,17 +43,17 @@ public class TabTestCases extends AbstractTab {
 
     @Override
     public String getTabTitle() {
-        return "Test Cases";
+        return "Flows";
     }
 
     public Component getToolbar() {
         if(toolbar == null){
             toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JButton newTestCase = new JButton("New");
-            newTestCase.addActionListener(new ActionListener() {
+            JButton newBtn = new JButton("New");
+            newBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DialogTestCaseNew dlg = new DialogTestCaseNew(TabTestCases.this);
+                    DialogFlowNew dlg = new DialogFlowNew(TabFlow.this);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
                         public void windowClosed(WindowEvent e) {
@@ -70,11 +68,11 @@ public class TabTestCases extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabFlow.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogTestCaseEdit dlg = new DialogTestCaseEdit(TabTestCases.this);
+                    DialogFlowEdit dlg = new DialogFlowEdit(TabFlow.this);
                     dlg.initData(id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -90,23 +88,23 @@ public class TabTestCases extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabFlow.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     String name = (String) tableModel.getValueAt(tableSelectedRow,1);
-                    String response = JOptionPane.showInputDialog(TabTestCases.this,"Enter new TestCase Name: ","Copy Of " + name);
+                    String response = JOptionPane.showInputDialog(TabFlow.this,"Enter new Flow Name: ","Copy Of " + name);
                     if(!response.isEmpty()){
-                        if(TestCase.isTestCaseNameUsed(response)){
-                            JOptionPane.showMessageDialog(TabTestCases.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
+                        if(Flow.isFlowNameUsed(response)){
+                            JOptionPane.showMessageDialog(TabFlow.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         try {
-                            TestCase.cloneTestCase(id,response);
+                            Flow.cloneFlow(id,response);
                             refreshMainView();
                         } catch (SQLException e1) {
                             e1.printStackTrace();
-                            UIUtils.showGenerealError(TabTestCases.this);
+                            UIUtils.showGenerealError(TabFlow.this);
                         }
 
                     }
@@ -118,18 +116,18 @@ public class TabTestCases extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabFlow.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     final int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    int response = JOptionPane.showConfirmDialog(TabTestCases.this,"Are you sure to delete TestCase with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+                    int response = JOptionPane.showConfirmDialog(TabFlow.this,"Are you sure to delete Flow with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
-                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabTestCases.this);
+                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabFlow.this);
                         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
                             @Override
                             protected Void doInBackground() throws SQLException {
-                                TestCase.deleteTestCase(id);
+                                Flow.deleteFlow(id);
                                 return null;
                             }
 
@@ -150,11 +148,11 @@ public class TabTestCases extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabFlow.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogTestCasePlay dlg = new DialogTestCasePlay(TabTestCases.this);
+                    DialogFlowPlay dlg = new DialogFlowPlay(TabFlow.this);
                     dlg.setData(id);
 
                 }
@@ -165,21 +163,21 @@ public class TabTestCases extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabTestCases.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabFlow.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     final int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
 
                     JFileChooser fc = new JFileChooser();
-                    int returnVal = fc.showSaveDialog(TabTestCases.this);
+                    int returnVal = fc.showSaveDialog(TabFlow.this);
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
                         final File file = fc.getSelectedFile();
-                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabTestCases.this);
+                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabFlow.this);
                         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
                             @Override
                             protected Void doInBackground() throws Exception {
-                                DataUtils.exportTestCase(id,file);
+                                DataUtils.exportFlow(id,file);
                                 return null;
                             }
 
@@ -194,7 +192,7 @@ public class TabTestCases extends AbstractTab {
                     }
                 }
             });
-            toolbar.add(newTestCase);
+            toolbar.add(newBtn);
             toolbar.add(editView);
             toolbar.add(clone);
             toolbar.add(delete);
@@ -212,7 +210,7 @@ public class TabTestCases extends AbstractTab {
     public Component getTable() {
         if(tableScroll == null){
             table = new JTable();
-            tableModel = new TableModelTestCases();
+            tableModel = new TableModelFlows();
             table.setModel(tableModel);
             tableScroll = new JScrollPane(table);
         }

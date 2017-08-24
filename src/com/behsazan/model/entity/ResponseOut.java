@@ -19,7 +19,7 @@ public class ResponseOut {
     private String param;
     private int type;
     private boolean global;
-    private TestCase_Request testCase_request;
+    private Flow_Request flow_request;
     private static Map<Integer, String> TYPES_STRING;
 
     static {
@@ -81,12 +81,12 @@ public class ResponseOut {
         this.global = global;
     }
 
-    public TestCase_Request getTestCase_request() {
-        return testCase_request;
+    public Flow_Request getFlow_request() {
+        return flow_request;
     }
 
-    public void setTestCase_request(TestCase_Request testCase_request) {
-        this.testCase_request = testCase_request;
+    public void setFlow_request(Flow_Request flow_request) {
+        this.flow_request = flow_request;
     }
 
     public int getType() {

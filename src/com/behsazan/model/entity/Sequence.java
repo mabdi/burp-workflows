@@ -1,6 +1,7 @@
 package com.behsazan.model.entity;
 
 import com.behsazan.model.adapters.RequestListModelObject;
+import com.behsazan.model.sqlite.SequenceDb;
 import com.behsazan.model.sqlite.SqliteHelper;
 
 import java.sql.SQLException;
@@ -36,7 +37,7 @@ public class Sequence {
 
     public static Sequence getById(int id) {
         try {
-            return new SqliteHelper().getSequenceById(id);
+            return new SequenceDb().getSequenceById(id);
         } catch (SQLException e) {
             e.printStackTrace();
             return  null;
@@ -77,7 +78,7 @@ public class Sequence {
 
     public static boolean isSequenceNameUsed(String name) {
         try {
-            return new SqliteHelper().isSequenceNameUsed(name);
+            return new SequenceDb().isSequenceNameUsed(name);
         } catch (SQLException e) {
             e.printStackTrace();
             return true;
@@ -86,7 +87,7 @@ public class Sequence {
 
     public static List<Sequence> getAllSequences() {
         try {
-            return new SqliteHelper().getAllSequences();
+            return new SequenceDb().getAllSequences();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -94,12 +95,12 @@ public class Sequence {
     }
 
     public static void cloneSequence(int id, String response) throws SQLException {
-        new SqliteHelper().cloneSequence(id,response);
+        new SequenceDb().cloneSequence(id,response);
     }
 
     public static boolean isPossibleToDeleteSequence(int id) {
         try {
-            return new SqliteHelper().isPossibleToDeleteSequence(id);
+            return new SequenceDb().isPossibleToDeleteSequence(id);
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -107,16 +108,16 @@ public class Sequence {
     }
 
     public static void deleteSequence(int id) throws SQLException {
-        new SqliteHelper().deleteSequence(id);
+        new SequenceDb().deleteSequence(id);
     }
 
     public static void updateSequenceName(int id, String name) throws SQLException {
-        new SqliteHelper().updateSequenceName(id,name);
+        new SequenceDb().updateSequenceName(id,name);
     }
 
     public static Vector<Vector<Object>> getAllSequences_Table() {
         try {
-            return new SqliteHelper().getAllSequences_Table();
+            return new SequenceDb().getAllSequences_Table();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -124,6 +125,6 @@ public class Sequence {
     }
 
     public static void insertSequence(Sequence sequence) throws SQLException {
-        new SqliteHelper().insertSequence(sequence);
+        new SequenceDb().insertSequence(sequence);
     }
 }

@@ -1,53 +1,47 @@
 package com.behsazan.model.entity;
 
-import burp.IResponseInfo;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by admin on 08/07/2017.
  */
-public class TestCase_Request {
+public class Flow_Request {
     private List<ResponseOut> outputParams;
     private List<RequestIn> inputParams;
     private Request request;
     private byte[] modifiedRequest;
     private int id;
-    private TestCase_Sequence testCaseSequence;
+    private Flow_Sequence flowSequence;
 
-    public TestCase_Request() {
+    public Flow_Request() {
     }
 
-    public TestCase_Request(int id, Request request, List<RequestIn> inputParams, List<ResponseOut> outputParams, byte[] modifiedRequest) {
+    public Flow_Request(int id, Request request, List<RequestIn> inputParams, List<ResponseOut> outputParams, byte[] modifiedRequest) {
         this.id = id;
         this.request = request;
         this.inputParams = inputParams;
         this.outputParams = outputParams;
         for (RequestIn ri : inputParams) {
-            ri.setTestCase_request(this);
+            ri.setFlow_request(this);
         }
         for (ResponseOut ro : outputParams) {
-            ro.setTestCase_request(this);
+            ro.setFlow_request(this);
         }
         this.modifiedRequest = modifiedRequest;
     }
 
-    public static TestCase_Request getInstaceFromRequest(Request rq) {
-        TestCase_Request instance = new TestCase_Request(-1,rq,new ArrayList<RequestIn>(),new ArrayList<ResponseOut>(),rq.getRequest());
+    public static Flow_Request getInstaceFromRequest(Request rq) {
+        Flow_Request instance = new Flow_Request(-1,rq,new ArrayList<RequestIn>(),new ArrayList<ResponseOut>(),rq.getRequest());
         return instance;
     }
 
-    public TestCase_Sequence getTestCaseSequence() {
-        return testCaseSequence;
+    public Flow_Sequence getFlowSequence() {
+        return flowSequence;
     }
 
-    public void setTestCaseSequence(TestCase_Sequence testCaseSequence) {
-        this.testCaseSequence = testCaseSequence;
+    public void setFlowSequence(Flow_Sequence flowSequence) {
+        this.flowSequence = flowSequence;
     }
 
 //    private void initResponseOutForms(Request rq) {
@@ -65,12 +59,12 @@ public class TestCase_Request {
 
     public void addInputParam(RequestIn input){
         inputParams.add(input);
-        input.setTestCase_request(this);
+        input.setFlow_request(this);
     }
 
     public void addOutputParam(ResponseOut output){
         outputParams.add(output);
-        output.setTestCase_request(this);
+        output.setFlow_request(this);
     }
 
     public List<ResponseOut> getOutputParams() {

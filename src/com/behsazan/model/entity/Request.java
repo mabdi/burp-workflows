@@ -5,6 +5,7 @@ import burp.IHttpService;
 import burp.IRequestInfo;
 import burp.IResponseInfo;
 import com.behsazan.model.DataUtils;
+import com.behsazan.model.sqlite.RequestDb;
 import com.behsazan.model.sqlite.SqliteHelper;
 
 import java.net.URL;
@@ -117,10 +118,14 @@ public class Request {
     }
 
     public static void updateRequestRequest(int id, byte[] request) throws SQLException {
-        new SqliteHelper().updateRequestRequest(id,request);
+        new RequestDb().updateRequestRequest(id,request);
     }
 
     public static void updateRequestResponse(int id, byte[] response) throws SQLException {
-        new SqliteHelper().updateRequestResponse(id,response);
+        new RequestDb().updateRequestResponse(id,response);
+    }
+
+    public static Request getById(int request_id) throws SQLException {
+        return new RequestDb().getRequestById(request_id);
     }
 }

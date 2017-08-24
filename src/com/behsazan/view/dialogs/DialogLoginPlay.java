@@ -1,11 +1,7 @@
 package com.behsazan.view.dialogs;
 
-import burp.BurpExtender;
 import burp.ICookie;
-import burp.IHttpRequestResponse;
-import burp.IHttpService;
 import com.behsazan.controller.Controller;
-import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
 import com.behsazan.model.settings.Settings;
@@ -16,8 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -28,7 +22,7 @@ public class DialogLoginPlay extends AbstractDialog {
 
     private DialogWaiting pleaseWaitDialog;
     private JPanel buttonsPanel;
-    private TestCaseInstance currentlyDisplayedInstance;
+    private Flow_Running currentlyDisplayedInstance;
     private JToggleButton actionBtn;
     private PanelPlayInstance mPlayInstancePanel;
     private boolean forceStop;
@@ -40,11 +34,11 @@ public class DialogLoginPlay extends AbstractDialog {
 
     public void setData(final int id) {
         pleaseWaitDialog = DialogWaiting.showWaitingDialog(this);
-        SwingWorker<TestCase, TestCaseInstance> worker = new SwingWorker<TestCase, TestCaseInstance>() {
+        SwingWorker<Flow, Flow_Running> worker = new SwingWorker<Flow, Flow_Running>() {
             @Override
-            protected TestCase doInBackground() throws Exception {
+            protected Flow doInBackground() throws Exception {
                 login = Login.getById(id);
-                List<TestCaseInstance> instances = Controller.buildTestCaseInstances(login.getTestCase(), null);
+                List<Flow_Running> instances = Controller.buildTestCaseInstances(login.getFlow(), null);
                 currentlyDisplayedInstance = instances.get(0);
                 return null;
             }
@@ -111,8 +105,8 @@ public class DialogLoginPlay extends AbstractDialog {
                 return null;
             }
 
-            private RequestListModelObject runTestCase(TestCaseInstance instance) {
-                TestCase_Sequence seq = instance.getTestCase().getSeqs().get(0);
+            private RequestListModelObject runTestCase(Flow_Running instance) {
+                Flow_Sequence seq = instance.getFlow().getSeqs().get(0);
                 instance.updateLocalVariable("@@username@@", login.getUsername());
                 instance.updateLocalVariable("@@password@@", login.getPassword());
                 List<RequestListModelObject> requests = Controller.runTestCase(DialogLoginPlay.this, instance, new Controller.RunTestCaseListener() {
@@ -136,9 +130,9 @@ public class DialogLoginPlay extends AbstractDialog {
                     }
                 }
                 instance.updateGlobalVariable(login.getOutParam(), lastCookie);
-                if (!TestCaseInstance.queryGlobalVariable(login.getOutParam()).isEmpty()) {
+                if (!Flow_Running.queryGlobalVariable(login.getOutParam()).isEmpty()) {
                     login.setLast_seen((int) new Date().getTime());
-                    login.setSession(TestCaseInstance.queryGlobalVariable(login.getOutParam()));
+                    login.setSession(Flow_Running.queryGlobalVariable(login.getOutParam()));
                     Login.updateLogin(login);
                 }
 

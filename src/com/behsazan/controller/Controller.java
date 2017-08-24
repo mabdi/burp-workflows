@@ -19,12 +19,12 @@ import java.util.Map;
  */
 public class Controller {
 
-    public static List<TestCaseInstance> buildTestCaseInstances(TestCase tcase,BuildTestCaseInstancesListener listener){
-        List<TestCaseInstance> testCaseInstances = new ArrayList<>();
+    public static List<Flow_Running> buildTestCaseInstances(Flow tcase, BuildTestCaseInstancesListener listener){
+        List<Flow_Running> testCaseInstances = new ArrayList<>();
         List<Map<Integer,String>> pars = new ArrayList<>();
         pars.add(new HashMap<Integer,String>());
-        for (TestCase_Sequence seq : tcase.getSeqs()) {
-            for (TestCase_Request req : seq.getRequests()) {
+        for (Flow_Sequence seq : tcase.getSeqs()) {
+            for (Flow_Request req : seq.getRequests()) {
                 for (RequestIn inp : req.getInputParams()) {
                     List<Map<Integer,String>> newPars = new ArrayList<>();
                     for(int i=0;i<inp.getTxtValueLines().length;i++){
@@ -48,7 +48,7 @@ public class Controller {
         }
         int order = 0;
         for(Map<Integer,String> maps: pars){
-            TestCaseInstance insta = new TestCaseInstance(tcase,maps, order);
+            Flow_Running insta = new Flow_Running(tcase,maps, order);
             testCaseInstances.add(insta);
             if(listener!=null){
                 listener.publishInstance(insta);
@@ -57,18 +57,18 @@ public class Controller {
         return testCaseInstances;
     }
 
-    public static List<RequestListModelObject> runTestCase(Component parent, TestCaseInstance instance, RunTestCaseListener listener){
+    public static List<RequestListModelObject> runTestCase(Component parent, Flow_Running instance, RunTestCaseListener listener){
         List<RequestListModelObject> requests = new ArrayList<>();
-        for(TestCase_Sequence seq : instance.getTestCase().getSeqs()){
+        for(Flow_Sequence seq : instance.getFlow().getSeqs()){
             if(listener != null && listener.isRunFinished()){
                 break;
             }
-            List<TestCase_Request> reqs = seq.getRequests();
+            List<Flow_Request> reqs = seq.getRequests();
             String base1 = seq.getBase1();
             String base2 = seq.getBase2();
             String cookie = seq.getCookie();
             URL url = seq.getUrl();
-            for (TestCase_Request req: reqs) {
+            for (Flow_Request req: reqs) {
                 if(listener != null && listener.isRunFinished()){
                     break;
                 }
@@ -80,7 +80,7 @@ public class Controller {
                 msg = DataUtils.changeReferer(msg,url.toString());
                 msg = DataUtils.changeUrlBase(msg,base1,base2);
                 if(!cookie.isEmpty()) {
-                    msg = DataUtils.changeCookie(msg, TestCaseInstance.queryGlobalVariable(cookie) );
+                    msg = DataUtils.changeCookie(msg, Flow_Running.queryGlobalVariable(cookie) );
                 }
                 for (RequestIn inPar : inPars) {
                     msg = DataUtils.applyParameter(msg,inPar,instance.getInitParamFor(inPar));
@@ -123,6 +123,6 @@ public class Controller {
         void publishState(RequestListModelObject state);
     }
     public interface BuildTestCaseInstancesListener{
-        void publishInstance(TestCaseInstance instance);
+        void publishInstance(Flow_Running instance);
     }
 }

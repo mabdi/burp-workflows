@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Created by admin on 08/01/2017.
  */
-public class PanelTestSequencePlay extends AbstractPanel implements IMessageEditorController {
+public class PanelFlowPlay extends AbstractPanel implements IMessageEditorController {
     private OnSequencePlayFinished onFinish;
     private boolean forceCancel = false;
     private IBurpExtenderCallbacks callbacks;

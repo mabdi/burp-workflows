@@ -25,7 +25,6 @@ public class DialogSequenceNew extends AbstractDialog {
     private JPanel toolbar;
     private JPanel cardPanel;
     private PanelNewSequenceChooseRequests choosePanel;
-    private PanelEditSequence editPanel;
     private CardLayout cardLayout;
     private JButton btncancel;
     private JButton btnfinish;
@@ -37,7 +36,7 @@ public class DialogSequenceNew extends AbstractDialog {
 
     @Override
     protected void initUI() {
-        setSize(800,600);
+        setSize(800,750);
         setTitle("New Sequence");
         setLocationRelativeTo(getParentWindow());
         setLayout(new BorderLayout());

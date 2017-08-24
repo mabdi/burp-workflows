@@ -1,13 +1,10 @@
 package com.behsazan.view.tabs;
 
 import com.behsazan.model.adapters.TableModelLogins;
-import com.behsazan.model.adapters.TableModelTestCases;
 import com.behsazan.model.entity.Login;
-import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractTab;
 import com.behsazan.view.dialogs.*;
-import sun.rmi.runtime.Log;
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,8 +50,8 @@ public class TabLogins extends AbstractTab {
     public Component getToolbar() {
         if(toolbar == null){
             toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            JButton newTestCase = new JButton("New");
-            newTestCase.addActionListener(new ActionListener() {
+            JButton newbtn = new JButton("New");
+            newbtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     DialogLoginNew dlg = new DialogLoginNew(TabLogins.this);
@@ -155,7 +152,7 @@ public class TabLogins extends AbstractTab {
 
                 }
             });
-            toolbar.add(newTestCase);
+            toolbar.add(newbtn);
             toolbar.add(editView);
             toolbar.add(delete);
             toolbar.add(clone);

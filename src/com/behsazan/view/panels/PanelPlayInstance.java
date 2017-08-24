@@ -6,15 +6,13 @@ import burp.IMessageEditor;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.adapters.TableModelRequestIn;
 import com.behsazan.model.adapters.TableModelResponseOut;
-import com.behsazan.model.entity.TestCase;
-import com.behsazan.model.entity.TestCaseInstance;
+import com.behsazan.model.entity.Flow_Running;
 import com.behsazan.view.abstracts.AbstractPanel;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.util.List;
 
 /**
  * Created by admin on 08/21/2017.
@@ -37,7 +35,7 @@ public class PanelPlayInstance extends AbstractPanel {
     private JTable jtableGlobals;
 
     private RequestListModelObject currentlyDisplayedRequest;
-    private TestCaseInstance currentlyDisplayedInstance;
+    private Flow_Running currentlyDisplayedInstance;
 
     @Override
     protected void initUI() {
@@ -45,7 +43,7 @@ public class PanelPlayInstance extends AbstractPanel {
         add(getSplitPaneRequests(),BorderLayout.CENTER);
     }
 
-    public void updateInstance(TestCaseInstance instance){
+    public void updateInstance(Flow_Running instance){
         currentlyDisplayedInstance = instance;
         updateRequest();
     }
@@ -182,7 +180,7 @@ public class PanelPlayInstance extends AbstractPanel {
     public JTable getJtableGlobals() {
         if(jtableGlobals== null){
             jtableGlobals = new JTable();
-            jtableGlobals.setModel(TestCaseInstance.globalsToTableModel());
+            jtableGlobals.setModel(Flow_Running.globalsToTableModel());
         }
         return jtableGlobals;
     }

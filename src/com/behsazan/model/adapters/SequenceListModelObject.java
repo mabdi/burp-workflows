@@ -1,14 +1,14 @@
 package com.behsazan.model.adapters;
 
 import com.behsazan.model.entity.Sequence;
-import com.behsazan.model.entity.TestCase_Sequence;
+import com.behsazan.model.entity.Flow_Sequence;
 
 /**
  * Created by admin on 08/06/2017.
  */
 public class SequenceListModelObject {
     private Sequence sequence;
-    private TestCase_Sequence testCase_sequence;
+    private Flow_Sequence flow_sequence;
 
     public SequenceListModelObject(Sequence seq) {
         this.sequence = seq;
@@ -28,12 +28,12 @@ public class SequenceListModelObject {
         this.sequence = sequence;
     }
 
-    public TestCase_Sequence getTestCase_sequence() {
-        return testCase_sequence;
+    public Flow_Sequence getFlow_sequence() {
+        return flow_sequence;
     }
 
-    public void setTestCase_sequence(TestCase_Sequence testCase_sequence) {
-        this.testCase_sequence = testCase_sequence;
+    public void setFlow_sequence(Flow_Sequence flow_sequence) {
+        this.flow_sequence = flow_sequence;
     }
 
 }

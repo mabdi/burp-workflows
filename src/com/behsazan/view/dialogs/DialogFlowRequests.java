@@ -1,8 +1,8 @@
 package com.behsazan.view.dialogs;
 
-import com.behsazan.model.entity.TestCase_Sequence;
+import com.behsazan.model.entity.Flow_Sequence;
 import com.behsazan.view.abstracts.AbstractDialog;
-import com.behsazan.view.panels.PanelTestCaseRequests;
+import com.behsazan.view.panels.PanelFlowRequests;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,17 +12,17 @@ import java.awt.event.ActionListener;
 /**
  * Created by admin on 08/07/2017.
  */
-public class DialogTestCaseRequests extends AbstractDialog {
-    private TestCase_Sequence sequence;
-    private TestCase_Sequence result;
+public class DialogFlowRequests extends AbstractDialog {
+    private Flow_Sequence sequence;
+    private Flow_Sequence result;
     private JPanel buttonsPanel;
-    private PanelTestCaseRequests requestsPanel;
+    private PanelFlowRequests requestsPanel;
 
-    public DialogTestCaseRequests(Component parent) {
+    public DialogFlowRequests(Component parent) {
         super(parent,false);
     }
 
-    public TestCase_Sequence setData(TestCase_Sequence sequence){
+    public Flow_Sequence setData(Flow_Sequence sequence){
         this.sequence = sequence;
         requestsPanel.setData(sequence);
         setVisible(true);
@@ -32,10 +32,10 @@ public class DialogTestCaseRequests extends AbstractDialog {
     @Override
     protected void initUI() {
         setSize(1000, 700);
-        setTitle("TestCase Sequence Requests");
+        setTitle("Parametric Sequence Requests");
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(getParentWindow());
-        requestsPanel = new PanelTestCaseRequests();
+        requestsPanel = new PanelFlowRequests();
         setLayout(new BorderLayout());
         add(requestsPanel, BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);

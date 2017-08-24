@@ -1,14 +1,9 @@
 package com.behsazan.view;
 
-import com.behsazan.model.adapters.SequenceListModelObject;
-import com.behsazan.model.entity.TestCase_Sequence;
-import com.behsazan.view.abstracts.AbstractDialog;
-import com.behsazan.view.dialogs.DialogSequenceEdit;
 import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 
 /**
  * Created by admin on 07/30/2017.

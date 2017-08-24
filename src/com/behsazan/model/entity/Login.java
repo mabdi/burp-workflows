@@ -1,6 +1,6 @@
 package com.behsazan.model.entity;
 
-import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.model.sqlite.LoginDb;
 
 import java.sql.SQLException;
 import java.util.Vector;
@@ -17,13 +17,13 @@ public class Login {
     private String outParam;
     private String session;
     private int last_seen;
-    private TestCase testCase;
-    private int testcaseId;
+    private Flow flow;
+    private int flowId;
 
     public Login() {
     }
 
-    public Login(int id, String username, String password, String outParam, String url, String base, String session, int last_seen, TestCase testcase) {
+    public Login(int id, String username, String password, String outParam, String url, String base, String session, int last_seen, Flow flow) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -32,8 +32,8 @@ public class Login {
         this.outParam = outParam;
         this.session = session;
         this.last_seen = last_seen;
-        this.testCase = testcase;
-        this.testcaseId = testcase.getId();
+        this.flow = flow;
+        this.flowId = flow.getId();
     }
 
     public int getId() {
@@ -92,20 +92,20 @@ public class Login {
         this.last_seen = last_seen;
     }
 
-    public TestCase getTestCase() {
-        return testCase;
+    public Flow getFlow() {
+        return flow;
     }
 
-    public void setTestCase(TestCase testCase) {
-        this.testCase = testCase;
+    public void setFlow(Flow flow) {
+        this.flow = flow;
     }
 
-    public int getTestcaseId() {
-        return testcaseId;
+    public int getFlowId() {
+        return flowId;
     }
 
-    public void setTestcaseId(int testcaseId) {
-        this.testcaseId = testcaseId;
+    public void setFlowId(int flowId) {
+        this.flowId = flowId;
     }
 
     public String getOutParam() {
@@ -118,7 +118,7 @@ public class Login {
 
     public static Login getById(int id) {
         try {
-            return new SqliteHelper().getLoginById(id);
+            return new LoginDb().getLoginById(id);
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -127,19 +127,19 @@ public class Login {
 
     public static void updateLogin(Login login) {
         try {
-            new SqliteHelper().updateLogin(login);
+            new LoginDb().updateLogin(login);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public static void cloneLogin(int id) throws SQLException {
-        new SqliteHelper().cloneLogin(id);
+        new LoginDb().cloneLogin(id);
     }
 
     public static Vector<Vector<Object>> getAllLogins_Table() {
         try {
-            return new SqliteHelper().getAllLogins_Table();
+            return new LoginDb().getAllLogins_Table();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -147,10 +147,10 @@ public class Login {
     }
 
     public static void insertLogin(Login login) throws SQLException {
-        new SqliteHelper().insertLogin(login);
+        new LoginDb().insertLogin(login);
     }
 
     public static void deleteLogin(int id) throws SQLException {
-        new SqliteHelper().deleteLogin(id);
+        new LoginDb().deleteLogin(id);
     }
 }

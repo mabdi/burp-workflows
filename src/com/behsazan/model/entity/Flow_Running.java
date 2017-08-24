@@ -2,9 +2,7 @@ package com.behsazan.model.entity;
 
 import com.behsazan.model.adapters.RequestListModelObject;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,10 +11,10 @@ import java.util.Map;
 /**
  * Created by admin on 08/15/2017.
  */
-public class TestCaseInstance {
+public class Flow_Running {
     private static Map<String,String> GLOBALS;
     private static DefaultTableModel modelGlobal;
-    private TestCase testCase;
+    private Flow flow;
     private Map<Integer, String> initParams; // RequestIn -> String (variable name or constant)
     private Map<String,String> locals;
     private int order;
@@ -28,12 +26,12 @@ public class TestCaseInstance {
     private List<RequestListModelObject> requestModelItem;
     private DefaultTableModel modelLocal;
 
-    public TestCaseInstance() {
+    public Flow_Running() {
     }
 
-    public TestCaseInstance(TestCase testCase, Map<Integer, String> maps, int order) {
+    public Flow_Running(Flow flow, Map<Integer, String> maps, int order) {
 
-        this.testCase = testCase;
+        this.flow = flow;
         this.locals = new HashMap<>();
         this.initParams = maps;
         this.order = order;
@@ -68,8 +66,8 @@ public class TestCaseInstance {
         return requestModelItem;
     }
 
-    public TestCase getTestCase() {
-        return testCase;
+    public Flow getFlow() {
+        return flow;
     }
 
     public String getInitParamFor(RequestIn rqin){

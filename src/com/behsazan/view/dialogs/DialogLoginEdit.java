@@ -2,8 +2,7 @@ package com.behsazan.view.dialogs;
 
 import burp.BurpExtender;
 import com.behsazan.model.entity.Login;
-import com.behsazan.model.entity.TestCase;
-import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.model.entity.Flow;
 import com.behsazan.view.abstracts.AbstractDialog;
 
 import javax.swing.*;
@@ -25,7 +24,7 @@ public class DialogLoginEdit extends AbstractDialog {
     private JTextField txtUsername;
     private JTextField txtPassword;
     private JTextField txtParam;
-    private JComboBox<String> cmbTestCase;
+    private JComboBox<String> cmbFlow;
     private DefaultComboBoxModel<String> modelCombo;
     private JTextField txtUrl;
     private JTextField txtBase;
@@ -53,7 +52,7 @@ public class DialogLoginEdit extends AbstractDialog {
         txtUsername.setText(login.getUsername());
         txtParam.setText(login.getOutParam());
         txtPassword.setText(login.getPassword());
-        cmbTestCase.setSelectedItem(login.getTestCase().getName());
+        cmbFlow.setSelectedItem(login.getFlow().getName());
         setVisible(true);
     }
 
@@ -84,14 +83,14 @@ public class DialogLoginEdit extends AbstractDialog {
             formUtility.addLabel("Out Param Name:", formPanel);
             txtParam = new JTextField();
             formUtility.addLastField(txtParam, formPanel);
-            formUtility.addLabel("TestCase :", formPanel);
+            formUtility.addLabel("Flow :", formPanel);
             modelCombo = new DefaultComboBoxModel<>();
-            cmbTestCase = new JComboBox<>(modelCombo);
-            List<String> tests = TestCase.getAllTestCaseName();
+            cmbFlow = new JComboBox<>(modelCombo);
+            List<String> tests = Flow.getAllFlowName();
             for (String t: tests) {
                 modelCombo.addElement(t);
             }
-            formUtility.addLastField(cmbTestCase, formPanel);
+            formUtility.addLastField(cmbFlow, formPanel);
         }
         return formPanel;
     }
@@ -115,8 +114,8 @@ public class DialogLoginEdit extends AbstractDialog {
                     String param = txtParam.getText();
                     String url = txtUrl.getText();
                     String base = txtBase.getText();
-                    String selectedTestCase = (String) cmbTestCase.getSelectedItem();
-                    TestCase testCase = TestCase.getByName(selectedTestCase);
+                    String selectedFlow = (String) cmbFlow.getSelectedItem();
+                    Flow flow = Flow.getByName(selectedFlow);
                     if(username.isEmpty() || password.isEmpty() || param.isEmpty() || url.isEmpty() || base.isEmpty()){
                         JOptionPane.showMessageDialog(DialogLoginEdit.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
@@ -134,7 +133,7 @@ public class DialogLoginEdit extends AbstractDialog {
                         loging.setUsername(username);
                         loging.setPassword(password);
                         loging.setOutParam(param);
-                        loging.setTestCase(testCase);
+                        loging.setFlow(flow);
                         Login.updateLogin(loging);
                         dissmiss();
                     }catch (Exception x){

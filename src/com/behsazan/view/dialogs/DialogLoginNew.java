@@ -2,8 +2,7 @@ package com.behsazan.view.dialogs;
 
 import burp.BurpExtender;
 import com.behsazan.model.entity.Login;
-import com.behsazan.model.entity.TestCase;
-import com.behsazan.model.sqlite.SqliteHelper;
+import com.behsazan.model.entity.Flow;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 
@@ -12,10 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
-import java.util.*;
 import java.util.List;
-
-import static com.behsazan.view.UIUtils.*;
 
 /**
  * Created by admin on 08/21/2017.
@@ -27,7 +23,7 @@ public class DialogLoginNew extends AbstractDialog {
     private JTextField txtUsername;
     private JTextField txtPassword;
     private JTextField txtParam;
-    private JComboBox<String> cmbTestCase;
+    private JComboBox<String> cmbFlow;
     private DefaultComboBoxModel<String> modelCombo;
     private JTextField txtUrl;
     private JTextField txtBase;
@@ -73,14 +69,14 @@ public class DialogLoginNew extends AbstractDialog {
             formUtility.addLabel("Out Param Name:", formPanel);
             txtParam = new JTextField();
             formUtility.addLastField(txtParam, formPanel);
-            formUtility.addLabel("TestCase :", formPanel);
+            formUtility.addLabel("Flow :", formPanel);
             modelCombo = new DefaultComboBoxModel<>();
-            cmbTestCase = new JComboBox<>(modelCombo);
-            List<String> tests = TestCase.getAllTestCaseName();
+            cmbFlow = new JComboBox<>(modelCombo);
+            List<String> tests = Flow.getAllFlowName();
             for (String t: tests) {
                 modelCombo.addElement(t);
             }
-            formUtility.addLastField(cmbTestCase, formPanel);
+            formUtility.addLastField(cmbFlow, formPanel);
         }
         return formPanel;
     }
@@ -104,8 +100,8 @@ public class DialogLoginNew extends AbstractDialog {
                     String param = txtParam.getText();
                     String url = txtUrl.getText();
                     String base = txtBase.getText();
-                    String selectedTestCase = (String) cmbTestCase.getSelectedItem();
-                    TestCase testCase = TestCase.getByName(selectedTestCase);
+                    String selectedFlow = (String) cmbFlow.getSelectedItem();
+                    Flow flow = Flow.getByName(selectedFlow);
                     if(username.isEmpty() || password.isEmpty() || param.isEmpty() || url.isEmpty() || base.isEmpty()){
                         JOptionPane.showMessageDialog(DialogLoginNew.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
@@ -118,7 +114,7 @@ public class DialogLoginNew extends AbstractDialog {
                     }
 
                     try {
-                        Login.insertLogin(new Login(-1,username,password,param,url,base,"",-1,testCase));
+                        Login.insertLogin(new Login(-1,username,password,param,url,base,"",-1,flow));
                         dissmiss();
                     }catch (Exception x){
                         BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");
