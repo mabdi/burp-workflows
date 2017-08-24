@@ -55,7 +55,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     protected void initUI() {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel lblSeqName = new JLabel("Sequence Name: ");
-        txtSeqName = new JTextField("",20);
+        txtSeqName = new JTextField("", 20);
         final JButton startRecord = new JButton("Record");
         final JButton stopRecord = new JButton("Stop");
         startRecord.addActionListener(new ActionListener() {
@@ -79,9 +79,9 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         enableFilter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(enableFilter.isSelected()){
+                if (enableFilter.isSelected()) {
                     listAllRequests.setModel(modelDoRequests);
-                }else{
+                } else {
                     listAllRequests.setModel(modelAllRequests);
                 }
             }
@@ -108,27 +108,30 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         splitPane.setLeftComponent(selectPanel);
         JTabbedPane tabs = new JTabbedPane();
 
-        requestViewer = callbacks.createMessageEditor(this, false);
+        requestViewer = callbacks.createMessageEditor(this, true);
         responseViewer = callbacks.createMessageEditor(this, false);
         tabs.addTab("Request", requestViewer.getComponent());
         tabs.addTab("Response", responseViewer.getComponent());
         splitPane.setRightComponent(tabs);
         setLayout(new BorderLayout());
-        add(topPanel,BorderLayout.NORTH);
-        add(splitPane,BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
+        add(splitPane, BorderLayout.CENTER);
     }
 
     @Override
     public IHttpService getHttpService() {
-        return currentlyDisplayedItem.getHttpService();    }
+        return currentlyDisplayedItem.getHttpService();
+    }
 
     @Override
     public byte[] getRequest() {
-        return currentlyDisplayedItem.getRequest();    }
+        return currentlyDisplayedItem.getRequest();
+    }
 
     @Override
     public byte[] getResponse() {
-        return currentlyDisplayedItem.getResponse();    }
+        return currentlyDisplayedItem.getResponse();
+    }
 
     public Component getListAll() {
         modelAllRequests = new DefaultListModel<>();
@@ -141,7 +144,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         listAllRequests.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if(e.getValueIsAdjusting()) {
+                if (e.getValueIsAdjusting()) {
                     currentlyDisplayedItem = (RequestListModelObject) listAllRequests.getSelectedValue();
                     requestViewer.setMessage(currentlyDisplayedItem.getRequest(), true);
                     responseViewer.setMessage(currentlyDisplayedItem.getResponse(), false);
@@ -164,12 +167,12 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
             @Override
             public void actionPerformed(ActionEvent e) {
                 DefaultListModel<RequestListModelObject> model;
-                if(enableFilter.isSelected()){
+                if (enableFilter.isSelected()) {
                     model = modelDoRequests;
-                }else{
+                } else {
                     model = modelAllRequests;
                 }
-                modelSelectedRequests.addElement(model.elementAt( listAllRequests.getSelectedIndex() ));
+                modelSelectedRequests.addElement(model.elementAt(listAllRequests.getSelectedIndex()));
             }
         });
         buttonPanel.add(buttonin);
@@ -179,7 +182,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         buttonout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                modelSelectedRequests.removeElementAt(listSelectedReqs.getSelectedIndex() );
+                modelSelectedRequests.removeElementAt(listSelectedReqs.getSelectedIndex());
             }
         });
         buttonPanel.add(buttonout);
@@ -196,7 +199,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         listSelectedReqs.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if(e.getValueIsAdjusting()) {
+                if (e.getValueIsAdjusting()) {
                     currentlyDisplayedItem = (RequestListModelObject) listSelectedReqs.getSelectedValue();
                     requestViewer.setMessage(currentlyDisplayedItem.getRequest(), true);
                     responseViewer.setMessage(currentlyDisplayedItem.getResponse(), false);
@@ -210,30 +213,32 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
 
     @Override
     public void processProxyMessage(boolean messageIsRequest, IInterceptedProxyMessage message) throws Exception {
-        if (!messageIsRequest)
-        {
-            synchronized(modelAllRequests)
-            {
-                RequestListModelObject req = new RequestListModelObject(message);
-                modelAllRequests.addElement(req);
-                if(req.getAnalysed().getUrl().getPath().endsWith(".do")){
-                    modelDoRequests.addElement(req);
-                }
+        if (!messageIsRequest) {
+            RequestListModelObject req = new RequestListModelObject(message);
+            addMessage(req);
+        }
+    }
+
+    public void addMessage(RequestListModelObject req) {
+        synchronized (modelAllRequests) {
+            modelAllRequests.addElement(req);
+            if (req.getAnalysed().getUrl().getPath().endsWith(".do")) {
+                modelDoRequests.addElement(req);
             }
         }
     }
 
-    public String getSequenceName(){
+    public String getSequenceName() {
         return txtSeqName.getText();
     }
 
-    public List<Request> getSelectedRequests(){
+    public List<Request> getSelectedRequests() {
         ArrayList<Request> list = new ArrayList<>();
         Enumeration<RequestListModelObject> els = modelSelectedRequests.elements();
         int rid = 0;
-        while(els.hasMoreElements()){
+        while (els.hasMoreElements()) {
             RequestListModelObject rq = els.nextElement();
-            list.add(new Request(rq.getAnalysed().getUrl(),rq.getRequest(),rq.getResponse(),rid) );
+            list.add(new Request(rq.getAnalysed().getUrl(), rq.getRequest(), rq.getResponse(), rid));
             rid++;
         }
         return list;

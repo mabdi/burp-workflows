@@ -1,6 +1,8 @@
 package com.behsazan.view.dialogs;
 
 import burp.BurpExtender;
+import burp.IHttpService;
+import com.behsazan.controller.Controller;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
@@ -27,6 +29,7 @@ public class DialogSequenceNew extends AbstractDialog {
     private CardLayout cardLayout;
     private JButton btncancel;
     private JButton btnfinish;
+    private JButton btnReSend;
 
     public DialogSequenceNew(JPanel parent) {
         super(parent);
@@ -50,6 +53,16 @@ public class DialogSequenceNew extends AbstractDialog {
     public Component getToolbar() {
         if(toolbar == null){
             toolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            btnReSend = new JButton("Resend");
+            btnReSend.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    byte[] rq = choosePanel.getRequest();
+                    IHttpService service = choosePanel.getHttpService();
+                    RequestListModelObject rsp = Controller.makeHttpRequest(service, rq);
+                    choosePanel.addMessage(rsp);
+                }
+            });
             btnfinish = new JButton("Save");
             btnfinish.addActionListener(new ActionListener() {
                 @Override
@@ -90,6 +103,7 @@ public class DialogSequenceNew extends AbstractDialog {
                     dissmiss();
                 }
             });
+            toolbar.add(btnReSend);
             toolbar.add(btnfinish);
             toolbar.add(btncancel);
         }

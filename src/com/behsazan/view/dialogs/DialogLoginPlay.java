@@ -4,6 +4,7 @@ import burp.BurpExtender;
 import burp.ICookie;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
+import com.behsazan.controller.Controller;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
@@ -28,63 +29,29 @@ public class DialogLoginPlay extends AbstractDialog {
     private DialogWaiting pleaseWaitDialog;
     private JPanel buttonsPanel;
     private TestCaseInstance currentlyDisplayedInstance;
-    private JButton actionBtn;
+    private JToggleButton actionBtn;
     private PanelPlayInstance mPlayInstancePanel;
-    private boolean testIsRunning;
     private boolean forceStop;
     private Login login;
 
     public DialogLoginPlay(JPanel parent) {
-        super(parent,false);
+        super(parent, false);
     }
 
-    public void setData(final int id){
+    public void setData(final int id) {
         pleaseWaitDialog = DialogWaiting.showWaitingDialog(this);
-        SwingWorker<TestCase,TestCaseInstance> worker = new SwingWorker<TestCase,TestCaseInstance>() {
+        SwingWorker<TestCase, TestCaseInstance> worker = new SwingWorker<TestCase, TestCaseInstance>() {
             @Override
             protected TestCase doInBackground() throws Exception {
                 login = Login.getById(id);
-                TestCase tcase = login.getTestCase();
-                List<Map<Integer,String>> pars = new ArrayList<>();
-                pars.add(new HashMap<Integer,String>());
-                TestCase_Sequence seq = tcase.getSeqs().get(0);
-                for (TestCase_Request req : seq.getRequests()) {
-                    for (RequestIn inp : req.getInputParams()) {
-                        List<Map<Integer,String>> newPars = new ArrayList<>();
-                        for(int i=0;i<inp.getTxtValueLines().length;i++){
-                            if(i==0){
-                                for (Map<Integer,String> maps: pars) {
-                                    maps.put(inp.getId(),inp.getTxtValueLines()[0]);
-                                }
-                            }else{
-                                for (Map<Integer,String> maps: pars) {
-                                    HashMap<Integer, String> hashMap = new HashMap<>(maps);
-                                    hashMap.put(inp.getId(),inp.getTxtValueLines()[i]);
-                                    newPars.add(hashMap);
-                                }
-                            }
-                        }
-                        for(Map<Integer,String> maps: newPars){
-                            pars.add(maps);
-                        }
-                    }
-                }
-                int order = 0;
-                for(Map<Integer,String> maps: pars){
-                    TestCaseInstance insta = new TestCaseInstance(tcase,maps, order);
-                    publish(insta);
-                }
-                return tcase;
+                List<TestCaseInstance> instances = Controller.buildTestCaseInstances(login.getTestCase(), null);
+                currentlyDisplayedInstance = instances.get(0);
+                return null;
             }
 
             @Override
             protected void done() {
                 DialogWaiting.closeWaitingDialog(pleaseWaitDialog);
-            }
-
-            @Override
-            protected void process(List<TestCaseInstance> chunks) {
-                currentlyDisplayedInstance = chunks.get(0);
                 mPlayInstancePanel.updateInstance(currentlyDisplayedInstance);
             }
         };
@@ -96,7 +63,7 @@ public class DialogLoginPlay extends AbstractDialog {
 
     @Override
     protected void initUI() {
-        setSize(800,600);
+        setSize(800, 600);
         setTitle("Play Login");
         setLocationRelativeTo(getParentWindow());
         mPlayInstancePanel = new PanelPlayInstance();
@@ -106,7 +73,7 @@ public class DialogLoginPlay extends AbstractDialog {
     }
 
     public JPanel getButtonsPanel() {
-        if(buttonsPanel==null){
+        if (buttonsPanel == null) {
             buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancelBtn = new JButton("Cancel");
             cancelBtn.addActionListener(new ActionListener() {
@@ -115,18 +82,17 @@ public class DialogLoginPlay extends AbstractDialog {
                     dissmiss();
                 }
             });
-            actionBtn = new JButton("Run");
+            actionBtn = new JToggleButton("Run");
             actionBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if(testIsRunning){
+                    if (actionBtn.isSelected()) {
                         forceStop = true;
-                        testIsRunning = false;
-                    }else {
+                    } else {
                         forceStop = false;
-                        testIsRunning = true;
                         mPlayInstancePanel.modelRequestClear();
                         actionBtn.setText("Stop");
+                        actionBtn.setSelected(true);
                         runTest();
                     }
                 }
@@ -138,7 +104,7 @@ public class DialogLoginPlay extends AbstractDialog {
     }
 
     private void runTest() {
-        SwingWorker<Void ,RequestListModelObject> worker = new SwingWorker<Void , RequestListModelObject>() {
+        SwingWorker<Void, RequestListModelObject> worker = new SwingWorker<Void, RequestListModelObject>() {
             @Override
             protected Void doInBackground() throws Exception {
                 runTestCase(currentlyDisplayedInstance);
@@ -147,65 +113,35 @@ public class DialogLoginPlay extends AbstractDialog {
 
             private RequestListModelObject runTestCase(TestCaseInstance instance) {
                 TestCase_Sequence seq = instance.getTestCase().getSeqs().get(0);
-                currentlyDisplayedInstance.updateLocalVariable("@@username@@",login.getUsername());
-                currentlyDisplayedInstance.updateLocalVariable("@@password@@",login.getPassword());
+                instance.updateLocalVariable("@@username@@", login.getUsername());
+                instance.updateLocalVariable("@@password@@", login.getPassword());
+                List<RequestListModelObject> requests = Controller.runTestCase(DialogLoginPlay.this, instance, new Controller.RunTestCaseListener() {
+                    @Override
+                    public boolean isRunFinished() {
+                        return forceStop;
+                    }
 
-                List<TestCase_Request> reqs = seq.getRequests();
-                String base1 = seq.getBase1();
-                String base2 = login.getBase();
-                String cookie = "";
-                URL url = null;
-                try {
-                    url = new URL(login.getUrl());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                String lastCookie = null;
-                for (TestCase_Request req: reqs) {
-                    if(forceStop){
-                        break;
+                    @Override
+                    public void publishState(RequestListModelObject state) {
+                        publish(state);
                     }
-                    List<RequestIn> inPars = req.getInputParams();
-                    List<ResponseOut> outPars = req.getOutputParams();
-                    byte[] modReq = req.getModifiedRequest();
-                    String[] msg = DataUtils.ExplodeRequest(modReq);
-                    msg = DataUtils.changeHost(msg,url.toString());
-                    msg = DataUtils.changeReferer(msg,url.toString());
-                    msg = DataUtils.changeUrlBase(msg,base1,base2);
-                    if(!cookie.isEmpty()) {
-                        msg = DataUtils.changeCookie(msg, cookie);
-                    }
-                    for (RequestIn inPar : inPars) {
-                        msg = DataUtils.applyParameter(msg,inPar,instance.getInitParamFor(inPar));
-                    }
-                    byte[] newRequest = DataUtils.buildRequest(msg);
-                    IHttpService httpService = DataUtils.makeHttpService(url);
-                    try {
-                        Thread.sleep(Settings.DELAY);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    final IHttpRequestResponse response = BurpExtender.getInstance().getCallbacks().makeHttpRequest(httpService,newRequest);
-                    RequestListModelObject obj = new RequestListModelObject(response);
-                    obj.setTestInstance(instance);
-                    obj.setTestRequest(req);
-                    for (ICookie coo : obj.getRequestObject().getAnalysedResponse().getCookies()) {
-                        if(coo.getName().equals("JSESSIONID")){
-                            lastCookie = coo.getValue();
+                });
+                String lastCookie = "";
+                for (RequestListModelObject req :
+                        requests) {
+                    for(ICookie cook: req.getRequestObject().getAnalysedResponse().getCookies()){
+                        if(cook.getName().equals(Settings.SESSION_COOKIENAME)){
+                            lastCookie = cook.getValue();
                         }
                     }
-                    for (ResponseOut outPar : outPars) {
-                        DataUtils.setOutParameters(DialogLoginPlay.this,obj,outPar,instance);
-                    }
-                    instance.getRequestModelItem().add(obj);
-                    publish(obj);
                 }
-                instance.updateGlobalVariable(login.getOutParam(),lastCookie);
-                if(!TestCaseInstance.queryGlobalVariable(login.getOutParam()).isEmpty()) {
+                instance.updateGlobalVariable(login.getOutParam(), lastCookie);
+                if (!TestCaseInstance.queryGlobalVariable(login.getOutParam()).isEmpty()) {
                     login.setLast_seen((int) new Date().getTime());
                     login.setSession(TestCaseInstance.queryGlobalVariable(login.getOutParam()));
                     Login.updateLogin(login);
                 }
+
                 return null;
             }
 

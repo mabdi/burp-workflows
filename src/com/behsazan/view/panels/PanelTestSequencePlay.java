@@ -1,10 +1,9 @@
 package com.behsazan.view.panels;
 
 import burp.*;
+import com.behsazan.controller.Controller;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
-import com.behsazan.model.entity.Request;
-import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractPanel;
 import com.behsazan.view.dialogs.OnSequencePlayFinished;
 
@@ -14,14 +13,13 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 /**
  * Created by admin on 08/01/2017.
  */
-public class PanelTestSequencePlay extends AbstractPanel implements OnSequencePlayFinished, IMessageEditorController {
+public class PanelTestSequencePlay extends AbstractPanel implements IMessageEditorController {
     private OnSequencePlayFinished onFinish;
     private boolean forceCancel = false;
     private IBurpExtenderCallbacks callbacks;
@@ -101,50 +99,37 @@ public class PanelTestSequencePlay extends AbstractPanel implements OnSequencePl
 
     private void play() {
         this.cancelPlay.setEnabled(true);
-        new Thread(new Runnable() {
+        SwingWorker<Void,RequestListModelObject> worker = new SwingWorker<Void, RequestListModelObject>() {
             @Override
-            public void run() {
+            protected Void doInBackground() throws Exception {
                 for (final byte[] rq :
                         requests) {
                     if(forceCancel){
                         break;
                     }
-                    IHttpService httpService = DataUtils.makeHttpService(newRoot);
-                    final IHttpRequestResponse response = ext.getCallbacks().makeHttpRequest(httpService,rq);
-                    UIUtils.invokeInDispatchThreadIfNeeded(new Runnable() {
-                        @Override
-                        public void run() {
-                            modelAllRequests.addElement(new RequestListModelObject(response));
-                        }
-                    });
-//                    final byte[] response = ext.getCallbacks().makeHttpRequest(httpService.getHost(),httpService.getPort(),
-//                            httpService.getProtocol().equalsIgnoreCase("https"),rq);
-//                    UIUtils.invokeInDispatchThreadIfNeeded(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            URL url = null;
-//                            try {
-//                                url = new URL(httpService.getProtocol(),
-//                                        httpService.getHost(),httpService.getPort(),"/");
-//                            } catch (MalformedURLException e) {
-//                                e.printStackTrace();
-//                            }
-//                            modelAllRequests.addElement(new RequestListModelObject(new Request(url,rq,response,-1)));
-//                        }
-//                    });
+                    publish(Controller.makeHttpRequestAndWait(newRoot, rq));
                 }
-                testFinished();
+                return null;
             }
-        }).start();
-    }
 
-    @Override
-    public void testFinished() {
-        this.cancelPlay.setEnabled(false);
-        forceCancel=false;
-        if(onFinish!= null){
-            onFinish.testFinished();
-        }
+            @Override
+            protected void done() {
+                cancelPlay.setEnabled(false);
+                forceCancel=false;
+                if(onFinish!= null){
+                    onFinish.testFinished();
+                }
+            }
+
+            @Override
+            protected void process(List<RequestListModelObject> chunks) {
+                for (RequestListModelObject rq : chunks) {
+                    modelAllRequests.addElement(rq);
+                }
+
+            }
+        };
+        worker.execute();
     }
 
     @Override

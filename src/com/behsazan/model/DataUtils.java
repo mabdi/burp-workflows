@@ -34,13 +34,6 @@ import java.util.regex.Pattern;
 public class DataUtils {
     public static final String CRLF = "\r\n";
 
-
-    public static boolean isInTadarokatScope(IHttpRequestResponse reqres){
-        return reqres.getHttpService().getProtocol().equalsIgnoreCase(Settings.TADAROKAT_protocol)  &&
-                reqres.getHttpService().getHost().equalsIgnoreCase( Settings.TADAROKAT_HOST.toLowerCase()) &&
-                reqres.getHttpService().getPort() == Settings.TADAROKAT_PORT;
-    }
-
     public static String getAppHome() {
         String home = System.getProperty("user.home");
         String appHome = home + "\\TadarokatBurp";
@@ -280,7 +273,7 @@ public class DataUtils {
         }
         if(outPar.getType() == ResponseOut.TYPE_COOKIE){
             for (ICookie coo :response.getCookies()) {
-                if(coo.getName().equals("JSESSIONID")){
+                if(coo.getName().equals(Settings.SESSION_COOKIENAME)){
                     if(outPar.isGlobal()) {
                         instance.updateGlobalVariable(outPar.getName(),coo.getValue());
                     } else {

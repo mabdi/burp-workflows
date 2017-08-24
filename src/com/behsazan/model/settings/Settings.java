@@ -19,10 +19,10 @@ import java.nio.file.StandardCopyOption;
 public class Settings {
 
     public static final long DELAY = 300;
-    public static String TADAROKAT_protocol = "http";
-    public static String TADAROKAT_HOST = "172.16.27.12";
-    public static int TADAROKAT_PORT = 9080;
-    public static String TADAROKAT_PATH = "/eproc4qa";
+    public static final String SESSION_COOKIENAME = "JSESSIONID";
+    public static final String SECTION_CHAR = "\u00A7";
+    public static final String LOCALIDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
+    public static final String GLOBALIDENTIFIER = "\u00A7" + "var@globals" + "\u00A7";
 
     public static void backupDb(TabSettings tabSettings) {
         SqliteHelper db = new SqliteHelper();
@@ -30,7 +30,6 @@ public class Settings {
         File f = db.getDbFile();
         File f2 = new File(f.getParent(),"db_"+System.currentTimeMillis()+".db");
         try {
-//            FileUtils.copyFile(f,f2);
             Files.copy( f.toPath(),
                     f2.toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
