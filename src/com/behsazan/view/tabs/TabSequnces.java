@@ -55,7 +55,7 @@ public class TabSequnces extends AbstractTab {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     BurpExtender.getInstance().getCallbacks().setProxyInterceptionEnabled(false);
-                    DialogSequenceNew dlg = new DialogSequenceNew(TabSequnces.this);
+                    DialogSequenceNew dlg = new DialogSequenceNew();
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
                         public void windowClosed(WindowEvent e) {
@@ -74,7 +74,7 @@ public class TabSequnces extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogSequenceEdit dlg = new DialogSequenceEdit(TabSequnces.this,id);
+                    DialogSequenceEdit dlg = new DialogSequenceEdit(id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
                         public void windowClosed(WindowEvent e) {
@@ -104,7 +104,7 @@ public class TabSequnces extends AbstractTab {
                             Sequence.cloneSequence(id,response);
                         } catch (SQLException e1) {
                             e1.printStackTrace();
-                            UIUtils.showGenerealError(TabSequnces.this);
+                            UIUtils.showGenerealError();
                         }
                         refreshMainView();
                     }
@@ -131,7 +131,7 @@ public class TabSequnces extends AbstractTab {
                             refreshMainView();
                         } catch (SQLException e1) {
                             e1.printStackTrace();
-                            UIUtils.showGenerealError(TabSequnces.this);
+                            UIUtils.showGenerealError( );
                         }
                     }
                 }
@@ -147,7 +147,7 @@ public class TabSequnces extends AbstractTab {
                     }
 
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogSequencePlay dlg = new DialogSequencePlay(TabSequnces.this,id);
+                    DialogSequencePlay dlg = new DialogSequencePlay(id);
 
                 }
             });

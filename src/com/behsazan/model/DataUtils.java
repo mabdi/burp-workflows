@@ -40,6 +40,16 @@ public class DataUtils {
         return appHome;
     }
 
+    public static IHttpService makeHttpService(String newroot) {
+        try {
+            URL url = new URL(newroot);
+            return makeHttpService(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static IHttpService makeHttpService(URL newroot) {
         int port = newroot.getPort();
         if(newroot.getPort()==-1){
@@ -50,6 +60,15 @@ public class DataUtils {
             }
         }
         return BurpExtender.getInstance().getHelpers().buildHttpService(newroot.getHost(),port,newroot.getProtocol().equalsIgnoreCase("https"));
+    }
+
+    public static String baseFromUrl(IHttpService url){
+        String prt = "";
+        if(url.getPort()!=-1 && url.getPort()!= 80 && url.getPort()!= 443){
+            prt = ":" + url.getPort();
+        }
+        String hostStr = url.getHost() + prt;
+        return url.getProtocol() + "://" + hostStr + "/";
     }
 
     public static String getRootAddress(Request request) {
@@ -258,11 +277,11 @@ public class DataUtils {
         return msg;
     }
 
-    public static void setOutParameters(Component parent,RequestListModelObject obj, ResponseOut outPar, Flow_Running instance) {
+    public static void setOutParameters(RequestListModelObject obj, ResponseOut outPar, Flow_Running instance) {
         Request rq = obj.getRequestObject();
         IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
         if(outPar.getType() == ResponseOut.TYPE_CAPTCHA){
-            String captcha = showCaptcha(parent,obj);
+            String captcha = showCaptcha(obj);
             if(outPar.isGlobal()) {
                 instance.updateGlobalVariable(outPar.getName(),captcha);
             } else {
@@ -329,14 +348,14 @@ public class DataUtils {
         }
     }
 
-    private static String showCaptcha(Component parent, RequestListModelObject obj) {
+    private static String showCaptcha(RequestListModelObject obj) {
         IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
 
         Request rq = obj.getRequestObject();
         byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
         System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);
         BufferedImage img = getImageObject(bodyBytes);
-        DialogCaptcha dlg = new DialogCaptcha(parent);
+        DialogCaptcha dlg = new DialogCaptcha();
         return dlg.setData(img);
     }
 
@@ -363,4 +382,13 @@ public class DataUtils {
         }
     }
 
+    public static boolean isValidURL(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -30,8 +30,8 @@ public class DialogLoginEdit extends AbstractDialog {
     private JTextField txtBase;
     private Login loging;
 
-    public DialogLoginEdit(Component parent) {
-        super(parent,false);
+    public DialogLoginEdit() {
+        super(false);
     }
 
     @Override

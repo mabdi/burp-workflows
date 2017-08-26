@@ -28,8 +28,8 @@ public class DialogSequencePlay extends AbstractDialog implements OnSequencePlay
     private PanelFlowPlay playPanel;
     private Sequence sequence;
 
-    public DialogSequencePlay(JPanel parent, int id) {
-        super(parent,false);
+    public DialogSequencePlay(int id) {
+        super(false);
         setSequence(id);
         setVisible(true);
     }

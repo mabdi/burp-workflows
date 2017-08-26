@@ -20,6 +20,10 @@ public class BurpExtender implements IBurpExtender {
     private static ITab UI_PARENT;
     PrintWriter stdout;
 
+    public static Component getUiParent() {
+        return UI_PARENT.getUiComponent();
+    }
+
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
         instance = this;
@@ -35,7 +39,8 @@ public class BurpExtender implements IBurpExtender {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                BurpExtender.this.callbacks.addSuiteTab(new Interface());
+                UI_PARENT = new Interface();
+                BurpExtender.this.callbacks.addSuiteTab(UI_PARENT);
             }
         });
 
@@ -64,9 +69,5 @@ public class BurpExtender implements IBurpExtender {
 
     public static void logText(String s){
         getInstance().getStdout().println(s);
-    }
-
-    public static ITab getUiParent() {
-        return UI_PARENT;
     }
 }

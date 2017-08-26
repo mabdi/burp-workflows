@@ -54,7 +54,7 @@ public class TabLogins extends AbstractTab {
             newbtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DialogLoginNew dlg = new DialogLoginNew(TabLogins.this);
+                    DialogLoginNew dlg = new DialogLoginNew();
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
                         public void windowClosed(WindowEvent e) {
@@ -73,7 +73,7 @@ public class TabLogins extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogLoginEdit dlg = new DialogLoginEdit(TabLogins.this);
+                    DialogLoginEdit dlg = new DialogLoginEdit();
                     dlg.setData(id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -99,7 +99,7 @@ public class TabLogins extends AbstractTab {
                         refreshMainView();
                     } catch (SQLException e1) {
                         e1.printStackTrace();
-                        UIUtils.showGenerealError(TabLogins.this);
+                        UIUtils.showGenerealError( );
                     }
 
 
@@ -147,7 +147,7 @@ public class TabLogins extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogLoginPlay dlg = new DialogLoginPlay(TabLogins.this);
+                    DialogLoginPlay dlg = new DialogLoginPlay();
                     dlg.setData(id);
 
                 }

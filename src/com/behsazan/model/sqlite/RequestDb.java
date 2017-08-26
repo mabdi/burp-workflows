@@ -1,5 +1,6 @@
 package com.behsazan.model.sqlite;
 
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.Request;
 
 import java.net.MalformedURLException;
@@ -29,14 +30,12 @@ public class RequestDb extends SqliteHelper{
                 byte[] request = rq.getBytes(3);
                 byte[] response = rq.getBytes(4);
                 int order = rq.getInt(6);
-                Request  r = new Request (new URL(url), request, response, order);
+                Request  r = new Request (DataUtils.makeHttpService(url), request, response, order);
                 r.setId(rq.getInt(1));
                 return r;
             } else {
                 return null;
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } finally {
             if (rq != null)
                 rq.close();
@@ -45,7 +44,6 @@ public class RequestDb extends SqliteHelper{
             if (c != null)
                 c.close();
         }
-        return null;
     }
 
     public void updateRequestRequest(int id, byte[] message) throws SQLException {

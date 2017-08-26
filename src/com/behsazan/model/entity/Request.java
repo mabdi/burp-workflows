@@ -19,7 +19,6 @@ public class Request {
     private Sequence sequence;
     private byte[] request;
     private byte[] response;
-    private URL url;
     private int id;
     private IRequestInfo analyzedRequest;
     private IResponseInfo analyzedResponse;
@@ -28,8 +27,8 @@ public class Request {
     public Request() {
     }
 
-    public Request(URL url, byte[] request, byte[] response, int order) {
-        this.url = url;
+    public Request(IHttpService url, byte[] request, byte[] response, int order) {
+        this.httpService = url;
         this.request = request;
         this.response = response;
         this.order = order;
@@ -68,14 +67,6 @@ public class Request {
         return getAnalysedRequest().getMethod() + "  " + getAnalysedRequest().getUrl().getPath();
     }
 
-    public URL getUrl() {
-        return url;
-    }
-
-    public void setUrl(URL url) {
-        this.url = url;
-    }
-
     public int getOrder() {
         return order;
     }
@@ -85,10 +76,11 @@ public class Request {
     }
 
     public IHttpService getHttpService() {
-        if(httpService == null){
-            httpService = DataUtils.makeHttpService(url);
-        }
         return httpService;
+    }
+
+    public void setUrl(IHttpService url) {
+        this.httpService = url;
     }
 
     public void setId(int id) {

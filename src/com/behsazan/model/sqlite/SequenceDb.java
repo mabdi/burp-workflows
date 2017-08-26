@@ -1,5 +1,6 @@
 package com.behsazan.model.sqlite;
 
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
 
@@ -17,11 +18,13 @@ public class SequenceDb extends SqliteHelper {
 
     public void insertSequence(Sequence sq) throws SQLException {
         Connection c = getConnection();
-        PreparedStatement stmt = c.prepareStatement("INSERT INTO SEQUENCE (NAME,REQUEST_COUNT,FIRST_URL,LAST_URL) VALUES (?,?,?,?)");
+        PreparedStatement stmt = c.prepareStatement("INSERT INTO SEQUENCE (NAME,BASE,DESCRIPTION,REQUEST_COUNT,FIRST_URL,LAST_URL) VALUES (?,?,?,?,?,?)");
         stmt.setString(1, sq.getName());
-        stmt.setInt(2, sq.getRequest().size());
-        stmt.setString(3, sq.getRequest().get(0).getUrl().toString());
-        stmt.setString(4, sq.getRequest().get(sq.getRequest().size() - 1).getUrl().toString());
+        stmt.setString(2, sq.getUrl());
+        stmt.setString(3, sq.getDescription());
+        stmt.setInt(4, sq.getRequest().size());
+        stmt.setString(5, sq.getRequest().get(0).getHttpService().toString());
+        stmt.setString(6, sq.getRequest().get(sq.getRequest().size() - 1).getHttpService().toString());
         stmt.executeUpdate();
 
         ResultSet rs = c.createStatement().executeQuery("select last_insert_rowid();");
@@ -34,7 +37,7 @@ public class SequenceDb extends SqliteHelper {
             stmt2.setInt(1, rq.getSequence().getId());
             stmt2.setBytes(2, rq.getRequest());
             stmt2.setBytes(3, rq.getResponse());
-            stmt2.setString(4, rq.getUrl().toString());
+            stmt2.setString(4, rq.getHttpService().toString());
             stmt2.setInt(5, order);
             stmt2.executeUpdate();
             stmt2.close();
@@ -100,12 +103,15 @@ public class SequenceDb extends SqliteHelper {
     }
 
 
-    public void updateSequenceName(int id, String name) throws SQLException {
+    public void updateSequence(int id, String name, String description, String url) throws SQLException {
 
         Connection c = getConnection();
-        PreparedStatement stmt = c.prepareStatement("UPDATE SEQUENCE SET NAME = ? WHERE ID =?");
+        PreparedStatement stmt = c.prepareStatement("UPDATE SEQUENCE SET NAME = ?,DESCRIPTION=?,BASE=? WHERE ID =?");
         stmt.setString(1, name);
-        stmt.setInt(2, id);
+        stmt.setString(2, description);
+        stmt.setString(3, url);
+
+        stmt.setInt(4, id);
         stmt.executeUpdate();
         stmt.close();
         c.close();
@@ -120,14 +126,15 @@ public class SequenceDb extends SqliteHelper {
         ResultSet rq = null;
         try {
             c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL,DESCRIPTION from SEQUENCE");
+            stmt = c.prepareStatement("SELECT ID,NAME,BASE,REQUEST_COUNT,FIRST_URL,LAST_URL,DESCRIPTION from SEQUENCE");
             rq = stmt.executeQuery();
             while (rq.next()) {
                 int id = rq.getInt(1);
                 String name = rq.getString(2);
-                String descr = rq.getString(6);
+                String url = rq.getString(3);
+                String descr = rq.getString(7);
                 List<Request> reqs = getSequenceRequestById(id);
-                Sequence s = new Sequence(name, descr, reqs);
+                Sequence s = new Sequence(name,  descr,url, reqs);
                 s.setId(id);
                 res.add(s);
             }
@@ -158,12 +165,10 @@ public class SequenceDb extends SqliteHelper {
                 byte[] request = rq.getBytes(3);
                 byte[] response = rq.getBytes(4);
                 int order = rq.getInt(6);
-                Request r = new Request(new URL(url), request, response, order);
+                Request r = new Request(DataUtils.makeHttpService(url), request, response, order);
                 r.setId(rq.getInt(1));
                 res.add(r);
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } finally {
             if (rq != null)
                 rq.close();
@@ -192,16 +197,17 @@ public class SequenceDb extends SqliteHelper {
 
         try {
             c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL,DESCRIPTION from SEQUENCE WHERE ID=?");
+            stmt = c.prepareStatement("SELECT ID,NAME,REQUEST_COUNT,FIRST_URL,LAST_URL,DESCRIPTION,BASE from SEQUENCE WHERE ID=?");
             stmt.setInt(1, id);
             rq = stmt.executeQuery();
             if (!rq.next()) {
                 res = null;
             } else {
                 String name = rq.getString(2);
+                String url = rq.getString(7);
                 String desc = rq.getString(6);
                 List<Request > reqs = getSequenceRequestById(id);
-                Sequence s = new Sequence(name, desc, reqs);
+                Sequence s = new Sequence(name, desc, url, reqs);
                 s.setId(id);
                 res = s;
             }

@@ -142,6 +142,7 @@ public class SqliteHelper {
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " NAME           TEXT    NOT NULL, " +
                 " DESCRIPTION           TEXT    NOT NULL, " +
+                " PARAMETERS           TEXT    NOT NULL, " +
                 " SEQUENCE_COUNT            INTEGER     NOT NULL, " +
                 " REQUEST_COUNT            INTEGER     NOT NULL  " +
                 " )";

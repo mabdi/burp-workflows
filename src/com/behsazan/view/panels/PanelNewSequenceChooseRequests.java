@@ -1,6 +1,7 @@
 package com.behsazan.view.panels;
 
 import burp.*;
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.view.UIUtils;
@@ -36,6 +37,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     private JTextField txtSeqName;
     private JCheckBox enableFilter;
     private JTextField txtUrl;
+    private JTextField txtDescription;
 
     @Override
     public String getName() {
@@ -59,10 +61,14 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         UIUtils.FormUtility form = new UIUtils.FormUtility();
         txtSeqName = new JTextField("", 20);
         txtUrl = new JTextField("", 20);
+        txtDescription = new JTextField("", 20);
 
 
         form.addLabel("Sequence Name: ",topPanel);
         form.addLastField(txtSeqName,topPanel);
+
+        form.addLabel("Description: ",topPanel);
+        form.addLastField(txtDescription,topPanel);
 
         form.addLabel("Base URL: ",topPanel);
         form.addLastField(txtUrl,topPanel);
@@ -78,8 +84,8 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
                 }
             }
         });
-        form.addLabel("",topPanel);
-        form.addLastField(enableFilter,topPanel);
+//        form.addLabel("",topPanel);
+//        form.addLastField(enableFilter,topPanel);
 
 
         final JButton startRecord = new JButton("Record");
@@ -105,8 +111,10 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
 
         stopRecord.setEnabled(false);
         JPanel btnBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
         btnBar.add(startRecord);
         btnBar.add(stopRecord);
+        btnBar.add(enableFilter);
         form.addLabel("",topPanel);
         form.addLastField(btnBar,topPanel);
 //        topPanel.add(txtSeqName);
@@ -144,16 +152,28 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
 
     @Override
     public IHttpService getHttpService() {
+        if(currentlyDisplayedItem==null)
+            return null;
         return currentlyDisplayedItem.getHttpService();
     }
 
     @Override
     public byte[] getRequest() {
+        if(currentlyDisplayedItem ==null)
+            return null;
         return currentlyDisplayedItem.getRequest();
+    }
+
+    public byte[] getRequestModified() {
+        if(currentlyDisplayedItem ==null)
+            return null;
+        return requestViewer.getMessage();
     }
 
     @Override
     public byte[] getResponse() {
+        if(currentlyDisplayedItem ==null)
+            return null;
         return currentlyDisplayedItem.getResponse();
     }
 
@@ -246,6 +266,9 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     public void addMessage(RequestListModelObject req) {
         synchronized (modelAllRequests) {
             modelAllRequests.addElement(req);
+            if(txtUrl.getText().isEmpty()){
+                txtUrl.setText(req.getRequestObject().getHttpService().toString());
+            }
             if (req.getAnalysed().getUrl().getPath().endsWith(".do")) {
                 modelDoRequests.addElement(req);
             }
@@ -262,9 +285,17 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         int rid = 0;
         while (els.hasMoreElements()) {
             RequestListModelObject rq = els.nextElement();
-            list.add(new Request(rq.getAnalysed().getUrl(), rq.getRequest(), rq.getResponse(), rid));
+            list.add(new Request(rq.getHttpService(), rq.getRequest(), rq.getResponse(), rid));
             rid++;
         }
         return list;
+    }
+
+    public String getSequenceDescription() {
+        return txtDescription.getText();
+    }
+
+    public String getSequenceURL() {
+        return txtUrl.getText();
     }
 }

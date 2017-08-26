@@ -33,7 +33,7 @@ public class DialogFlowPlay extends AbstractDialog {
     private boolean forceStop;
 
     public DialogFlowPlay(JPanel parent) {
-        super(parent,false);
+        super(false);
         flow_runnings = new ArrayList<>();
     }
 
@@ -139,7 +139,7 @@ public class DialogFlowPlay extends AbstractDialog {
                     if(forceStop){
                         break;
                     }
-                    Controller.runTestCase(DialogFlowPlay.this, instance, new Controller.RunTestCaseListener() {
+                    Controller.runTestCase(instance, new Controller.RunTestCaseListener() {
                         @Override
                         public boolean isRunFinished() {
                             return forceStop;

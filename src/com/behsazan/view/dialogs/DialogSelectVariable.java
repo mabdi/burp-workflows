@@ -25,8 +25,8 @@ public class DialogSelectVariable extends AbstractDialog {
     private JList<String> listSequences;
     private DefaultListModel<String> modelList;
 
-    public DialogSelectVariable(Component parent) {
-        super(parent,false);
+    public DialogSelectVariable() {
+        super(false);
     }
 
 

@@ -1,5 +1,6 @@
 package com.behsazan.view;
 
+import burp.BurpExtender;
 import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
@@ -33,31 +34,9 @@ public class UIUtils {
         }
     }
 
-    public static void runAndShowDialog(Component parent, final Runnable runnable){
-        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(parent);
-        final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
-            @Override
-            protected Void doInBackground() throws Exception {
-                runnable.run();
-                return null;
-            }
-
-            @Override
-            protected void process(java.util.List<String> chunks) {
-                DialogWaiting.updateMessage(pleaseWaitDialog,chunks.get(0));
-            }
-
-            @Override
-            protected void done() {
-                pleaseWaitDialog.dispose();
-            }
-        };
-        worker.execute();
-    }
-
-    public static void showGenerealError(Component dialogSequenceEdit) {
-        JOptionPane.showMessageDialog(dialogSequenceEdit,"Error occurred.","Error",JOptionPane.ERROR_MESSAGE);
+    public static void showGenerealError() {
+        JOptionPane.showMessageDialog(BurpExtender.getUiParent(),"Error occurred.","Error",JOptionPane.ERROR_MESSAGE);
     }
 
     public static class FormUtility {

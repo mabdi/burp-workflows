@@ -3,6 +3,7 @@ package com.behsazan.view.dialogs;
 import burp.BurpExtender;
 import burp.IHttpService;
 import com.behsazan.controller.Controller;
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
@@ -17,6 +18,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by admin on 07/29/2017.
@@ -30,8 +32,8 @@ public class DialogSequenceNew extends AbstractDialog {
     private JButton btnfinish;
     private JButton btnReSend;
 
-    public DialogSequenceNew(JPanel parent) {
-        super(parent);
+    public DialogSequenceNew() {
+        super();
     }
 
     @Override
@@ -56,10 +58,31 @@ public class DialogSequenceNew extends AbstractDialog {
             btnReSend.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    byte[] rq = choosePanel.getRequest();
-                    IHttpService service = choosePanel.getHttpService();
-                    RequestListModelObject rsp = Controller.makeHttpRequest(service, rq);
-                    choosePanel.addMessage(rsp);
+                    final byte[] rq = choosePanel.getRequestModified();
+                    if(rq== null)
+                        return;
+                    final IHttpService service = choosePanel.getHttpService();
+                    btnReSend.setEnabled(false);
+                    SwingWorker<RequestListModelObject,Void> worker = new SwingWorker<RequestListModelObject, Void>() {
+                        @Override
+                        protected RequestListModelObject doInBackground() throws Exception {
+
+                            return Controller.makeHttpRequest(service, rq);
+                        }
+
+                        @Override
+                        protected void done() {
+                            try {
+                                choosePanel.addMessage(get());
+                                btnReSend.setEnabled(true);
+                            } catch (InterruptedException e1) {
+                                e1.printStackTrace();
+                            } catch (ExecutionException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    };
+                    worker.execute();
                 }
             });
             btnfinish = new JButton("Save");
@@ -68,6 +91,8 @@ public class DialogSequenceNew extends AbstractDialog {
                 public void actionPerformed(ActionEvent e) {
                     List<Request> reqs = choosePanel.getSelectedRequests();
                     String name = choosePanel.getSequenceName().trim();
+                    String description = choosePanel.getSequenceDescription().trim();
+                    String url = choosePanel.getSequenceURL().trim();
                     if(name.isEmpty()){
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence name is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
@@ -76,20 +101,23 @@ public class DialogSequenceNew extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"No request is selected.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if(Sequence.isSequenceNameUsed(name)){
+                    if(   Sequence.isSequenceNameUsed(name)){
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    String description = "";
+                    if(!DataUtils.isValidURL(url)){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"Invalid Url.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     try {
-                        Sequence.insertSequence(new Sequence(name, description,reqs));
+                        Sequence.insertSequence(new Sequence(name, description, url, reqs));
                         choosePanel.shutDown();
                         dissmiss();
 
                     }catch (Exception x){
                         BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");
                         x.printStackTrace(BurpExtender.getInstance().getStdout());
-                        UIUtils.showGenerealError(DialogSequenceNew.this);
+                        UIUtils.showGenerealError();
                     }
 
                 }

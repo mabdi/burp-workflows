@@ -17,8 +17,8 @@ public class DialogCaptcha extends AbstractDialog {
     private JTextField textField;
     private BufferedImage img;
 
-    public DialogCaptcha(Component parent) {
-        super(parent,false);
+    public DialogCaptcha() {
+        super(false);
     }
 
     public String setData(BufferedImage img){

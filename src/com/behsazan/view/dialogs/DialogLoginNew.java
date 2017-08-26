@@ -28,8 +28,8 @@ public class DialogLoginNew extends AbstractDialog {
     private JTextField txtUrl;
     private JTextField txtBase;
 
-    public DialogLoginNew(Component parent) {
-        super(parent);
+    public DialogLoginNew() {
+        super();
     }
 
     @Override

@@ -30,8 +30,8 @@ public class DialogRequestInput extends AbstractDialog{
     private RequestIn result;
     private RequestIn requestIn;
 
-    public DialogRequestInput(Component parent) {
-        super(parent,false);
+    public DialogRequestInput() {
+        super(false);
     }
 
     @Override

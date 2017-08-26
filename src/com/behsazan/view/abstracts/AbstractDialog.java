@@ -1,5 +1,7 @@
 package com.behsazan.view.abstracts;
 
+import burp.BurpExtender;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,12 +13,12 @@ public abstract class AbstractDialog extends JDialog {
     private final Component parent_window;
 
 
-    public AbstractDialog(Component parent){
-        this(parent,true);
+    public AbstractDialog(){
+        this(true);
     }
 
-    public AbstractDialog(Component parent,boolean setVisible){
-        this.parent_window = parent;
+    public AbstractDialog(boolean setVisible){
+        this.parent_window = BurpExtender.getUiParent();
         setModalityType(ModalityType.APPLICATION_MODAL);
         preInitUI();
         initUI();

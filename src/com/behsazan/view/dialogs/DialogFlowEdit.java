@@ -44,8 +44,8 @@ public class DialogFlowEdit extends AbstractDialog {
     private DefaultComboBoxModel<String> modelCookie;
     private Vector<Vector<Object>> vectorCookie;
 
-    public DialogFlowEdit(AbstractTab tab) {
-        super(tab,false);
+    public DialogFlowEdit() {
+        super(false);
     }
 
     public void initData(final int flowId) {
@@ -104,7 +104,7 @@ public class DialogFlowEdit extends AbstractDialog {
 //                        return;
 //                    }
 //                    try {
-//                        Sequence.updateSequenceName(flow.getId(),name);
+//                        Sequence.updateSequence(flow.getId(),name);
 //                    } catch (SQLException e1) {
 //                        e1.printStackTrace();
 //                        UIUtils.showGenerealError(DialogTestCaseEdit.this);
@@ -209,7 +209,7 @@ public class DialogFlowEdit extends AbstractDialog {
             addSequence.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    final DialogSelectSequence dlg = new DialogSelectSequence(DialogFlowEdit.this);
+                    final DialogSelectSequence dlg = new DialogSelectSequence();
                     dlg.setData();
                     addNewSequence(dlg.getSelectedItem());
                     dlg.dissmiss();
@@ -378,7 +378,7 @@ public class DialogFlowEdit extends AbstractDialog {
             btnRequest.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DialogFlowRequests dlg = new DialogFlowRequests(DialogFlowEdit.this);
+                    DialogFlowRequests dlg = new DialogFlowRequests();
                     Flow_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getFlow_sequence());
                     if(data!=null){
                         sequncesJlist.getSelectedValue().setFlow_sequence(data);

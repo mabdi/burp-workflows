@@ -31,14 +31,16 @@ public class FlowDb extends SqliteHelper {
         try {
             c.setAutoCommit(false);
             PreparedStatement stmt = c.prepareStatement("INSERT INTO FLOW " +
-                    "(NAME,SEQUENCE_COUNT,REQUEST_COUNT) VALUES (?,?,?)");
+                    "(NAME,DESCRIPTION,PARAMETERS,SEQUENCE_COUNT,REQUEST_COUNT) VALUES (?,?,?,?,?)");
             stmt.setString(1, flow.getName());
-            stmt.setInt(2, flow.getSeqs().size());
+            stmt.setString(2, flow.getName());
+            stmt.setString(3, flow.getName());
+            stmt.setInt(4, flow.getSeqs().size());
             int reqs = 0;
             for (Flow_Sequence tr : flow.getSeqs()) {
                 reqs += tr.getRequests().size();
             }
-            stmt.setInt(3, reqs);
+            stmt.setInt(5, reqs);
             stmt.executeUpdate();
             ResultSet rs1 = c.createStatement().executeQuery("select last_insert_rowid();");
             rs1.next();

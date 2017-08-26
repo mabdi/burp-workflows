@@ -1,11 +1,8 @@
 package com.behsazan.model.entity;
 
-import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.sqlite.SequenceDb;
-import com.behsazan.model.sqlite.SqliteHelper;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -13,6 +10,7 @@ import java.util.Vector;
  * Created by admin on 07/31/2017.
  */
 public class Sequence {
+    private String url;
     private int id;
     private List<Request> request;
     private String name;
@@ -21,10 +19,11 @@ public class Sequence {
     public Sequence() {
     }
 
-    public Sequence(String sequenceName, String description, List<Request> selectedRequests) {
+    public Sequence(String sequenceName, String description, String url, List<Request> selectedRequests) {
         this.name = sequenceName;
         this.description = description;
         this.request = selectedRequests;
+        this.url = url;
         for (Request r : request) {
             r.setSequence(this);
         }
@@ -42,6 +41,14 @@ public class Sequence {
             e.printStackTrace();
             return  null;
         }
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getName() {
@@ -111,8 +118,8 @@ public class Sequence {
         new SequenceDb().deleteSequence(id);
     }
 
-    public static void updateSequenceName(int id, String name) throws SQLException {
-        new SequenceDb().updateSequenceName(id,name);
+    public static void updateSequence(int id, String name, String description, String url) throws SQLException {
+        new SequenceDb().updateSequence(id,name,description,url);
     }
 
     public static Vector<Vector<Object>> getAllSequences_Table() {

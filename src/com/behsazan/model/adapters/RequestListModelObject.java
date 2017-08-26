@@ -34,13 +34,7 @@ public class RequestListModelObject {
     }
 
     public RequestListModelObject(IHttpRequestResponse reqres) {
-        URL url = null;
-        try {
-            url = new URL(reqres.getHttpService().getProtocol(), reqres.getHttpService().getHost(), String.valueOf(reqres.getHttpService().getPort()));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        this.requestObject = new Request(url,reqres.getRequest(),reqres.getResponse(),-1 );
+        this.requestObject = new Request(reqres.getHttpService(),reqres.getRequest(),reqres.getResponse(),-1 );
         this.httpService = reqres.getHttpService();
         this.analysed = BurpExtender.getInstance().getHelpers().analyzeRequest(reqres);
     }

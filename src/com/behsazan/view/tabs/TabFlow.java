@@ -53,7 +53,7 @@ public class TabFlow extends AbstractTab {
             newBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DialogFlowNew dlg = new DialogFlowNew(TabFlow.this);
+                    DialogFlowNew dlg = new DialogFlowNew();
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
                         public void windowClosed(WindowEvent e) {
@@ -72,7 +72,7 @@ public class TabFlow extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogFlowEdit dlg = new DialogFlowEdit(TabFlow.this);
+                    DialogFlowEdit dlg = new DialogFlowEdit();
                     dlg.initData(id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -104,7 +104,7 @@ public class TabFlow extends AbstractTab {
                             refreshMainView();
                         } catch (SQLException e1) {
                             e1.printStackTrace();
-                            UIUtils.showGenerealError(TabFlow.this);
+                            UIUtils.showGenerealError( );
                         }
 
                     }

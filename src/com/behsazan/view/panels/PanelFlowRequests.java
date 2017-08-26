@@ -34,8 +34,8 @@ public class PanelFlowRequests extends AbstractPanel {
 //    private JPanel requestInputPanel;
     private JPanel responseOutputPanel;
     private JTable jtableResponseOut;
-    private JTable jtableRequestIn;
-    private TableModelRequestIn modelRequestIn;
+//    private JTable jtableRequestIn;
+//    private TableModelRequestIn modelRequestIn;
     private TableModelResponseOut modelResponseOut;
     private Flow_Request currentRequest;
 
@@ -99,7 +99,7 @@ public class PanelFlowRequests extends AbstractPanel {
         }
         requestViewer.setText(currentRequest.getModifiedRequest());
         responseViewer.setText(currentRequest.getRequest().getResponse());
-        modelRequestIn.changeData(currentRequest.getInputParams());
+//        modelRequestIn.changeData(currentRequest.getInputParams());
         modelResponseOut.changeData(currentRequest.getOutputParams());
         getRequestTabs().setSelectedIndex(0);
     }
@@ -237,7 +237,7 @@ public class PanelFlowRequests extends AbstractPanel {
                     if (listRequests.getSelectedIndex() < 0) {
                         return;
                     }
-                    DialogResponseOutput dlg = new DialogResponseOutput(PanelFlowRequests.this);
+                    DialogResponseOutput dlg = new DialogResponseOutput();
                     ResponseOut responseOut = dlg.getData(listRequests.getSelectedValue());
                     if (responseOut != null) {
                         listRequests.getSelectedValue().addOutputParam(responseOut);
@@ -252,7 +252,7 @@ public class PanelFlowRequests extends AbstractPanel {
                     if (getJtableResponseOut().getSelectedRow() < 0) {
                         return;
                     }
-                    DialogResponseOutput dlg = new DialogResponseOutput(PanelFlowRequests.this);
+                    DialogResponseOutput dlg = new DialogResponseOutput();
                     dlg.getEditData(modelResponseOut.getItem(getJtableResponseOut().getSelectedRow()));
                 }
             });
@@ -285,14 +285,14 @@ public class PanelFlowRequests extends AbstractPanel {
         return jtableResponseOut;
     }
 
-    public JTable getJtableRequestIn() {
-        if (jtableRequestIn == null) {
-            modelRequestIn = new TableModelRequestIn();
-            jtableRequestIn = new JTable();
-            jtableRequestIn.setModel(modelRequestIn);
-        }
-        return jtableRequestIn;
-    }
+//    public JTable getJtableRequestIn() {
+//        if (jtableRequestIn == null) {
+//            modelRequestIn = new TableModelRequestIn();
+//            jtableRequestIn = new JTable();
+//            jtableRequestIn.setModel(modelRequestIn);
+//        }
+//        return jtableRequestIn;
+//    }
 
     public void setData(Flow_Sequence sequence) {
         for (Flow_Request obj : sequence.getRequests()) {

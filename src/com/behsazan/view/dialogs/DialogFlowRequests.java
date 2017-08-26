@@ -18,8 +18,8 @@ public class DialogFlowRequests extends AbstractDialog {
     private JPanel buttonsPanel;
     private PanelFlowRequests requestsPanel;
 
-    public DialogFlowRequests(Component parent) {
-        super(parent,false);
+    public DialogFlowRequests() {
+        super(false);
     }
 
     public Flow_Sequence setData(Flow_Sequence sequence){

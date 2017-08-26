@@ -28,8 +28,8 @@ public class DialogLoginPlay extends AbstractDialog {
     private boolean forceStop;
     private Login login;
 
-    public DialogLoginPlay(JPanel parent) {
-        super(parent, false);
+    public DialogLoginPlay() {
+        super(false);
     }
 
     public void setData(final int id) {
@@ -109,7 +109,7 @@ public class DialogLoginPlay extends AbstractDialog {
                 Flow_Sequence seq = instance.getFlow().getSeqs().get(0);
                 instance.updateLocalVariable("@@username@@", login.getUsername());
                 instance.updateLocalVariable("@@password@@", login.getPassword());
-                List<RequestListModelObject> requests = Controller.runTestCase(DialogLoginPlay.this, instance, new Controller.RunTestCaseListener() {
+                List<RequestListModelObject> requests = Controller.runTestCase(instance, new Controller.RunTestCaseListener() {
                     @Override
                     public boolean isRunFinished() {
                         return forceStop;

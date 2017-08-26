@@ -25,8 +25,8 @@ public class DialogSelectSequence extends AbstractDialog {
     private JList<SequenceListModelObject> listSequences;
     private DefaultListModel<SequenceListModelObject> modelList;
 
-    public DialogSelectSequence(Component parent) {
-        super(parent,false);
+    public DialogSelectSequence() {
+        super(false);
     }
 
 

@@ -26,8 +26,8 @@ public class DialogResponseOutput extends AbstractDialog {
     private ResponseOut responseOut;
     private ResponseOut result;
 
-    public DialogResponseOutput(Component parent) {
-        super(parent,false);
+    public DialogResponseOutput() {
+        super(false);
     }
 
     @Override

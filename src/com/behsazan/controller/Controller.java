@@ -57,7 +57,7 @@ public class Controller {
         return testCaseInstances;
     }
 
-    public static List<RequestListModelObject> runTestCase(Component parent, Flow_Running instance, RunTestCaseListener listener){
+    public static List<RequestListModelObject> runTestCase(Flow_Running instance, RunTestCaseListener listener){
         List<RequestListModelObject> requests = new ArrayList<>();
         for(Flow_Sequence seq : instance.getFlow().getSeqs()){
             if(listener != null && listener.isRunFinished()){
@@ -90,7 +90,7 @@ public class Controller {
                 obj.setTestInstance(instance);
                 obj.setTestRequest(req);
                 for (ResponseOut outPar : outPars) {
-                    DataUtils.setOutParameters(parent,obj,outPar,instance);
+                    DataUtils.setOutParameters(obj,outPar,instance);
                 }
                 instance.getRequestModelItem().add(obj);
                 if(listener != null) {

@@ -43,8 +43,8 @@ public class DialogFlowNew extends AbstractDialog {
     private Vector<Vector<Object>> vectorCookie;
     private JTextArea txtParam;
 
-    public DialogFlowNew(AbstractTab tab) {
-        super(tab);
+    public DialogFlowNew() {
+        super();
 
     }
 
@@ -70,8 +70,8 @@ public class DialogFlowNew extends AbstractDialog {
             form.addLabel("Name :", topPanel);
             form.addLastField(getTxtflowName(), topPanel);
 
-            form.addLabel("Parameters :", topPanel);
-            txtParam = new JTextArea(6,10);
+            form.addLabel("Parameters (comma separated):", topPanel);
+            txtParam = new JTextArea(2,10);
             form.addLastField(new JScrollPane(txtParam), topPanel);
 
         }
@@ -176,7 +176,7 @@ public class DialogFlowNew extends AbstractDialog {
             addSequence.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    final DialogSelectSequence dlg = new DialogSelectSequence(DialogFlowNew.this);
+                    final DialogSelectSequence dlg = new DialogSelectSequence();
                     dlg.setData();
                     addNewSequence(dlg.getSelectedItem());
                     dlg.dissmiss();
@@ -359,7 +359,7 @@ public class DialogFlowNew extends AbstractDialog {
             btnRequest.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DialogFlowRequests dlg = new DialogFlowRequests(DialogFlowNew.this);
+                    DialogFlowRequests dlg = new DialogFlowRequests();
                     Flow_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getFlow_sequence());
 //                    if(data!=null){
 //                        sequncesJlist.getSelectedValue().getFlow_sequence().(data);

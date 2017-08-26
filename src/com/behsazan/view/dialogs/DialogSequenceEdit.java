@@ -1,10 +1,10 @@
 package com.behsazan.view.dialogs;
 
 import burp.*;
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
-import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 
@@ -15,7 +15,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.List;
 
 /**
@@ -26,15 +25,17 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
 
     private Sequence sequence;
     private IBurpExtenderCallbacks callbacks;
-    private JTextField sqName;
+    private JTextField txtSeqName;
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
     private DefaultListModel<RequestListModelObject> modelAllRequests;
     private JList listAllRequests;
     private RequestListModelObject currentlyDisplayedItem;
+    private JTextField txtUrl;
+    private JTextField txtDescription;
 
-    public DialogSequenceEdit(JPanel parent,int id) {
-        super(parent,false);
+    public DialogSequenceEdit(int id) {
+        super(false);
         setSequence(id);
         setVisible(true);
     }
@@ -45,8 +46,11 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
     }
 
     private void setData() {
-        this.sqName.setText(sequence.getName());
-        this.sqName.repaint();
+        this.txtSeqName.setText(sequence.getName());
+        this.txtDescription.setText(sequence.getDescription());
+        this.txtUrl.setText(sequence.getUrl());
+
+        this.txtSeqName.repaint();
         List<Request> requests = sequence.getRequest();
         for (Request rq: requests) {
             modelAllRequests.addElement(new RequestListModelObject(rq));
@@ -61,32 +65,96 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
         setLocationRelativeTo(getParentWindow());
 
         setLayout(new BorderLayout());
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Sequence Name: "));
-        sqName = new JTextField("",40);
-        topPanel.add(sqName);
-        JButton updateName = new JButton("Update Name");
+//        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//
+//        topPanel.add(new JLabel("Sequence Name: "));
+//        txtSeqName = new JTextField("",40);
+//        topPanel.add(txtSeqName);
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        UIUtils.FormUtility form = new UIUtils.FormUtility();
+        txtSeqName = new JTextField("", 20);
+        txtUrl = new JTextField("", 20);
+        txtDescription = new JTextField("", 20);
+
+
+        form.addLabel("Sequence Name: ",topPanel);
+        form.addLastField(txtSeqName,topPanel);
+
+        form.addLabel("Description: ",topPanel);
+        form.addLastField(txtDescription,topPanel);
+
+        form.addLabel("Base URL: ",topPanel);
+        form.addLastField(txtUrl,topPanel);
+
+
+
+
+
+
+
+
+        JButton updateName = new JButton("Update Info");
         updateName.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = sqName.getText();
+                /*
+                List<Request> reqs = choosePanel.getSelectedRequests();
+                    String name = choosePanel.getSequenceName().trim();
+                    String description = choosePanel.getSequenceDescription().trim();
+                    String url = choosePanel.getSequenceURL().trim();
+                    if(name.isEmpty()){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence name is not set.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if(reqs.size()==0){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"No request is selected.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if(Sequence.isSequenceNameUsed(name)){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    if(!DataUtils.isValidURL(url)){
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this,"Invalid Url.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    try {
+                        Sequence.insertSequence(new Sequence(name, description, url, reqs));
+                        choosePanel.shutDown();
+                        dissmiss();
+
+                    }catch (Exception x){
+                        BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");
+                        x.printStackTrace(BurpExtender.getInstance().getStdout());
+                        UIUtils.showGenerealError();
+                    }
+                 */
+
+
+                String name = txtSeqName.getText().trim();
+                String description = txtDescription.getText().trim();
+                String url = txtUrl.getText().trim();
+
                 if(name.isEmpty()){
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Sequence name is not set.","Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                if(Sequence.isSequenceNameUsed(name)){
+                if(!sequence.getName().equals(name) && Sequence.isSequenceNameUsed(name)){
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                if(!DataUtils.isValidURL(url)){
+                    JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Invalid Url.","Error",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 try {
-                    Sequence.updateSequenceName(sequence.getId(),name);
+                    Sequence.updateSequence(sequence.getId(),name,description,url);
                     dissmiss();
                 } catch (SQLException e1) {
-                    UIUtils.showGenerealError(DialogSequenceEdit.this);
+                    UIUtils.showGenerealError( );
                 }
             }
         });
-        topPanel.add(updateName);
         JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(new ActionListener() {
@@ -114,7 +182,7 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
                     Request.updateRequestRequest(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getRequest());
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Request Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
                 } catch (SQLException e1) {
-                    UIUtils.showGenerealError(DialogSequenceEdit.this);
+                    UIUtils.showGenerealError( );
                 }
 
 
@@ -139,11 +207,12 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
                     Request.updateRequestResponse(currentlyDisplayedItem.getRequestObject().getId(),currentlyDisplayedItem.getRequestObject().getResponse());
                     JOptionPane.showMessageDialog(DialogSequenceEdit.this,"Response Updated.","Done",JOptionPane.INFORMATION_MESSAGE);
                 } catch (SQLException e1) {
-                    UIUtils.showGenerealError(DialogSequenceEdit.this);
+                    UIUtils.showGenerealError( );
                 }
 
             }
         });
+        closePanel.add(updateName);
         closePanel.add(updateRequest);
         closePanel.add(updateResponse);
         closePanel.add(closeButton);
