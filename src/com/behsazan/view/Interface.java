@@ -27,7 +27,7 @@ public class Interface implements ITab {
                 new TabSequnces(),
                 new TabFlow(),
                 new TabLogins(),
-                new TabTestSuites(),
+                new TabScenarios(),
                 new TabSettings(),
         };
         for (AbstractTab tab : tabs) {

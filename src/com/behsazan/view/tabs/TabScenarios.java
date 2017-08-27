@@ -1,10 +1,13 @@
 package com.behsazan.view.tabs;
 
-import com.behsazan.model.adapters.TableModelLogins;
-import com.behsazan.model.entity.Login;
+import com.behsazan.model.adapters.TableModelScenarios;
+import com.behsazan.model.entity.Scenario;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractTab;
-import com.behsazan.view.dialogs.*;
+import com.behsazan.view.dialogs.DialogScenarioEdit;
+import com.behsazan.view.dialogs.DialogScenarioNew;
+import com.behsazan.view.dialogs.DialogScenarioPlay;
+import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,18 +18,16 @@ import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 
 /**
- * Created by admin on 07/29/2017.
+ * Created by admin on 08/27/2017.
  */
-public class TabLogins extends AbstractTab {
-
+public class TabScenarios extends AbstractTab {
     private JPanel toolbar;
     private JTable table;
-    private Component tableScroll;
-    private TableModelLogins tableModel;
+    private TableModelScenarios tableModel;
+    private JScrollPane tableScroll;
 
     @Override
     protected void initUI() {
-
         setLayout(new BorderLayout());
         add(getToolbar(), BorderLayout.NORTH);
         add(getTable(), BorderLayout.CENTER);
@@ -35,13 +36,11 @@ public class TabLogins extends AbstractTab {
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(100);
-        table.getColumnModel().getColumn(4).setPreferredWidth(100);
-        table.getColumnModel().getColumn(5).setPreferredWidth(100);
     }
 
     @Override
     public String getTabTitle() {
-        return "Logins";
+        return "Scenarios";
     }
 
     public Component getToolbar() {
@@ -51,7 +50,7 @@ public class TabLogins extends AbstractTab {
             newbtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DialogLoginNew dlg = new DialogLoginNew();
+                    DialogScenarioNew dlg = new DialogScenarioNew();
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
                         public void windowClosed(WindowEvent e) {
@@ -66,11 +65,11 @@ public class TabLogins extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabLogins.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogLoginEdit dlg = new DialogLoginEdit();
+                    DialogScenarioEdit dlg = new DialogScenarioEdit();
                     dlg.setData(id);
                     dlg.addWindowListener(new WindowAdapter() {
                         @Override
@@ -86,13 +85,13 @@ public class TabLogins extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabLogins.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
 
                     try {
-                        Login.cloneLogin(id);
+                        Scenario.cloneScenario(id);
                         refreshMainView();
                     } catch (SQLException e1) {
                         e1.printStackTrace();
@@ -108,18 +107,18 @@ public class TabLogins extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabLogins.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     final int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    int response = JOptionPane.showConfirmDialog(TabLogins.this,"Are you sure to delete Login with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+                    int response = JOptionPane.showConfirmDialog(TabScenarios.this,"Are you sure to delete Scenario with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
                     if(response == JOptionPane.YES_OPTION){
-                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabLogins.this);
+                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabScenarios.this);
                         final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
 
                             @Override
                             protected Void doInBackground() throws SQLException {
-                                Login.deleteLogin(id);
+                                Scenario.deleteScenario(id);
                                 return null;
                             }
 
@@ -140,11 +139,11 @@ public class TabLogins extends AbstractTab {
                 public void actionPerformed(ActionEvent e) {
                     int tableSelectedRow = table.getSelectedRow();
                     if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabLogins.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogLoginPlay dlg = new DialogLoginPlay();
+                    DialogScenarioPlay dlg = new DialogScenarioPlay();
                     dlg.setData(id);
 
                 }
@@ -166,7 +165,7 @@ public class TabLogins extends AbstractTab {
     public Component getTable() {
         if(tableScroll == null){
             table = new JTable();
-            tableModel = new TableModelLogins();
+            tableModel = new TableModelScenarios();
             table.setModel(tableModel);
             tableScroll = new JScrollPane(table);
         }

@@ -4,33 +4,44 @@ import burp.ICookie;
 import com.behsazan.controller.Controller;
 import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
-import com.behsazan.model.entity.*;
+import com.behsazan.model.entity.Flow;
+import com.behsazan.model.entity.Login;
+import com.behsazan.model.entity.Scenario;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.panels.PanelFlowPlay;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by admin on 08/02/2017.
  */
-public class DialogLoginPlay extends AbstractDialog {
+public class DialogScenarioPlay extends AbstractDialog {
 
     private DialogWaiting pleaseWaitDialog;
     private JPanel buttonsPanel;
-    private Flow_Running run;
     private JButton actionBtn;
     private PanelFlowPlay mPlayInstancePanel;
     private boolean forceStop;
-    private Login login;
+    private Scenario scenario;
     private boolean is_running;
+    private List<Flow_Running> flow_runnings;
+    private JPanel centerPanel;
+    private JSplitPane centerSplitPanel;
+    private DefaultListModel<Flow_Running> modelInstances;
+    private JList instancesJlist;
+    private Flow_Running currentlyDisplayedInstance;
 
-    public DialogLoginPlay() {
+    public DialogScenarioPlay() {
         super(false);
         is_running = false;
     }
@@ -40,18 +51,27 @@ public class DialogLoginPlay extends AbstractDialog {
         SwingWorker<Flow, Flow_Running> worker = new SwingWorker<Flow, Flow_Running>() {
             @Override
             protected Flow doInBackground() throws Exception {
-                login = Login.getById(id);
-                Map<String,String> map = new HashMap<>();
-                map.put("username",login.getUsername());
-                map.put("password",login.getPassword());
-                run = new Flow_Running(login.getFlow(),login.getUrl(),map,1);
+                scenario = Scenario.getById(id);
+                flow_runnings = Controller.buildTestCaseInstances(
+                        scenario.getFlow(), scenario.getUrl(), scenario.getParams_map(), new Controller.BuildTestCaseInstancesListener() {
+                    @Override
+                    public void publishInstance(Flow_Running instance) {
+                        publish(instance);
+                    }
+                });
                 return null;
+            }
+
+            @Override
+            protected void process(List<Flow_Running> chunks) {
+                for (Flow_Running ins : chunks) {
+                    modelInstances.addElement(ins);
+                }
             }
 
             @Override
             protected void done() {
                 DialogWaiting.closeWaitingDialog(pleaseWaitDialog);
-                mPlayInstancePanel.updateInstance(run);
             }
         };
         worker.execute();
@@ -63,12 +83,44 @@ public class DialogLoginPlay extends AbstractDialog {
     @Override
     protected void initUI() {
         setSize(800, 600);
-        setTitle("Play Login");
+        setTitle("Play Scenario");
         setLocationRelativeTo(getParentWindow());
         mPlayInstancePanel = new PanelFlowPlay();
         setLayout(new BorderLayout());
-        add(mPlayInstancePanel, BorderLayout.CENTER);
+        add(getCenterSplitPanel(), BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);
+    }
+
+    public JPanel getCenterSplitPanel() {
+        if (centerPanel == null) {
+            centerPanel = new JPanel(new BorderLayout());
+            centerSplitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+            centerSplitPanel.setDividerLocation(100);
+            mPlayInstancePanel = new PanelFlowPlay();
+            centerSplitPanel.setLeftComponent(new JScrollPane(getInstanceJListPanel()));
+            centerSplitPanel.setRightComponent(mPlayInstancePanel);
+            centerPanel.add(centerSplitPanel, BorderLayout.CENTER);
+        }
+        return centerPanel;
+    }
+
+
+    public JList getInstanceJListPanel() {
+        if(instancesJlist == null){
+            modelInstances = new DefaultListModel<>();
+            instancesJlist = new JList(modelInstances);
+            instancesJlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            instancesJlist.addListSelectionListener(new ListSelectionListener() {
+                @Override
+                public void valueChanged(ListSelectionEvent e) {
+                    if(e.getValueIsAdjusting()) {
+                        currentlyDisplayedInstance = (Flow_Running) instancesJlist.getSelectedValue();
+                        mPlayInstancePanel.updateInstance(currentlyDisplayedInstance);
+                    }
+                }
+            });
+        }
+        return instancesJlist;
     }
 
     public JPanel getButtonsPanel() {
@@ -107,36 +159,21 @@ public class DialogLoginPlay extends AbstractDialog {
         SwingWorker<Void, RequestListModelObject> worker = new SwingWorker<Void, RequestListModelObject>() {
             @Override
             protected Void doInBackground() throws Exception {
-                runTestCase(run);
-                return null;
-            }
-
-            private RequestListModelObject runTestCase(Flow_Running instance) {
-                List<RequestListModelObject> requests = Controller.runTestCase(instance, new Controller.RunTestCaseListener() {
-                    @Override
-                    public boolean isRunFinished() {
-                        return forceStop;
+                for (Flow_Running instance: flow_runnings) {
+                    if(forceStop){
+                        break;
                     }
-
-                    @Override
-                    public void publishState(RequestListModelObject state) {
-                        publish(state);
-                    }
-                });
-                String lastCookie = "";
-                for (RequestListModelObject req :
-                        requests) {
-                    for(ICookie cook: req.getRequestObject().getAnalysedResponse().getCookies()){
-                        if(cook.getName().equals(Settings.SESSION_COOKIENAME)){
-                            lastCookie = cook.getValue();
+                    Controller.runTestCase(instance, new Controller.RunTestCaseListener() {
+                        @Override
+                        public boolean isRunFinished() {
+                            return forceStop;
                         }
-                    }
-                }
-                instance.updateGlobalVariable(login.getOutParam(), lastCookie);
-                if (!Flow_Running.queryGlobalVariable(login.getOutParam()).isEmpty()) {
-                    login.setLast_seen((int) new Date().getTime());
-                    login.setSession(Flow_Running.queryGlobalVariable(login.getOutParam()));
-                    Login.updateLogin(login);
+
+                        @Override
+                        public void publishState(RequestListModelObject state) {
+                            publish(state);
+                        }
+                    });
                 }
                 return null;
             }

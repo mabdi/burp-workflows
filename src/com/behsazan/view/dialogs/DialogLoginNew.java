@@ -3,6 +3,7 @@ package com.behsazan.view.dialogs;
 import burp.BurpExtender;
 import com.behsazan.model.entity.Login;
 import com.behsazan.model.entity.Flow;
+import com.behsazan.model.settings.Settings;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 
@@ -25,8 +26,8 @@ public class DialogLoginNew extends AbstractDialog {
     private JTextField txtParam;
     private JComboBox<String> cmbFlow;
     private DefaultComboBoxModel<String> modelCombo;
-    private JTextField txtUrl;
-    private JTextField txtBase;
+    private JComboBox<String> cmbUrls;
+
 
     public DialogLoginNew() {
         super();
@@ -49,21 +50,21 @@ public class DialogLoginNew extends AbstractDialog {
             UIUtils.FormUtility formUtility = new UIUtils.FormUtility();
 
             formUtility.addLabel("Url :", formPanel);
-            txtUrl = new JTextField();
-            formUtility.addLastField(txtUrl, formPanel);
-
-            formUtility.addLabel("Base :", formPanel);
-            txtBase = new JTextField();
-            formUtility.addLastField(txtBase, formPanel);
+            DefaultComboBoxModel<String> urls = new DefaultComboBoxModel<String>();
+            for(String u: Settings.BASE_URLS){
+                urls.addElement(u);
+            }
+            cmbUrls = new JComboBox<>(urls);
+            formUtility.addLastField(cmbUrls, formPanel);
 
             formUtility.addLabel("Username :", formPanel);
             txtUsername = new JTextField();
-            txtUsername.setToolTipText("Local variable( @@username@@ )");
+            txtUsername.setToolTipText("As `username` parameter");
             formUtility.addLastField(txtUsername, formPanel);
 
             formUtility.addLabel("Password :", formPanel);
             txtPassword = new JTextField();
-            txtPassword.setToolTipText("Local variable( @@password@@ )");
+            txtPassword.setToolTipText("As `password` parameter");
             formUtility.addLastField(txtPassword, formPanel);
 
             formUtility.addLabel("Out Param Name:", formPanel);
@@ -98,11 +99,10 @@ public class DialogLoginNew extends AbstractDialog {
                     String username = txtUsername.getText();
                     String password = txtPassword.getText();
                     String param = txtParam.getText();
-                    String url = txtUrl.getText();
-                    String base = txtBase.getText();
+                    String url = (String) cmbUrls.getSelectedItem();
                     String selectedFlow = (String) cmbFlow.getSelectedItem();
                     Flow flow = Flow.getByName(selectedFlow);
-                    if(username.isEmpty() || password.isEmpty() || param.isEmpty() || url.isEmpty() || base.isEmpty()){
+                    if(username.isEmpty() || password.isEmpty() || param.isEmpty() || url.isEmpty()){
                         JOptionPane.showMessageDialog(DialogLoginNew.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -114,7 +114,7 @@ public class DialogLoginNew extends AbstractDialog {
                     }
 
                     try {
-                        Login.insertLogin(new Login(-1,username,password,param,url,base,"",-1,flow));
+                        Login.insertLogin(new Login(-1,username,password,param,url,"",-1,flow));
                         dissmiss();
                     }catch (Exception x){
                         BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");

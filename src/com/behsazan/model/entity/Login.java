@@ -13,7 +13,6 @@ public class Login {
     private String username;
     private String password;
     private String url;
-    private String base;
     private String outParam;
     private String session;
     private int last_seen;
@@ -23,12 +22,11 @@ public class Login {
     public Login() {
     }
 
-    public Login(int id, String username, String password, String outParam, String url, String base, String session, int last_seen, Flow flow) {
+    public Login(int id, String username, String password, String outParam, String url, String session, int last_seen, Flow flow) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.url = url;
-        this.base = base;
         this.outParam = outParam;
         this.session = session;
         this.last_seen = last_seen;
@@ -66,14 +64,6 @@ public class Login {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getBase() {
-        return base;
-    }
-
-    public void setBase(String base) {
-        this.base = base;
     }
 
     public String getSession() {

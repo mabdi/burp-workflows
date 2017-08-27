@@ -2,8 +2,10 @@ package com.behsazan.controller;
 
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Flow;
+import com.behsazan.model.sqlite.GlobalsDb;
 
 import javax.swing.table.DefaultTableModel;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +25,12 @@ public class Flow_Running {
     private int order;
 
     static {
-        GLOBALS = new HashMap<>();
+        try {
+            GLOBALS = new GlobalsDb().loadGlobals();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            GLOBALS = new HashMap<>();
+        }
     }
 
     private List<RequestListModelObject> requestModelItem;
@@ -57,6 +64,11 @@ public class Flow_Running {
 
     public static void updateGlobalVariable(String key, String value){
         GLOBALS.put(key,value);
+        try {
+            new GlobalsDb().updateKey(key,value);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         globalsToTableModel();
     }
 

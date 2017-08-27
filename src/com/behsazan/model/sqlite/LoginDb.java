@@ -16,13 +16,12 @@ public class LoginDb extends SqliteHelper {
     public void insertLogin(Login login) throws SQLException {
         Connection c = getConnection();
         PreparedStatement stmt = c.prepareStatement("INSERT INTO LOGIN " +
-                "(USER_NAME,PASSWORD,URL,BASE,FLOW_ID,OUT_PARAM_NAME,SESSION_VALUE,SESSION_CREATE_TIME) VALUES (?,?,?,?,?,?,'',0)");
+                "(USER_NAME,PASSWORD,URL,FLOW_ID,OUT_PARAM_NAME,SESSION_VALUE,SESSION_CREATE_TIME) VALUES (?,?,?,?,?,'',0)");
         stmt.setString(1, login.getUsername());
         stmt.setString(2, login.getPassword());
         stmt.setString(3, login.getUrl());
-        stmt.setString(4, login.getBase());
-        stmt.setInt(5, login.getFlowId());
-        stmt.setString(6, login.getOutParam());
+        stmt.setInt(4, login.getFlowId());
+        stmt.setString(5, login.getOutParam());
         stmt.executeUpdate();
 
         stmt.close();
@@ -36,7 +35,7 @@ public class LoginDb extends SqliteHelper {
         ResultSet rq = null;
         try {
             c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,USER_NAME,PASSWORD,URL,BASE,FLOW_ID,OUT_PARAM_NAME," +
+            stmt = c.prepareStatement("SELECT ID,USER_NAME,PASSWORD,URL,FLOW_ID,OUT_PARAM_NAME," +
                     "SESSION_VALUE,SESSION_CREATE_TIME from LOGIN WHERE ID= ?");
             stmt.setInt(1, id);
             rq = stmt.executeQuery();
@@ -44,13 +43,12 @@ public class LoginDb extends SqliteHelper {
                 String username = rq.getString(2);
                 String password = rq.getString(3);
                 String url = rq.getString(4);
-                String base = rq.getString(5);
-                int flowId = rq.getInt(6);
-                String outParam = rq.getString(7);
-                String session = rq.getString(8);
-                int last_seen = rq.getInt(9);
+                int flowId = rq.getInt(5);
+                String outParam = rq.getString(6);
+                String session = rq.getString(7);
+                int last_seen = rq.getInt(8);
                 Flow flow = Flow.getById(flowId);
-                Login r = new Login(id, username, password, outParam, url, base, session, last_seen, flow);
+                Login r = new Login(id, username, password, outParam, url, session, last_seen, flow);
                 return r;
             } else {
                 return null;
@@ -101,17 +99,16 @@ public class LoginDb extends SqliteHelper {
     public void updateLogin(Login login) throws SQLException {
 
         Connection c = getConnection();
-        PreparedStatement stmt = c.prepareStatement("UPDATE LOGIN SET USER_NAME = ?,PASSWORD=?,URL=?,BASE=?, " +
+        PreparedStatement stmt = c.prepareStatement("UPDATE LOGIN SET USER_NAME = ?,PASSWORD=?,URL=?, " +
                 "FLOW_ID=?,OUT_PARAM_NAME=?,SESSION_VALUE=?,SESSION_CREATE_TIME=? WHERE ID =?");
         stmt.setString(1, login.getUsername());
         stmt.setString(2, login.getPassword());
         stmt.setString(3, login.getUrl());
-        stmt.setString(4, login.getBase());
-        stmt.setInt(5, login.getFlowId());
-        stmt.setString(6, login.getOutParam());
-        stmt.setString(7, login.getSession());
-        stmt.setInt(8, login.getLast_seen());
-        stmt.setInt(9, login.getId());
+        stmt.setInt(4, login.getFlowId());
+        stmt.setString(5, login.getOutParam());
+        stmt.setString(6, login.getSession());
+        stmt.setInt(7, login.getLast_seen());
+        stmt.setInt(8, login.getId());
         stmt.executeUpdate();
         stmt.close();
         c.close();

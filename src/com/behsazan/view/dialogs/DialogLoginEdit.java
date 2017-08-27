@@ -3,6 +3,7 @@ package com.behsazan.view.dialogs;
 import burp.BurpExtender;
 import com.behsazan.model.entity.Login;
 import com.behsazan.model.entity.Flow;
+import com.behsazan.model.settings.Settings;
 import com.behsazan.view.abstracts.AbstractDialog;
 
 import javax.swing.*;
@@ -26,9 +27,8 @@ public class DialogLoginEdit extends AbstractDialog {
     private JTextField txtParam;
     private JComboBox<String> cmbFlow;
     private DefaultComboBoxModel<String> modelCombo;
-    private JTextField txtUrl;
-    private JTextField txtBase;
     private Login loging;
+    private JComboBox<String> cmbUrls;
 
     public DialogLoginEdit() {
         super(false);
@@ -47,8 +47,7 @@ public class DialogLoginEdit extends AbstractDialog {
     public void setData(int id){
         Login login = Login.getById(id);
         this.loging = login;
-        txtUrl.setText(login.getUrl());
-        txtBase.setText(login.getBase());
+        cmbUrls.setSelectedItem(login.getUrl());
         txtUsername.setText(login.getUsername());
         txtParam.setText(login.getOutParam());
         txtPassword.setText(login.getPassword());
@@ -63,12 +62,12 @@ public class DialogLoginEdit extends AbstractDialog {
             FormUtility formUtility = new FormUtility();
 
             formUtility.addLabel("Url :", formPanel);
-            txtUrl = new JTextField();
-            formUtility.addLastField(txtUrl, formPanel);
-
-            formUtility.addLabel("Base :", formPanel);
-            txtBase = new JTextField();
-            formUtility.addLastField(txtBase, formPanel);
+            DefaultComboBoxModel<String> urls = new DefaultComboBoxModel<String>();
+            for(String u: Settings.BASE_URLS){
+                urls.addElement(u);
+            }
+            cmbUrls = new JComboBox<>(urls);
+            formUtility.addLastField(cmbUrls, formPanel);
 
             formUtility.addLabel("Username :", formPanel);
             txtUsername = new JTextField();
@@ -112,11 +111,10 @@ public class DialogLoginEdit extends AbstractDialog {
                     String username = txtUsername.getText();
                     String password = txtPassword.getText();
                     String param = txtParam.getText();
-                    String url = txtUrl.getText();
-                    String base = txtBase.getText();
+                    String url = (String) cmbUrls.getSelectedItem();
                     String selectedFlow = (String) cmbFlow.getSelectedItem();
                     Flow flow = Flow.getByName(selectedFlow);
-                    if(username.isEmpty() || password.isEmpty() || param.isEmpty() || url.isEmpty() || base.isEmpty()){
+                    if(username.isEmpty() || password.isEmpty() || param.isEmpty() || url.isEmpty()){
                         JOptionPane.showMessageDialog(DialogLoginEdit.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -128,7 +126,6 @@ public class DialogLoginEdit extends AbstractDialog {
                     }
 
                     try {
-                        loging.setBase(base);
                         loging.setUrl(url);
                         loging.setUsername(username);
                         loging.setPassword(password);

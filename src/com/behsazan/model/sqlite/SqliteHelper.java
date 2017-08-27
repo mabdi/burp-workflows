@@ -112,7 +112,6 @@ public class SqliteHelper {
     }
 
     private void update_v1(Statement stmt) throws SQLException {
-
         String createTableSquence = "CREATE TABLE SEQUENCE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " NAME           TEXT    NOT NULL, " +
@@ -180,19 +179,28 @@ public class SqliteHelper {
     private void update_v3(Statement stmt) throws SQLException {
         String createTableGlobals = "DROP TABLE IF EXISTS GLOBAL_VARIABLES;" +
                 "CREATE TABLE GLOBAL_VARIABLES " +
-                "(KEY  TEXT PRIMARY KEY," +
-                " VALUE         TEXT NOT NULL)";//TODO persist global variables
+                "(VAR_KEY  TEXT PRIMARY KEY," +
+                " VAR_VALUE         TEXT NOT NULL)";//TODO persist global variables
         String createTableLogins = "DROP TABLE IF EXISTS LOGIN;" +
                 "CREATE TABLE LOGIN " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " USER_NAME        TEXT NOT NULL, " +
                 " PASSWORD        TEXT NOT NULL, " +
                 " URL        TEXT NOT NULL, " +
-                " BASE        TEXT NOT NULL, " +
                 " FLOW_ID        INTEGER NOT NULL, " +
                 " OUT_PARAM_NAME        TEXT NOT NULL, " +
                 " SESSION_VALUE        TEXT NOT NULL, " +
                 " SESSION_CREATE_TIME         INTEGER NOT NULL)";
+        String createTableScenario = "DROP TABLE IF EXISTS SCENARIO;" +
+                "CREATE TABLE SCENARIO " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " NAME        TEXT NOT NULL, " +
+                " DESCRIPTION        TEXT NOT NULL, " +
+                " PARAMS_JSON        TEXT NOT NULL, " +
+                " URL        TEXT NOT NULL, " +
+                " FLOW_ID        INTEGER NOT NULL, " +
+                " OUT_PARAM_NAME        TEXT NOT NULL " +
+                ")";
         String createTableSuite = "DROP TABLE IF EXISTS SUITE;" +
                 "CREATE TABLE SUITE " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -207,6 +215,7 @@ public class SqliteHelper {
         stmt.executeUpdate(createTableGlobals);
         stmt.executeUpdate(createTableLogins);
         stmt.executeUpdate(createTableSuite);
+        stmt.executeUpdate(createTableScenario);
     }
 
     private void update_v4(Statement stmt) throws SQLException {
