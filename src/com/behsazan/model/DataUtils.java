@@ -1,6 +1,7 @@
 package com.behsazan.model;
 
 import burp.*;
+import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
 import com.behsazan.model.settings.Settings;
@@ -14,7 +15,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,15 +63,6 @@ public class DataUtils {
         return BurpExtender.getInstance().getHelpers().buildHttpService(newroot.getHost(),port,newroot.getProtocol().equalsIgnoreCase("https"));
     }
 
-    public static String baseFromUrl(IHttpService url){
-        String prt = "";
-        if(url.getPort()!=-1 && url.getPort()!= 80 && url.getPort()!= 443){
-            prt = ":" + url.getPort();
-        }
-        String hostStr = url.getHost() + prt;
-        return url.getProtocol() + "://" + hostStr + "/";
-    }
-
     public static String getRootAddress(Request request) {
         IHttpService h = request.getHttpService();
         String port = "";
@@ -96,52 +88,6 @@ public class DataUtils {
             }
         }
         return "";
-    }
-
-    public static byte[] changeCookie(Request request, final String newCookie){
-        List<IParameter> hds = request.getAnalysedRequest().getParameters();
-        for (final IParameter hd :
-                hds) {
-            if (hd.getType() == IParameter.PARAM_COOKIE && hd.getName().equals("JSESSIONID")) {
-                return BurpExtender.getInstance().getHelpers().updateParameter(request.getRequest(), new IParameter() {
-                    @Override
-                    public byte getType() {
-                        return IParameter.PARAM_COOKIE;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "JSESSIONID";
-                    }
-
-                    @Override
-                    public String getValue() {
-                        return newCookie;
-                    }
-
-                    @Override
-                    public int getNameStart() {
-                        return hd.getNameStart();
-                    }
-
-                    @Override
-                    public int getNameEnd() {
-                        return hd.getNameEnd();
-                    }
-
-                    @Override
-                    public int getValueStart() {
-                        return hd.getValueStart();
-                    }
-
-                    @Override
-                    public int getValueEnd() {
-                        return hd.getValueEnd();
-                    }
-                });
-            }
-        }
-        return request.getRequest();
     }
 
     public static String[] changeCookie(String[] msg,String newCookie){
@@ -196,26 +142,31 @@ public class DataUtils {
             String hd = msg[i].trim();
             if (!newHost.isEmpty()) {
                 if (hd.startsWith("Host: ")) {
-                    URL url = null;
-                    try {
-                        url = new URL(newHost);
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
-                    String prt = "";
-                    if(url.getPort()!=-1 && url.getPort()!= 80 && url.getPort()!= 443){
-                        prt = ":" + url.getPort();
-                    }
-                    String newHostStr = url.getHost() + prt;
-                    msg[i] = "Host: " + newHostStr;
+                    msg[i] = "Host: " + hostHeaderFromUrl(newHost);
                 }
             }
         }
         return msg;
     }
 
+    private static String hostHeaderFromUrl(String newHost){
+        URL url = null;
+        try {
+            url = new URL(newHost);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        String prt = "";
+        if(url.getPort()!=-1 && url.getPort()!= 80 && url.getPort()!= 443){
+            prt = ":" + url.getPort();
+        }
+        return url.getHost() + prt;
+    }
+
     public static String[] changeUrlBase(String[] msg,String oldBase,String newBase){
         if (!oldBase.equals(newBase)) {
+            msg = DataUtils.changeHost(msg,newBase.toString());
+            msg = DataUtils.changeReferer(msg,newBase.toString());
             oldBase = (oldBase.trim().startsWith("/"))?oldBase.substring(1).trim():oldBase.trim();
             newBase = (newBase.trim().startsWith("/"))?newBase.substring(1).trim():newBase.trim();
             String line1 = msg[0].trim();
@@ -264,17 +215,27 @@ public class DataUtils {
         return null;
     }
 
-    public static String[] applyParameter(String[] msg, RequestIn inPar, String value) {
-        if(value==null || value.isEmpty()){
-            return msg;
-        }
+
+    public static String[] applyParameter(String[] msg, Flow_Running instance) {
         for (int i=0;i<msg.length;i++) {
             String line = msg[i];
-            if (line.contains(inPar.getPlaceHoder())) {
-                msg[i] = line.replace(inPar.getPlaceHoder(),value);
-            }
+            line = applyLineParam(line,Pattern.compile(Settings.PARAM_PATTERN),instance.getParams());
+            line = applyLineParam(line,Pattern.compile(Settings.LOCAL_PATTERN),instance.getLocals());
+            msg[i] = applyLineParam(line,Pattern.compile(Settings.GLOBAL_PATTERN),instance.getGLOBALS());
         }
         return msg;
+    }
+
+    public static String applyLineParam(String line, Pattern pattern, Map<String, String> mem) {
+        Matcher matcher = pattern.matcher(line);
+        while (matcher.find()){
+            String placeHodler = matcher.group(0);
+            String varname = matcher.group(1);
+            if(mem.containsKey(varname)){
+                line = line.replace(placeHodler,mem.get(varname));
+            }
+        }
+        return  line;
     }
 
     public static void setOutParameters(RequestListModelObject obj, ResponseOut outPar, Flow_Running instance) {
@@ -391,4 +352,5 @@ public class DataUtils {
         }
         return false;
     }
+
 }

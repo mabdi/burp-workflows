@@ -2,7 +2,7 @@ package com.behsazan.view.dialogs;
 
 import com.behsazan.model.entity.Sequence;
 import com.behsazan.view.abstracts.AbstractDialog;
-import com.behsazan.view.panels.PanelFlowPlay;
+import com.behsazan.view.panels.PanelSequencePlay;
 import com.behsazan.view.panels.PanelTestSequencePreTest;
 
 import javax.swing.*;
@@ -25,7 +25,7 @@ public class DialogSequencePlay extends AbstractDialog implements OnSequencePlay
     private JPanel toolbar;
     private JButton btnPlay;
     private JButton btncancel;
-    private PanelFlowPlay playPanel;
+    private PanelSequencePlay playPanel;
     private Sequence sequence;
 
     public DialogSequencePlay(int id) {
@@ -53,7 +53,7 @@ public class DialogSequencePlay extends AbstractDialog implements OnSequencePlay
         cardPanel = new JPanel(cardLayout);
         prePanel = new PanelTestSequencePreTest();
         cardPanel.add(prePanel.getName(),prePanel);
-        playPanel = new PanelFlowPlay();
+        playPanel = new PanelSequencePlay();
         cardPanel.add(playPanel.getName(),playPanel);
         add(cardPanel, BorderLayout.CENTER);
         add(getToolbar(), BorderLayout.SOUTH);

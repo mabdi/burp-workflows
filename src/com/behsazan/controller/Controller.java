@@ -40,7 +40,7 @@ public class Controller {
                     for (String p :
                          allParams.get(key)) {
                         HashMap<String,String > newMap = new HashMap<>(maps);
-                        maps.put(key,p);
+                        newMap.put(key,p);
                         permutation(pars,allParams,newMap);
                     }
                     break;
@@ -48,68 +48,6 @@ public class Controller {
             }
         }
     }
-
-
-//        permutation(testCaseInstances,params,maps,tcase,listener,baseUrl);
-
-//    private static void permutation(List<Flow_Running> testCaseInstances,
-//                                    Map<String,String[]> allParams, Map<String ,String> maps,
-//                                    Flow tcase, BuildTestCaseInstancesListener listener, String baseUrl){
-//        if(maps.size() == allParams.size()){
-//            Flow_Running insta = new Flow_Running(tcase,baseUrl,maps,0);
-//            testCaseInstances.add(insta);
-//            if(listener!=null){
-//                listener.publishInstance(insta);
-//            }
-//            return;
-//        }else{
-//            for(String key: allParams.keySet()){
-//                if(!maps.containsKey(key)){
-//                    for (String p :
-//                         allParams.get(key)) {
-//                        HashMap<String,String > newMap = new HashMap<>(maps);
-//                        maps.put(key,p);
-//                        permutation(testCaseInstances,allParams,newMap,tcase,listener,baseUrl);
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//    }
-
-//        List<Map<Integer,String>> pars = new ArrayList<>(); TODO
-//        pars.add(new HashMap<Integer,String>());
-//        for (Flow_Sequence seq : tcase.getSeqs()) {
-//            for (Flow_Request req : seq.getRequests()) {
-//                for (RequestIn inp : req.getInputParams()) {
-//                    List<Map<Integer,String>> newPars = new ArrayList<>();
-//                    for(int i=0;i<inp.getTxtValueLines().length;i++){
-//                        if(i==0){
-//                            for (Map<Integer,String> maps: pars) {
-//                                maps.put(inp.getId(),inp.getTxtValueLines()[0]);
-//                            }
-//                        }else{
-//                            for (Map<Integer,String> maps: pars) {
-//                                HashMap<Integer, String> hashMap = new HashMap<>(maps);
-//                                hashMap.put(inp.getId(),inp.getTxtValueLines()[i]);
-//                                newPars.add(hashMap);
-//                            }
-//                        }
-//                    }
-//                    for(Map<Integer,String> maps: newPars){
-//                        pars.add(maps);
-//                    }
-//                }
-//            }
-//        }
-//        int order = 0;
-//        for(Map<Integer,String> maps: pars){
-//            Flow_Running insta = new Flow_Running(tcase,maps, order);
-//            testCaseInstances.add(insta);
-//            if(listener!=null){
-//                listener.publishInstance(insta);
-//            }
-//        }
 
     public static List<RequestListModelObject> runTestCase(Flow_Running instance, RunTestCaseListener listener){
         List<RequestListModelObject> requests = new ArrayList<>();
@@ -128,7 +66,7 @@ public class Controller {
                 List<ResponseOut> outPars = req.getOutputParams();
                 byte[] modReq = req.getModifiedRequest();
                 String[] msg = DataUtils.ExplodeRequest(modReq);
-                msg = DataUtils.changeUrlBase(msg,oldBase,newBase);
+                msg = DataUtils.changeUrlBase(msg,oldBase,newBase); // TODO Error
                 if(!cookie.isEmpty()) {
                     msg = DataUtils.changeCookie(msg, Flow_Running.queryGlobalVariable(cookie) );
                 }

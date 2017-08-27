@@ -4,6 +4,7 @@ import burp.BurpExtender;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.SequenceListModelObject;
 import com.behsazan.model.entity.*;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.abstracts.AbstractTab;
 
@@ -32,9 +33,9 @@ public class DialogFlowEdit extends AbstractDialog {
     private JPanel sequenceJListPanel;
     private JPanel sequenceDetailPanel;
     private JList<SequenceListModelObject> sequncesJlist;
-    private JTextField txtRootAddress;
-    private JTextField txtBase1;
-    private JTextField txtBase2;
+//    private JTextField txtRootAddress;
+//    private JTextField txtBase1;
+//    private JTextField txtBase2;
     private JPanel centerPanel;
     private DefaultListModel<SequenceListModelObject> modelSequeces;
     private JButton btnRequest;
@@ -43,6 +44,8 @@ public class DialogFlowEdit extends AbstractDialog {
     private JComboBox<String> cmbCookie;
     private DefaultComboBoxModel<String> modelCookie;
     private Vector<Vector<Object>> vectorCookie;
+    private JTextArea txtParam;
+    private JTextField txtDescription;
 
     public DialogFlowEdit() {
         super(false);
@@ -72,6 +75,8 @@ public class DialogFlowEdit extends AbstractDialog {
         worker.execute();
         pleaseWaitDialog.setVisible(true);
         txtFlowName.setText(flow.getName());
+        txtDescription.setText(flow.getDescription());
+        txtParam.setText(flow.getParameters());
         setVisible(true);
     }
 
@@ -89,31 +94,19 @@ public class DialogFlowEdit extends AbstractDialog {
 
     public JPanel getTopPanel() {
         if (topPanel == null) {
-            topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-//            JButton btnUpdateName = new JButton("Update Name");
-//            btnUpdateName.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    String name = getTxtFlowName().getText();
-//                    if(name.isEmpty()){
-//                        JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"TestCase name is not set.","Error",JOptionPane.ERROR_MESSAGE);
-//                        return;
-//                    }
-//                    if(TestCase.isFlowNameUsed(name)){
-//                        JOptionPane.showMessageDialog(DialogTestCaseEdit.this,"TestCase Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
-//                        return;
-//                    }
-//                    try {
-//                        Sequence.updateSequence(flow.getId(),name);
-//                    } catch (SQLException e1) {
-//                        e1.printStackTrace();
-//                        UIUtils.showGenerealError(DialogTestCaseEdit.this);
-//                    }
-//                }
-//            });
-            topPanel.add(new JLabel("Flow Name: "));
-            topPanel.add(getTxtFlowName());
-//            topPanel.add(btnUpdateName);
+            topPanel = new JPanel(new GridBagLayout());
+            UIUtils.FormUtility form = new UIUtils.FormUtility();
+            form.addLabel("Name :", topPanel);
+            form.addLastField(getTxtFlowName(), topPanel);
+
+            form.addLabel("Description :", topPanel);
+            form.addLastField(getTxtDescription(), topPanel);
+
+            form.addLabel("Parameters (comma separated):", topPanel);
+            txtParam = new JTextArea(2, 10);
+            form.addLastField(new JScrollPane(txtParam), topPanel);
+
+
         }
         return topPanel;
     }
@@ -147,6 +140,8 @@ public class DialogFlowEdit extends AbstractDialog {
                 public void actionPerformed(ActionEvent e) {
                     List<SequenceListModelObject> reqs = getSelectedSequences();
                     String name = txtFlowName.getText();
+                    String description = txtDescription.getText();
+                    String params = txtParam.getText();
                     if(name.isEmpty() ){
                         JOptionPane.showMessageDialog(DialogFlowEdit.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
@@ -155,7 +150,6 @@ public class DialogFlowEdit extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogFlowEdit.this,"No sequence is added.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    String description = "";
                     try {
                         List<Flow_Sequence> ts = new ArrayList<>();
                         for (SequenceListModelObject req: reqs) {
@@ -164,6 +158,7 @@ public class DialogFlowEdit extends AbstractDialog {
                         flow.setSeqs(ts);
                         flow.setName(name);
                         flow.setDescription(description);
+                        flow.setParameters(params);
                         Flow.updateFlow(flow);
                         dissmiss();
 
@@ -242,17 +237,17 @@ public class DialogFlowEdit extends AbstractDialog {
     private boolean validateUpdate() {
         if(activeSequence==null)
             return false;
-        try {
-            new URL(txtRootAddress.getText());
-
-        } catch (MalformedURLException e) {
-            JOptionPane.showMessageDialog(this,"URL format is not correct.","Error",JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        if(txtBase1.getText().isEmpty() || txtBase2.getText().isEmpty() || txtRootAddress.getText().isEmpty()){
-            JOptionPane.showMessageDialog(this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
+//        try {
+//            new URL(txtRootAddress.getText());
+//
+//        } catch (MalformedURLException e) {
+//            JOptionPane.showMessageDialog(this,"URL format is not correct.","Error",JOptionPane.ERROR_MESSAGE);
+//            return false;
+//        }
+//        if(txtBase1.getText().isEmpty() || txtBase2.getText().isEmpty() || txtRootAddress.getText().isEmpty()){
+//            JOptionPane.showMessageDialog(this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
+//            return false;
+//        }
         return  true;
 
     }
@@ -260,13 +255,13 @@ public class DialogFlowEdit extends AbstractDialog {
     private void updateSequenceDetail() {
         if(activeSequence==null)
             return;
-        try {
-            activeSequence.getFlow_sequence().setUrl(new URL(txtRootAddress.getText()));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        activeSequence.getFlow_sequence().setBase1(txtBase1.getText());
-        activeSequence.getFlow_sequence().setBase2(txtBase2.getText());
+//        try {
+//            activeSequence.getFlow_sequence().setUrl(new URL(txtRootAddress.getText()));
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }
+//        activeSequence.getFlow_sequence().setBase1(txtBase1.getText());
+//        activeSequence.getFlow_sequence().setBase2(txtBase2.getText());
         if(cmbCookie.getSelectedIndex()>0) {
             String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
             activeSequence.getFlow_sequence().setCookie(param);
@@ -277,12 +272,12 @@ public class DialogFlowEdit extends AbstractDialog {
 
     private void showSequenceDetail() {
         Request req1 = activeSequence.getSequence().getRequest().get(0);
-        txtRootAddress.setText(DataUtils.getRootAddress(req1));
-        txtRootAddress.setEnabled(true);
-        txtBase1.setEnabled(true);
-        txtBase1.setText(DataUtils.getBasePath(req1));
-        txtBase2.setEnabled(true);
-        txtBase2.setText(DataUtils.getBasePath(req1));
+//        txtRootAddress.setText(DataUtils.getRootAddress(req1));
+//        txtRootAddress.setEnabled(true);
+//        txtBase1.setEnabled(true);
+//        txtBase1.setText(DataUtils.getBasePath(req1));
+//        txtBase2.setEnabled(true);
+//        txtBase2.setText(DataUtils.getBasePath(req1));
         cmbCookie.setEnabled(true);
         String cookeOutParam = activeSequence.getFlow_sequence().getCookie();
         cmbCookie.setSelectedIndex(0);
@@ -350,19 +345,10 @@ public class DialogFlowEdit extends AbstractDialog {
 
     public JPanel getSequenceDetailPanel() {
         if(sequenceDetailPanel == null){
-            SpringLayout spring = new SpringLayout();
-            sequenceDetailPanel = new JPanel(spring);
-            JLabel lblSeqName = new JLabel("Change URL Root: ");
-            txtRootAddress = new JTextField("",42);
-            txtRootAddress.setEnabled(false);
+            sequenceDetailPanel = new JPanel(new GridBagLayout());
+            UIUtils.FormUtility form = new UIUtils.FormUtility();
+            form.addLabel("Change Cookie: ",sequenceDetailPanel);
 
-            JLabel lblBase = new JLabel("Change Path Base: ");
-            txtBase1 = new JTextField("",20);
-            txtBase1.setEnabled(false);
-            txtBase2 = new JTextField("",20);
-            txtBase2.setEnabled(false);
-
-            JLabel lblCookie = new JLabel("Change Cookie: ");
             modelCookie = new DefaultComboBoxModel<String>();
             vectorCookie = Login.getAllLogins_Table();
             modelCookie.addElement("none");
@@ -371,8 +357,9 @@ public class DialogFlowEdit extends AbstractDialog {
             }
             cmbCookie = new JComboBox<String>(modelCookie);
             cmbCookie.setEnabled(false);
+            form.addLastField(cmbCookie,sequenceDetailPanel);
 
-            JLabel lblRequests = new JLabel("Edit Requests: ");
+            form.addLabel("Edit Requests: ",sequenceDetailPanel);
             btnRequest = new JButton("Edit Requests");
             btnRequest.setEnabled(false);
             btnRequest.addActionListener(new ActionListener() {
@@ -385,42 +372,10 @@ public class DialogFlowEdit extends AbstractDialog {
                     }
                 }
             });
-
-            sequenceDetailPanel.add(lblSeqName);
-            sequenceDetailPanel.add(txtRootAddress);
-            sequenceDetailPanel.add(lblBase);
-            sequenceDetailPanel.add(txtBase1);
-            sequenceDetailPanel.add(txtBase2);
-            sequenceDetailPanel.add(lblCookie);
-            sequenceDetailPanel.add(cmbCookie);
-            sequenceDetailPanel.add(lblRequests);
-            sequenceDetailPanel.add(btnRequest);
-
-
-            spring.putConstraint(SpringLayout.WEST,lblSeqName,10,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,lblSeqName,10,SpringLayout.NORTH,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.WEST,txtRootAddress,140,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,txtRootAddress,0,SpringLayout.NORTH,lblSeqName);
-
-            spring.putConstraint(SpringLayout.WEST,lblBase,10,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,lblBase,10,SpringLayout.SOUTH,lblSeqName);
-            spring.putConstraint(SpringLayout.WEST,txtBase1,140,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,txtBase1,0,SpringLayout.NORTH,lblBase);
-            spring.putConstraint(SpringLayout.WEST,txtBase2,5,SpringLayout.EAST,txtBase1);
-            spring.putConstraint(SpringLayout.NORTH,txtBase2,0,SpringLayout.NORTH,lblBase);
-
-            spring.putConstraint(SpringLayout.WEST,lblCookie,10,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,lblCookie,10,SpringLayout.SOUTH,lblBase);
-            spring.putConstraint(SpringLayout.WEST,cmbCookie,140,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,cmbCookie,0,SpringLayout.NORTH,lblCookie);
-
-
-            spring.putConstraint(SpringLayout.WEST,lblRequests,10,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,lblRequests,10,SpringLayout.SOUTH,lblCookie);
-            spring.putConstraint(SpringLayout.WEST,btnRequest,140,SpringLayout.WEST,sequenceDetailPanel);
-            spring.putConstraint(SpringLayout.NORTH,btnRequest,0,SpringLayout.NORTH,lblRequests);
-
-
+            JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            jp.add(btnRequest);
+            form.addLastField(jp,sequenceDetailPanel);
+//            form.addFiller(sequenceDetailPanel);
         }
         return sequenceDetailPanel;
     }
@@ -437,4 +392,10 @@ public class DialogFlowEdit extends AbstractDialog {
         return list;
     }
 
+    public JTextField getTxtDescription() {
+        if(txtDescription == null){
+            txtDescription = new JTextField("",20);
+        }
+        return txtDescription;
+    }
 }

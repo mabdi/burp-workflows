@@ -2,11 +2,8 @@ package com.behsazan.model.adapters;
 
 import burp.*;
 import com.behsazan.model.entity.Request;
-import com.behsazan.model.entity.Flow_Running;
+import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.entity.Flow_Request;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Created by admin on 07/30/2017.

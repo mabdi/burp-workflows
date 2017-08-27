@@ -13,9 +13,9 @@ import java.util.List;
 public class Flow_Sequence {
     private Sequence sequence;
     private List<Flow_Request> requests;
-    private URL url;
-    private String base1;
-    private String base2;
+//    private URL url;
+//    private String base1;
+//    private String base2;
     private String cookie;
     private int Id;
     private Flow flow;
@@ -23,12 +23,12 @@ public class Flow_Sequence {
     public Flow_Sequence() {
     }
 
-    public Flow_Sequence(int id, Sequence sequence , URL url, String base1, String base2, String cookie, List<Flow_Request> requests ) {
+    public Flow_Sequence(int id, Sequence sequence , String cookie, List<Flow_Request> requests ) {
         this.Id = id;
         this.sequence = sequence;
-        this.url = url;
-        this.base1 = base1;
-        this.base2 = base2;
+//        this.url = url;
+//        this.base1 = base1;
+//        this.base2 = base2;
         this.cookie = cookie;
         this.requests = requests;
         for (Flow_Request ri : requests ) {
@@ -51,8 +51,7 @@ public class Flow_Sequence {
             e.printStackTrace();
         }
 
-        Flow_Sequence tsq = new Flow_Sequence(-1,sequence,url,DataUtils.getBasePath(req1),DataUtils.getBasePath(req1),
-                DataUtils.getCookie(req1),requests);
+        Flow_Sequence tsq = new Flow_Sequence(-1,sequence, DataUtils.getCookie(req1),requests);
         return tsq;
     }
 
@@ -64,21 +63,21 @@ public class Flow_Sequence {
         return requests;
     }
 
-    public URL getUrl() {
-        return url;
-    }
-
-    public void setUrl(URL url) {
-        this.url = url;
-    }
-
-    public String getBase1() {
-        return base1;
-    }
-
-    public void setBase1(String base1) {
-        this.base1 = base1;
-    }
+//    public URL getUrl() {
+//        return url;
+//    }
+//
+//    public void setUrl(URL url) {
+//        this.url = url;
+//    }
+//
+//    public String getBase1() {
+//        return base1;
+//    }
+//
+//    public void setBase1(String base1) {
+//        this.base1 = base1;
+//    }
 
     public String getCookie() {
         return cookie;
@@ -88,13 +87,13 @@ public class Flow_Sequence {
         this.cookie = cookie;
     }
 
-    public String getBase2() {
-        return base2;
-    }
-
-    public void setBase2(String base2) {
-        this.base2 = base2;
-    }
+//    public String getBase2() {
+//        return base2;
+//    }
+//
+//    public void setBase2(String base2) {
+//        this.base2 = base2;
+//    }
 
     public int getId() {
         return Id;

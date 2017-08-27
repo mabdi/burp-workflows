@@ -94,7 +94,7 @@ public class TabFlow extends AbstractTab {
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     String name = (String) tableModel.getValueAt(tableSelectedRow,1);
                     String response = JOptionPane.showInputDialog(TabFlow.this,"Enter new Flow Name: ","Copy Of " + name);
-                    if(!response.isEmpty()){
+                    if(response!=null && !response.isEmpty()){
                         if(Flow.isFlowNameUsed(response)){
                             JOptionPane.showMessageDialog(TabFlow.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                             return;
@@ -152,7 +152,7 @@ public class TabFlow extends AbstractTab {
                         return;
                     }
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogFlowPlay dlg = new DialogFlowPlay(TabFlow.this);
+                    DialogFlowPlay dlg = new DialogFlowPlay( );
                     dlg.setData(id);
 
                 }

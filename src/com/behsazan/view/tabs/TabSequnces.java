@@ -95,7 +95,7 @@ public class TabSequnces extends AbstractTab {
                     int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
                     String name = (String) tableModel.getValueAt(tableSelectedRow,1);
                     String response = JOptionPane.showInputDialog(TabSequnces.this,"Enter new sequence Name: ","Copy Of " + name);
-                    if(!response.isEmpty()){
+                    if(response!= null && !response.isEmpty()){
                         if(Sequence.isSequenceNameUsed(response)){
                             JOptionPane.showMessageDialog(TabSequnces.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                             return;
@@ -136,26 +136,26 @@ public class TabSequnces extends AbstractTab {
                     }
                 }
             });
-            JButton playTest = new JButton("Play/Test");
-            playTest.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogSequencePlay dlg = new DialogSequencePlay(id);
-
-                }
-            });
+//            JButton playTest = new JButton("Play/Test");
+//            playTest.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    int tableSelectedRow = table.getSelectedRow();
+//                    if(tableSelectedRow<0){
+//                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+//                        return;
+//                    }
+//
+//                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+//                    DialogSequencePlay dlg = new DialogSequencePlay(id);
+//
+//                }
+//            });
             toolbar.add(newNoCookie);
             toolbar.add(editView);
             toolbar.add(clone);
             toolbar.add(delete);
-            toolbar.add(playTest);
+//            toolbar.add(playTest);
         }
         return toolbar;
     }

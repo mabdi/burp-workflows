@@ -1,5 +1,6 @@
 package com.behsazan.model.entity;
 
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.sqlite.FlowDb;
 
 import java.sql.SQLException;
@@ -14,13 +15,15 @@ public class Flow {
     private List<Flow_Sequence> seqs;
     private int Id;
     private String description;
+    private String parameters;
 
     public Flow() {
     }
 
-    public Flow(String name, String description, List<Flow_Sequence> seqs) {
+    public Flow(String name, String description, String parameters, List<Flow_Sequence> seqs) {
         this.name = name;
         this.seqs = seqs;
+        this.parameters = parameters;
         this.description = description;
         for (Flow_Sequence tcs : seqs) {
             tcs.setFlow(this);
@@ -124,5 +127,21 @@ public class Flow {
 
     public static void updateFlow(Flow flow) throws SQLException {
         new FlowDb().updateFlow(flow);
+    }
+
+    public String getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(String parameters) {
+        this.parameters = parameters;
+    }
+
+    public String[] getParametersExploded() {
+        String[] list = getParameters().split(",");
+        for (int i = 0; i < list.length; i++) {
+            list[i] = list[i].trim();
+        }
+        return list;
     }
 }

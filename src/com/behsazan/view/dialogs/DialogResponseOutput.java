@@ -1,6 +1,5 @@
 package com.behsazan.view.dialogs;
 
-import com.behsazan.model.entity.RequestIn;
 import com.behsazan.model.entity.ResponseOut;
 import com.behsazan.model.entity.Flow_Request;
 import com.behsazan.view.abstracts.AbstractDialog;
@@ -141,8 +140,8 @@ public class DialogResponseOutput extends AbstractDialog {
 //        return new ResponseOut(-1,);
 //    }
 
-    public ResponseOut getData(Flow_Request request){
-        initData();
+    public ResponseOut getData(String data){
+        initData(data);
         responseOut = new ResponseOut(-1,getSelectedType(),txtPlaceHolder.getText(),txtValues.getText(),checkBoxGlobal.isSelected());
         setVisible(true);
         return result;
@@ -164,8 +163,9 @@ public class DialogResponseOutput extends AbstractDialog {
         comboType.setSelectedItem(selected);
     }
 
-    private void initData() {
-        comboType.setSelectedIndex(0);
+    private void initData(String data) {
+        comboType.setSelectedItem(data);
+
     }
 
     public int getSelectedType() {
@@ -176,6 +176,6 @@ public class DialogResponseOutput extends AbstractDialog {
                 return kv.getKey();
             }
         }
-        return RequestIn.TYPE_FROM_LIST;
+        return ResponseOut.TYPE_REGEX;
     }
 }

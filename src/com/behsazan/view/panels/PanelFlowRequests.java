@@ -3,7 +3,6 @@ package com.behsazan.view.panels;
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.ITextEditor;
-import com.behsazan.model.adapters.TableModelRequestIn;
 import com.behsazan.model.adapters.TableModelResponseOut;
 import com.behsazan.model.entity.ResponseOut;
 import com.behsazan.model.entity.Flow_Request;
@@ -18,6 +17,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 
 /**
  * Created by admin on 08/21/2017.
@@ -117,21 +117,21 @@ public class PanelFlowRequests extends AbstractPanel {
             btnReqParam.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addPlaceHolder(requestViewer, Settings.PARAMIDENTIFIER);
+                    addPlaceHolder(requestViewer, Settings.PARAM_IDENTIFIER);
                 }
             });
             JButton btnReqLocal = new JButton("Add local var");
             btnReqLocal.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addPlaceHolder(requestViewer, Settings.LOCALIDENTIFIER);
+                    addPlaceHolder(requestViewer, Settings.LOCAL_IDENTIFIER);
                 }
             });
             JButton btnReqGlobal = new JButton("Add Global var");
             btnReqGlobal.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addPlaceHolder(requestViewer, Settings.GLOBALIDENTIFIER);
+                    addPlaceHolder(requestViewer, Settings.GLOBAL_IDENTIFIER);
                 }
             });
             reqToolbar.add(btnReqParam);
@@ -237,12 +237,27 @@ public class PanelFlowRequests extends AbstractPanel {
                     if (listRequests.getSelectedIndex() < 0) {
                         return;
                     }
-                    DialogResponseOutput dlg = new DialogResponseOutput();
-                    ResponseOut responseOut = dlg.getData(listRequests.getSelectedValue());
-                    if (responseOut != null) {
-                        listRequests.getSelectedValue().addOutputParam(responseOut);
-                        modelResponseOut.fireTableDataChanged();
+
+                    JPopupMenu popup = new JPopupMenu();
+                    Map<Integer, String> kvp = ResponseOut.getTypesString();
+                    for (String v:kvp.values() ) {
+                        JMenuItem jmi = new JMenuItem(v);
+                        final String data = v;
+                        jmi.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                DialogResponseOutput dlg = new DialogResponseOutput();
+                                ResponseOut responseOut = dlg.getData( data );
+                                if (responseOut != null) {
+                                    listRequests.getSelectedValue().addOutputParam(responseOut);
+                                    modelResponseOut.fireTableDataChanged();
+                                }
+                            }
+                        });
+                        popup.add(jmi);
                     }
+                    // show on the button?
+                    popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
                 }
             });
             JButton edit = new JButton("?");

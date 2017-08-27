@@ -1,6 +1,7 @@
-package com.behsazan.model.entity;
+package com.behsazan.controller;
 
 import com.behsazan.model.adapters.RequestListModelObject;
+import com.behsazan.model.entity.Flow;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
@@ -13,10 +14,12 @@ import java.util.Map;
  */
 public class Flow_Running {
     private static Map<String,String> GLOBALS;
+    private Map<String,String> locals;
+    private Map<String,String> params;
+
     private static DefaultTableModel modelGlobal;
     private Flow flow;
-    private Map<Integer, String> initParams; // RequestIn -> String (variable name or constant)
-    private Map<String,String> locals;
+    private String baseUrl;
     private int order;
 
     static {
@@ -29,11 +32,11 @@ public class Flow_Running {
     public Flow_Running() {
     }
 
-    public Flow_Running(Flow flow, Map<Integer, String> maps, int order) {
-
+    public Flow_Running(Flow flow, String baseUrl, Map<String, String> params, int order) {
+        this.baseUrl = baseUrl;
         this.flow = flow;
         this.locals = new HashMap<>();
-        this.initParams = maps;
+        this.params = params;
         this.order = order;
         requestModelItem = new ArrayList<>();
     }
@@ -70,19 +73,6 @@ public class Flow_Running {
         return flow;
     }
 
-    public String getInitParamFor(RequestIn rqin){
-        String val = initParams.get(rqin.getId());
-        switch (rqin.getType()){
-            case RequestIn.TYPE_FROM_LIST:
-                return val;
-            case RequestIn.TYPE_LOCAL:
-                return queryLocalVariable(val);
-            case RequestIn.TYPE_GLOBAL:
-                return queryGlobalVariable(val);
-        }
-        return val;
-    }
-
     public static DefaultTableModel globalsToTableModel() {
         if(modelGlobal==null) {
             modelGlobal = new DefaultTableModel(
@@ -109,5 +99,37 @@ public class Flow_Running {
         }
         modelLocal.fireTableDataChanged();
         return modelLocal;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public static void setGLOBALS(Map<String, String> GLOBALS) {
+        Flow_Running.GLOBALS = GLOBALS;
+    }
+
+    public void setLocals(Map<String, String> locals) {
+        this.locals = locals;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
+
+    public static Map<String, String> getGLOBALS() {
+        return GLOBALS;
+    }
+
+    public Map<String, String> getLocals() {
+        return locals;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
     }
 }

@@ -19,7 +19,7 @@ public class DialogWaiting extends JDialog {
         add(panel);
         setTitle("Please wait...");
         setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // TODO uncommect
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         pack();
         setLocationRelativeTo(parent);
     }
@@ -43,7 +43,6 @@ public class DialogWaiting extends JDialog {
     public static  void closeWaitingDialog(DialogWaiting pleaseWaitDialog){
         if(pleaseWaitDialog != null) {
             pleaseWaitDialog.dispose();
-            pleaseWaitDialog = null;
         }
     }
 }

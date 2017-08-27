@@ -2,11 +2,12 @@ package com.behsazan.view.dialogs;
 
 import burp.ICookie;
 import com.behsazan.controller.Controller;
+import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.abstracts.AbstractDialog;
-import com.behsazan.view.panels.PanelPlayInstance;
+import com.behsazan.view.panels.PanelFlowPlay;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,7 +25,7 @@ public class DialogLoginPlay extends AbstractDialog {
     private JPanel buttonsPanel;
     private Flow_Running currentlyDisplayedInstance;
     private JToggleButton actionBtn;
-    private PanelPlayInstance mPlayInstancePanel;
+    private PanelFlowPlay mPlayInstancePanel;
     private boolean forceStop;
     private Login login;
 
@@ -38,8 +39,8 @@ public class DialogLoginPlay extends AbstractDialog {
             @Override
             protected Flow doInBackground() throws Exception {
                 login = Login.getById(id);
-                List<Flow_Running> instances = Controller.buildTestCaseInstances(login.getFlow(), null);
-                currentlyDisplayedInstance = instances.get(0);
+//                List<Flow_Running> instances = Controller.buildTestCaseInstances(login.getFlow(), null);  TODO
+//                currentlyDisplayedInstance = instances.get(0);
                 return null;
             }
 
@@ -60,7 +61,7 @@ public class DialogLoginPlay extends AbstractDialog {
         setSize(800, 600);
         setTitle("Play Login");
         setLocationRelativeTo(getParentWindow());
-        mPlayInstancePanel = new PanelPlayInstance();
+        mPlayInstancePanel = new PanelFlowPlay();
         setLayout(new BorderLayout());
         add(mPlayInstancePanel, BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);

@@ -8,7 +8,6 @@ import java.util.List;
  */
 public class Flow_Request {
     private List<ResponseOut> outputParams;
-    private List<RequestIn> inputParams;
     private Request request;
     private byte[] modifiedRequest;
     private int id;
@@ -17,14 +16,10 @@ public class Flow_Request {
     public Flow_Request() {
     }
 
-    public Flow_Request(int id, Request request, List<RequestIn> inputParams, List<ResponseOut> outputParams, byte[] modifiedRequest) {
+    public Flow_Request(int id, Request request,  List<ResponseOut> outputParams, byte[] modifiedRequest) {
         this.id = id;
         this.request = request;
-        this.inputParams = inputParams;
         this.outputParams = outputParams;
-        for (RequestIn ri : inputParams) {
-            ri.setFlow_request(this);
-        }
         for (ResponseOut ro : outputParams) {
             ro.setFlow_request(this);
         }
@@ -32,7 +27,7 @@ public class Flow_Request {
     }
 
     public static Flow_Request getInstaceFromRequest(Request rq) {
-        Flow_Request instance = new Flow_Request(-1,rq,new ArrayList<RequestIn>(),new ArrayList<ResponseOut>(),rq.getRequest());
+        Flow_Request instance = new Flow_Request(-1,rq,new ArrayList<ResponseOut>(),rq.getRequest());
         return instance;
     }
 
@@ -57,10 +52,6 @@ public class Flow_Request {
 //
 //    }
 
-    public void addInputParam(RequestIn input){
-        inputParams.add(input);
-        input.setFlow_request(this);
-    }
 
     public void addOutputParam(ResponseOut output){
         outputParams.add(output);
@@ -71,9 +62,6 @@ public class Flow_Request {
         return outputParams;
     }
 
-    public List<RequestIn> getInputParams() {
-        return inputParams;
-    }
 
     public Request getRequest() {
         return request;

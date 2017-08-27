@@ -21,9 +21,17 @@ public class Settings {
     public static final long DELAY = 300;
     public static final String SESSION_COOKIENAME = "JSESSIONID";
     public static final String SECTION_CHAR = "\u00A7";
-    public static final String LOCALIDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
-    public static final String GLOBALIDENTIFIER = "\u00A7" + "var@globals" + "\u00A7";
-    public static final String PARAMIDENTIFIER = "\u00A7" + "var@params" + "\u00A7";
+    public static final String LOCAL_IDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
+    public static final String LOCAL_PATTERN = "\u00A7" + "(\\w+)@locals" + "\u00A7";
+    public static final String GLOBAL_IDENTIFIER = "\u00A7" + "var@globals" + "\u00A7";
+    public static final String GLOBAL_PATTERN = "\u00A7" + "(\\w+)@globals" + "\u00A7";
+    public static final String PARAM_IDENTIFIER = "\u00A7" + "var@params" + "\u00A7";
+    public static final String PARAM_PATTERN = "\u00A7" + "(\\w+)@params" + "\u00A7";
+    public static final String[] BASE_URLS = new String[]{
+            "http://172.16.27.12:9080/eproc4qa/",
+            "http://172.16.27.12:9080/eproc4dev/"
+    };
+
 
     public static void backupDb(TabSettings tabSettings) {
         SqliteHelper db = new SqliteHelper();

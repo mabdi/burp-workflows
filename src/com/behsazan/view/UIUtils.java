@@ -1,6 +1,7 @@
 package com.behsazan.view;
 
 import burp.BurpExtender;
+import com.behsazan.controller.Controller;
 import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
@@ -81,9 +82,10 @@ public class UIUtils {
 
             // And finally the "label" constrains, typically to be
             // used for the first component on each row
+
             labelConstraints =
                     (GridBagConstraints) lastConstraints.clone();
-
+            labelConstraints.anchor = GridBagConstraints.NORTHWEST;
             // Give these as little space as necessary
             labelConstraints.weightx = 0.0;
             labelConstraints.gridwidth = 1;
@@ -132,6 +134,13 @@ public class UIUtils {
             gbl.setConstraints(c, middleConstraints);
             parent.add(c);
         }
+
+//        public void addFiller(Container parent){
+//            GridBagConstraints horizontalFill = new GridBagConstraints();
+//            horizontalFill.anchor = GridBagConstraints.WEST;
+//            horizontalFill.fill = GridBagConstraints.HORIZONTAL;
+//            parent.add(Box.createHorizontalGlue(), horizontalFill);
+//        }
 
     }
 }

@@ -33,8 +33,8 @@ public class FlowDb extends SqliteHelper {
             PreparedStatement stmt = c.prepareStatement("INSERT INTO FLOW " +
                     "(NAME,DESCRIPTION,PARAMETERS,SEQUENCE_COUNT,REQUEST_COUNT) VALUES (?,?,?,?,?)");
             stmt.setString(1, flow.getName());
-            stmt.setString(2, flow.getName());
-            stmt.setString(3, flow.getName());
+            stmt.setString(2, flow.getDescription());
+            stmt.setString(3, flow.getParameters());
             stmt.setInt(4, flow.getSeqs().size());
             int reqs = 0;
             for (Flow_Sequence tr : flow.getSeqs()) {
@@ -62,13 +62,13 @@ public class FlowDb extends SqliteHelper {
     private void insertFlowParts(Connection c, Flow flow) throws SQLException {
         for (Flow_Sequence sq : flow.getSeqs()) {
             PreparedStatement stmt2 = c.prepareStatement("INSERT INTO FLOW_SEQUENCE " +
-                    "(FLOW_ID,SEQUENCE_ID,URL,PATH_BASE1,PATH_BASE2,COOKIE) VALUES (?,?,?,?,?,?)");
+                    "(FLOW_ID,SEQUENCE_ID,COOKIE) VALUES (?,?,?)");
             stmt2.setInt(1, flow.getId());
             stmt2.setInt(2, sq.getSequence().getId());
-            stmt2.setString(3, sq.getUrl().toString());
-            stmt2.setString(4, sq.getBase1());
-            stmt2.setString(5, sq.getBase2());
-            stmt2.setString(6, sq.getCookie());
+//            stmt2.setString(3, sq.getUrl().toString());
+//            stmt2.setString(4, sq.getBase1());
+//            stmt2.setString(5, sq.getBase2());
+            stmt2.setString(3, sq.getCookie());
             stmt2.executeUpdate();
             stmt2.close();
 
@@ -95,17 +95,6 @@ public class FlowDb extends SqliteHelper {
 
                 rq.setId(newId);
 
-                for (RequestIn paramIn : rq.getInputParams()) {
-                    PreparedStatement stmt4 = c.prepareStatement("INSERT INTO REQUEST_INPUT " +
-                            "(FLOW_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE,FLOW_ID) VALUES (?,?,?,?,?)");
-                    stmt4.setInt(1, rq.getId());
-                    stmt4.setString(2, paramIn.getPlaceHoder());
-                    stmt4.setString(3, paramIn.getTxtValue());
-                    stmt4.setInt(4, paramIn.getType());
-                    stmt4.setInt(5, flow.getId());
-                    stmt4.executeUpdate();
-                    stmt4.close();
-                }
                 for (ResponseOut paramOut : rq.getOutputParams()) {
                     PreparedStatement stmt4 = c.prepareStatement("INSERT INTO RESPONSE_OUTPUT " +
                             "(FLOW_REQUEST_ID,PARAM_NAME,PARAM_PARAMS,PARAM_TYPE,IS_GLOBAL,FLOW_ID) VALUES (?,?,?,?,?,?)");
@@ -134,9 +123,6 @@ public class FlowDb extends SqliteHelper {
             stmt.setInt(1, id);
             stmt.executeUpdate();
             stmt = c.prepareStatement("DELETE from FLOW_REQUEST WHERE FLOW_ID =?");
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-            stmt = c.prepareStatement("DELETE from REQUEST_INPUT WHERE FLOW_ID =?");
             stmt.setInt(1, id);
             stmt.executeUpdate();
             stmt = c.prepareStatement("DELETE from RESPONSE_OUTPUT WHERE FLOW_ID =?");
@@ -177,7 +163,7 @@ public class FlowDb extends SqliteHelper {
         ResultSet rq = null;
         try {
             c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT,DESCRIPTION from FLOW WHERE ID=?");
+            stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT,DESCRIPTION,PARAMETERS from FLOW WHERE ID=?");
             stmt.setInt(1, id);
             rq = stmt.executeQuery();
             if (!rq.next()) {
@@ -185,8 +171,9 @@ public class FlowDb extends SqliteHelper {
             } else {
                 String name = rq.getString(2);
                 String descr = rq.getString(5);
+                String params = rq.getString(6);
                 List<Flow_Sequence> reqs = getFlowSequenceById(id);
-                Flow s = new Flow(name, descr, reqs);
+                Flow s = new Flow(name, descr,params, reqs);
                 s.setId(id);
 
                 res = s;
@@ -210,7 +197,7 @@ public class FlowDb extends SqliteHelper {
         ResultSet rq = null;
         try {
             c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT,DESCRIPTION from FLOW WHERE NAME=?");
+            stmt = c.prepareStatement("SELECT ID,NAME,SEQUENCE_COUNT,REQUEST_COUNT,DESCRIPTION,PARAMETERS from FLOW WHERE NAME=?");
             stmt.setString(1, selectedflow);
             rq = stmt.executeQuery();
             if (!rq.next()) {
@@ -218,8 +205,9 @@ public class FlowDb extends SqliteHelper {
             } else {
                 int id = rq.getInt(1);
                 String descr = rq.getString(5);
+                String params = rq.getString(6);
                 List<Flow_Sequence> reqs = getFlowSequenceById(id);
-                Flow s = new Flow(selectedflow, descr, reqs);
+                Flow s = new Flow(selectedflow, descr,params, reqs);
                 s.setId(id);
 
                 res = s;
@@ -242,26 +230,21 @@ public class FlowDb extends SqliteHelper {
         ResultSet rq = null;
         try {
             c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,FLOW_ID,SEQUENCE_ID,URL,PATH_BASE1,PATH_BASE2,COOKIE " +
+            stmt = c.prepareStatement("SELECT ID,FLOW_ID,SEQUENCE_ID,COOKIE " +
                     "from FLOW_SEQUENCE WHERE FLOW_ID= ?");
             stmt.setInt(1, id);
             rq = stmt.executeQuery();
             while (rq.next()) {
                 int record_id = rq.getInt(1);
                 int sid = rq.getInt(3);
-                String url = rq.getString(4);
-                String base1 = rq.getString(5);
-                String base2 = rq.getString(6);
-                String cookie = rq.getString(7);
+                String cookie = rq.getString(4);
 
                 Sequence sequence = Sequence.getById(sid);
                 List<Flow_Request> reqs = getFlowRequestById(record_id);
-                Flow_Sequence r = new Flow_Sequence(record_id, sequence, new URL(url), base1, base2, cookie, reqs);
+                Flow_Sequence r = new Flow_Sequence(record_id, sequence, cookie, reqs);
 
                 res.add(r);
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } finally {
             if (rq != null)
                 rq.close();
@@ -288,10 +271,9 @@ public class FlowDb extends SqliteHelper {
                 int record_id = rq.getInt(1);
                 int request_id = rq.getInt(3);
                 byte[] data = rq.getBytes(4);
-                List<RequestIn> inputParams = getRequestInFor(record_id);
                 List<ResponseOut> outputParams = getResponseOutFor(record_id);
                 Request request = Request.getById(request_id);
-                Flow_Request r = new Flow_Request(record_id, request, inputParams, outputParams, data);
+                Flow_Request r = new Flow_Request(record_id, request, outputParams, data);
                 res.add(r);
             }
         } finally {
@@ -337,36 +319,6 @@ public class FlowDb extends SqliteHelper {
         return res;
     }
 
-    private List<RequestIn> getRequestInFor(int record_id) throws SQLException {
-        List<RequestIn> res = new ArrayList<>();
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rq = null;
-        try {
-            c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,FLOW_REQUEST_ID,PLACE_HOLDER,PARAM_PARAMS,PARAM_TYPE  " +
-                    "from REQUEST_INPUT WHERE FLOW_REQUEST_ID = ?");
-            stmt.setInt(1, record_id);
-            rq = stmt.executeQuery();
-            while (rq.next()) {
-                int id = rq.getInt(1);
-                int type = rq.getInt(5);
-                String params = rq.getString(4);
-                String name = rq.getString(3);
-                RequestIn r = new RequestIn(id, type, name, params);
-                res.add(r);
-            }
-        } finally {
-            if (rq != null)
-                rq.close();
-            if (stmt != null)
-                stmt.close();
-            if (c != null)
-                c.close();
-        }
-
-        return res;
-    }
 
     public void updateFlow(Flow flow) throws SQLException {
         Connection c = null;
@@ -374,16 +326,18 @@ public class FlowDb extends SqliteHelper {
             c = getConnection();
             c.setAutoCommit(false);
             PreparedStatement stmt = c.prepareStatement(
-                    "UPDATE FLOW SET NAME = ?,DESCRIPTION=?,SEQUENCE_COUNT=?,REQUEST_COUNT=?  " +
+                    "UPDATE FLOW SET NAME = ?,DESCRIPTION=?,SEQUENCE_COUNT=?,REQUEST_COUNT=?,PARAMETERS=?  " +
                             " WHERE ID =?");
             stmt.setString(1, flow.getName());
-            stmt.setString(1, flow.getDescription());
+            stmt.setString(2, flow.getDescription());
             stmt.setInt(3, flow.getSeqs().size());
             int reqs = 0;
             for (Flow_Sequence tr : flow.getSeqs()) {
                 reqs += tr.getRequests().size();
             }
             stmt.setInt(4, reqs);
+            stmt.setString(5, flow.getParameters());
+            stmt.setInt(6, flow.getId());
             stmt.executeUpdate();
             stmt.close();
 
@@ -391,9 +345,6 @@ public class FlowDb extends SqliteHelper {
             stmt.setInt(1, flow.getId());
             stmt.executeUpdate();
             stmt = c.prepareStatement("DELETE from FLOW_REQUEST WHERE FLOW_ID =?");
-            stmt.setInt(1, flow.getId());
-            stmt.executeUpdate();
-            stmt = c.prepareStatement("DELETE from REQUEST_INPUT WHERE FLOW_ID =?");
             stmt.setInt(1, flow.getId());
             stmt.executeUpdate();
             stmt = c.prepareStatement("DELETE from RESPONSE_OUTPUT WHERE FLOW_ID =?");

@@ -151,9 +151,6 @@ public class SqliteHelper {
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " FLOW_ID           INTEGER    NOT NULL, " +
                 " SEQUENCE_ID           INTEGER    NOT NULL, " +
-                " URL           TEXT    NOT NULL, " +
-                " PATH_BASE1           TEXT    NOT NULL, " +
-                " PATH_BASE2           TEXT    NOT NULL, " +
                 " COOKIE           TEXT    NOT NULL " +
                 " )";
         String createTableFlowRequest = "DROP TABLE IF EXISTS FLOW_REQUEST;" +
@@ -163,15 +160,6 @@ public class SqliteHelper {
                 " FLOW_SEQUENCE_ID           INTEGER    NOT NULL, " +
                 " REQUEST_ID           INTEGER    NOT NULL, " +
                 " REQUEST           BLOB    NOT NULL " +
-                " )";
-        String createTableRequestIn = "DROP TABLE IF EXISTS REQUEST_INPUT;" +
-                " CREATE TABLE REQUEST_INPUT " +
-                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " FLOW_ID           INTEGER    NOT NULL, " +
-                " FLOW_REQUEST_ID           INTEGER    NOT NULL, " +
-                " PLACE_HOLDER        TEXT NOT NULL, " +
-                " PARAM_PARAMS        TEXT NOT NULL, " +
-                " PARAM_TYPE      INTEGER NOT NULL " +
                 " )";
         String createTableResponseOut = "DROP TABLE IF EXISTS RESPONSE_OUTPUT;" +
                 " CREATE TABLE RESPONSE_OUTPUT " +
@@ -186,7 +174,6 @@ public class SqliteHelper {
         stmt.executeUpdate(createTableFlow);
         stmt.executeUpdate(createTableFlowSequence);
         stmt.executeUpdate(createTableFlowRequest);
-        stmt.executeUpdate(createTableRequestIn);
         stmt.executeUpdate(createTableResponseOut);
     }
 
@@ -194,7 +181,7 @@ public class SqliteHelper {
         String createTableGlobals = "DROP TABLE IF EXISTS GLOBAL_VARIABLES;" +
                 "CREATE TABLE GLOBAL_VARIABLES " +
                 "(KEY  TEXT PRIMARY KEY," +
-                " VALUE         TEXT NOT NULL)";
+                " VALUE         TEXT NOT NULL)";//TODO persist global variables
         String createTableLogins = "DROP TABLE IF EXISTS LOGIN;" +
                 "CREATE TABLE LOGIN " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
