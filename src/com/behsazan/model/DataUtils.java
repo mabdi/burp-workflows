@@ -252,7 +252,7 @@ public class DataUtils {
         }
         if(outPar.getType() == ResponseOut.TYPE_COOKIE){
             for (ICookie coo :response.getCookies()) {
-                if(coo.getName().equals(Settings.SESSION_COOKIENAME)){
+                if(coo.getName().equals(Settings.getCookie())){
                     if(outPar.isGlobal()) {
                         instance.updateGlobalVariable(outPar.getName(),coo.getValue());
                     } else {
@@ -353,4 +353,20 @@ public class DataUtils {
         return false;
     }
 
+    public static void exportJSON(File file) {
+        // TODO
+    }
+
+    public static void importJSON(File file) {
+        // TODO
+    }
+
+    public static boolean isInFilter(URL url) {
+        for (String filter : Settings.getFilters()) {
+            if(url.getPath().endsWith(filter)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

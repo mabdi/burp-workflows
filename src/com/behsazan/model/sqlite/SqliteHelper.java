@@ -180,7 +180,7 @@ public class SqliteHelper {
         String createTableGlobals = "DROP TABLE IF EXISTS GLOBAL_VARIABLES;" +
                 "CREATE TABLE GLOBAL_VARIABLES " +
                 "(VAR_KEY  TEXT PRIMARY KEY," +
-                " VAR_VALUE         TEXT NOT NULL)";//TODO persist global variables
+                " VAR_VALUE         TEXT NOT NULL)";
         String createTableLogins = "DROP TABLE IF EXISTS LOGIN;" +
                 "CREATE TABLE LOGIN " +
                 "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -209,6 +209,12 @@ public class SqliteHelper {
                 " CATEGORY        TEXT NOT NULL  " +
                 ")";
 
+        String createTableSetting = "DROP TABLE IF EXISTS SETTING;" +
+                "CREATE TABLE  SETTING  ( " +
+                "  VAR_KEY  TEXT, " +
+                "  VAR_VALUE  TEXT NOT NULL, " +
+                " PRIMARY KEY(VAR_KEY) " +
+                ");";
 //        String alterTableSequenceAddDescription = "ALTER TABLE SEQUENCE ADD COLUMN DESCRIPTION TEXT";
 
 
@@ -216,6 +222,7 @@ public class SqliteHelper {
         stmt.executeUpdate(createTableLogins);
         stmt.executeUpdate(createTableSuite);
         stmt.executeUpdate(createTableScenario);
+        stmt.executeUpdate(createTableSetting);
     }
 
     private void update_v4(Statement stmt) throws SQLException {

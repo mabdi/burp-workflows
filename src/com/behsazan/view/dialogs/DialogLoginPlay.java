@@ -127,7 +127,7 @@ public class DialogLoginPlay extends AbstractDialog {
                 for (RequestListModelObject req :
                         requests) {
                     for(ICookie cook: req.getRequestObject().getAnalysedResponse().getCookies()){
-                        if(cook.getName().equals(Settings.SESSION_COOKIENAME)){
+                        if(cook.getName().equals(Settings.getCookie())){
                             lastCookie = cook.getValue();
                         }
                     }

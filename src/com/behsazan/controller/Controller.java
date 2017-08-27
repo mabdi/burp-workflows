@@ -100,7 +100,7 @@ public class Controller {
 
     public static RequestListModelObject makeHttpRequestAndWait(URL url, byte[] newRequest){
         try {
-            Thread.sleep(Settings.DELAY);
+            Thread.sleep(Settings.getDelay());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

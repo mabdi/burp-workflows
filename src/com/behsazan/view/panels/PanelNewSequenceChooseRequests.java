@@ -73,7 +73,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         form.addLabel("Base URL: ",topPanel);
         form.addLastField(txtUrl,topPanel);
 
-        enableFilter = new JCheckBox("Show Only .do requests");
+        enableFilter = new JCheckBox("Apply filter");
         enableFilter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -269,7 +269,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
             if(txtUrl.getText().isEmpty()){
                 txtUrl.setText(req.getRequestObject().getHttpService().toString());
             }
-            if (req.getAnalysed().getUrl().getPath().endsWith(".do")) {
+            if (!DataUtils.isInFilter(req.getAnalysed().getUrl())) {
                 modelDoRequests.addElement(req);
             }
         }

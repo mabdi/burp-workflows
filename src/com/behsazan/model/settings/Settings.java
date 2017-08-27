@@ -1,25 +1,31 @@
 package com.behsazan.model.settings;
 
 import burp.BurpExtender;
+import com.behsazan.model.sqlite.SettingDb;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.tabs.TabSettings;
-import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 
 /**
  * Created by admin on 07/30/2017.
  */
 public class Settings {
+    public final static String TABLE_KEY_DELAY = "DELAY";
+    public final static String TABLE_KEY_SESSION = "SESSION_COOKIE";
+    public final static String TABLE_KEY_FILTER = "FILTER";
+    public final static String TABLE_KEY_URLS = "URLS";
 
-    public static final long DELAY = 300;
-    public static final String SESSION_COOKIENAME = "JSESSIONID";
+
+
+    private static final long DELAY = 300;
+    private static final String SESSION_COOKIENAME = "JSESSIONID";
     public static final String SECTION_CHAR = "\u00A7";
     public static final String LOCAL_IDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
     public static final String LOCAL_PATTERN = "\u00A7" + "(\\w+)@locals" + "\u00A7";
@@ -27,11 +33,19 @@ public class Settings {
     public static final String GLOBAL_PATTERN = "\u00A7" + "(\\w+)@globals" + "\u00A7";
     public static final String PARAM_IDENTIFIER = "\u00A7" + "var@params" + "\u00A7";
     public static final String PARAM_PATTERN = "\u00A7" + "(\\w+)@params" + "\u00A7";
-    public static final String[] BASE_URLS = new String[]{
+    private static final String[] BASE_URLS = new String[]{
             "http://172.16.27.12:9080/eproc4qa/",
             "http://172.16.27.12:9080/eproc4dev/"
     };
 
+    private static final String[] RECORD_FILTER = new String[]{
+            ".css",
+            ".js",
+            ".png",
+            ".gif",
+            ".jpg",
+            ".pdf"
+    };
 
     public static void backupDb(TabSettings tabSettings) {
         SqliteHelper db = new SqliteHelper();
@@ -47,5 +61,52 @@ public class Settings {
             e1.printStackTrace(BurpExtender.getInstance().getStdout());
             JOptionPane.showMessageDialog(tabSettings,"Backup Failed.","Error",JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public static  long getDelay(){
+        String val = loadConfigFromDb(TABLE_KEY_DELAY, String.valueOf(DELAY) );
+        return Long.parseLong(val);
+    }
+
+    private static  String loadConfigFromDb(String key,String default_val){
+        String retval = default_val;
+        try {
+            retval = new SettingDb().loadSettings(key);
+            if(retval == null){
+                retval = default_val;
+            }
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+        return retval;
+    }
+
+    private static  String[] loadConfigFromDb(String key,String[] default_val){
+        String[] retval = default_val;
+        try {
+            String val = new SettingDb().loadSettings(key);
+            if(val == null){
+                retval = default_val;
+            }else{
+                retval = val.split("\n");
+            }
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+        return retval;
+    }
+
+    public static  String getCookie(){
+        return loadConfigFromDb(TABLE_KEY_SESSION,SESSION_COOKIENAME);
+    }
+
+    public static String[] getBaseUrls(){
+        return loadConfigFromDb(TABLE_KEY_URLS,BASE_URLS);
+    }
+
+    public static String[] getFilters(){
+        return loadConfigFromDb(TABLE_KEY_FILTER,RECORD_FILTER);
     }
 }

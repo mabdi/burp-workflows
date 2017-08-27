@@ -74,7 +74,7 @@ public class DialogScenarioNew extends AbstractDialog {
 
             formUtility.addLabel("Url :", formPanel);
             DefaultComboBoxModel<String> urls = new DefaultComboBoxModel<String>();
-            for(String u: Settings.BASE_URLS){
+            for(String u: Settings.getBaseUrls()){
                 urls.addElement(u);
             }
             cmbUrls = new JComboBox<>(urls);
