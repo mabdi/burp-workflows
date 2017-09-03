@@ -7,6 +7,7 @@ import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
+import com.behsazan.model.settings.Settings;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
@@ -41,6 +42,7 @@ public class DialogSequenceNew extends AbstractDialog {
         setSize(800,750);
         setTitle("New Sequence");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -105,9 +107,28 @@ public class DialogSequenceNew extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Sequence Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+                    if(url.isEmpty()){
+                        url = choosePanel.getReferedURL();
+                        if(url.isEmpty()){
+                            JOptionPane.showMessageDialog(DialogSequenceNew.this,"Url is not set.","Error",JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                    }
                     if(!DataUtils.isValidURL(url)){
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Invalid Url.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
+                    }
+                    boolean isNew = true;
+                    for(String bu: Settings.getBaseUrls()){
+                        if(bu.equals(url)){
+                            isNew = false;
+                        }
+                    }
+                    if(isNew){
+                        int resp = JOptionPane.showConfirmDialog(DialogSequenceNew.this, url+"\nThe Url is not exists in Base Urls.\nDo you want to add ?", "Base Url", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                        if(resp == JOptionPane.YES_OPTION){
+                            Settings.addBaseUrl(url);
+                        }
                     }
                     try {
                         Sequence.insertSequence(new Sequence(name, description, url, reqs));

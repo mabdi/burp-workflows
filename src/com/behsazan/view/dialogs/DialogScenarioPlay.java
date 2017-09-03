@@ -85,6 +85,7 @@ public class DialogScenarioPlay extends AbstractDialog {
         setSize(800, 600);
         setTitle("Play Scenario");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         mPlayInstancePanel = new PanelFlowPlay();
         setLayout(new BorderLayout());
         add(getCenterSplitPanel(), BorderLayout.CENTER);

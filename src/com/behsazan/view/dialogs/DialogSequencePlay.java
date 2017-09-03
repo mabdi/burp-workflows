@@ -48,6 +48,7 @@ public class DialogSequencePlay extends AbstractDialog implements OnSequencePlay
         setSize(800,600);
         setTitle("Play/Test Sequence");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);

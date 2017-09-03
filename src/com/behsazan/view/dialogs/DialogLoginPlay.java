@@ -65,6 +65,7 @@ public class DialogLoginPlay extends AbstractDialog {
         setSize(800, 600);
         setTitle("Play Login");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         mPlayInstancePanel = new PanelFlowPlay();
         setLayout(new BorderLayout());
         add(mPlayInstancePanel, BorderLayout.CENTER);

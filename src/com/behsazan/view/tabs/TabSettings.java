@@ -147,14 +147,17 @@ public class TabSettings extends AbstractTab {
 
             form.addLabel("Delay between requests (millies): ",body);
             txtDelay = new JTextField(String.valueOf(Settings.getDelay()));
+            txtDelay.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             form.addLastField(txtDelay,body);
 
             form.addLabel("Session cookie name: ",body);
             txtSession = new JTextField(Settings.getCookie());
+            txtSession.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             form.addLastField(txtSession,body);
 
             form.addLabel("Base URLs: ",body);
             txtUrls = new JTextArea("",5,10);
+            txtUrls.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             for(String s: Settings.getBaseUrls()){
                 txtUrls.append(s);
                 txtUrls.append("\n");
@@ -163,6 +166,7 @@ public class TabSettings extends AbstractTab {
 
             form.addLabel("Filter patterns: ",body);
             txtFilters = new JTextArea("",5,10);
+            txtFilters.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             for(String s: Settings.getFilters()){
                 txtFilters.append(s);
                 txtFilters.append("\n");

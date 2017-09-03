@@ -42,6 +42,7 @@ public class DialogSelectVariable extends AbstractDialog {
         setSize(300, 500);
         setTitle("Choose A Variable");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(new JScrollPane(getList()) ,BorderLayout.CENTER);
         add(getButtonsPanel(),BorderLayout.SOUTH);

@@ -5,6 +5,7 @@ import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractPanel;
 import org.apache.commons.lang3.StringUtils;
 
@@ -65,13 +66,17 @@ public class PanelTestSequencePreTest extends AbstractPanel implements IMessageE
         topPanel.setPreferredSize(new Dimension(400,100));
         JLabel lblSeqName = new JLabel("Change URL Root: ");
         txtRootAddress = new JTextField("",60);
+        txtRootAddress.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
         JLabel lblBase = new JLabel("Change Path Base: ");
         txtBase1 = new JTextField("",30);
+        txtBase1.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         txtBase2 = new JTextField("",30);
+        txtBase2.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
         JLabel lblCookie = new JLabel("Change Cookie: ");
         txtCookie = new JTextField("",60);
+        txtCookie.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
 
         topPanel.add(lblSeqName);

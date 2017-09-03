@@ -53,6 +53,7 @@ public class DialogScenarioNew extends AbstractDialog {
         setSize(400, 300);
         setTitle("New Scenario");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(getFormPanel(), BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);
@@ -66,10 +67,12 @@ public class DialogScenarioNew extends AbstractDialog {
 
             formUtility.addLabel("Name :", formPanel);
             txtName = new JTextField();
+            txtName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtName, formPanel);
 
             formUtility.addLabel("Description :", formPanel);
             txtDescription = new JTextArea(2,10);
+            txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtDescription, formPanel);
 
             formUtility.addLabel("Url :", formPanel);
@@ -107,6 +110,7 @@ public class DialogScenarioNew extends AbstractDialog {
 
             formUtility.addLabel("Values: ",formPanel);
             txtValues = new JTextArea(5,10);
+            txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtValues,formPanel);
 
             formUtility.addLabel("",formPanel);

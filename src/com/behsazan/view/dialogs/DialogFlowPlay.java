@@ -94,7 +94,7 @@ public class DialogFlowPlay extends AbstractDialog {
         setSize(800,600);
         setTitle("Play Flow");
         setLocationRelativeTo(getParentWindow());
-
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(getCardPanel(), BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);
@@ -263,6 +263,7 @@ public class DialogFlowPlay extends AbstractDialog {
 
             formUtility.addLabel("Values: ",paramPanel);
             txtValues = new JTextArea(5,10);
+            txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtValues,paramPanel);
 
             formUtility.addLabel("",paramPanel);

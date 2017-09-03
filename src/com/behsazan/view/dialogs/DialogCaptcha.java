@@ -1,5 +1,6 @@
 package com.behsazan.view.dialogs;
 
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 
 import javax.swing.*;
@@ -38,6 +39,7 @@ public class DialogCaptcha extends AbstractDialog {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         add(getControlls(), BorderLayout.SOUTH);
         // TODO add a refresh Captcha button
+
     }
 
     public JPanel getControlls() {
@@ -47,6 +49,7 @@ public class DialogCaptcha extends AbstractDialog {
             controlls.add(new JLabel("Captcha: "),BorderLayout.WEST);
             controlls.add(getTextField(),BorderLayout.CENTER);
             JButton btnOK = new JButton("Ok");
+            setAsDefaultButton(btnOK);
             btnOK.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -61,6 +64,7 @@ public class DialogCaptcha extends AbstractDialog {
     public JTextField getTextField() {
         if(textField == null){
             textField = new JTextField("",10);
+            textField.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         }
         return textField;
     }

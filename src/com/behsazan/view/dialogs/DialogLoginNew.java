@@ -38,6 +38,7 @@ public class DialogLoginNew extends AbstractDialog {
         setSize(400, 300);
         setTitle("New Login");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(getFormPanel(), BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);
@@ -59,16 +60,19 @@ public class DialogLoginNew extends AbstractDialog {
 
             formUtility.addLabel("Username :", formPanel);
             txtUsername = new JTextField();
+            txtUsername.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             txtUsername.setToolTipText("As `username` parameter");
             formUtility.addLastField(txtUsername, formPanel);
 
             formUtility.addLabel("Password :", formPanel);
             txtPassword = new JTextField();
+            txtPassword.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             txtPassword.setToolTipText("As `password` parameter");
             formUtility.addLastField(txtPassword, formPanel);
 
             formUtility.addLabel("Out Param Name:", formPanel);
             txtParam = new JTextField();
+            txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtParam, formPanel);
             formUtility.addLabel("Flow :", formPanel);
             modelCombo = new DefaultComboBoxModel<>();

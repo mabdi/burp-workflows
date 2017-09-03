@@ -63,7 +63,7 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
         setSize(800,600);
         setTitle("View/Edit Sequence");
         setLocationRelativeTo(getParentWindow());
-
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
 //        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 //
@@ -73,8 +73,11 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
         JPanel topPanel = new JPanel(new GridBagLayout());
         UIUtils.FormUtility form = new UIUtils.FormUtility();
         txtSeqName = new JTextField("", 20);
+        txtSeqName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         txtUrl = new JTextField("", 20);
+        txtUrl.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         txtDescription = new JTextField("", 20);
+        txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
 
         form.addLabel("Sequence Name: ",topPanel);

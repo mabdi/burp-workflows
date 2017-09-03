@@ -5,6 +5,7 @@ import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.Flow;
 import com.behsazan.model.entity.Scenario;
 import com.behsazan.model.settings.Settings;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +53,7 @@ public class DialogScenarioEdit extends AbstractDialog {
         setSize(400, 300);
         setTitle("Edit Scenario");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(getFormPanel(), BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);
@@ -74,10 +76,12 @@ public class DialogScenarioEdit extends AbstractDialog {
 
             formUtility.addLabel("Name :", formPanel);
             txtName = new JTextField();
+            txtName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtName, formPanel);
 
             formUtility.addLabel("Description :", formPanel);
             txtDescription = new JTextArea(2,10);
+            txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtDescription, formPanel);
 
 
@@ -116,6 +120,7 @@ public class DialogScenarioEdit extends AbstractDialog {
 
             formUtility.addLabel("Values: ",formPanel);
             txtValues = new JTextArea(5,10);
+            txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtValues,formPanel);
 
             formUtility.addLabel("",formPanel);

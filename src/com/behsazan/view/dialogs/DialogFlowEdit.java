@@ -85,7 +85,7 @@ public class DialogFlowEdit extends AbstractDialog {
         setSize(800,600);
         setTitle("Edit Flow");
         setLocationRelativeTo(getParentWindow());
-
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(getTopPanel(), BorderLayout.NORTH);
         add(getCenterSplitPanel(), BorderLayout.CENTER);
@@ -104,6 +104,7 @@ public class DialogFlowEdit extends AbstractDialog {
 
             form.addLabel("Parameters (comma separated):", topPanel);
             txtParam = new JTextArea(2, 10);
+            txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             form.addLastField(new JScrollPane(txtParam), topPanel);
 
 
@@ -177,6 +178,7 @@ public class DialogFlowEdit extends AbstractDialog {
     public JTextField getTxtFlowName() {
         if(txtFlowName == null){
             txtFlowName = new JTextField("",20);
+            txtFlowName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         }
         return txtFlowName;
     }
@@ -395,6 +397,7 @@ public class DialogFlowEdit extends AbstractDialog {
     public JTextField getTxtDescription() {
         if(txtDescription == null){
             txtDescription = new JTextField("",20);
+            txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         }
         return txtDescription;
     }

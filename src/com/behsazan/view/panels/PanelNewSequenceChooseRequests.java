@@ -60,8 +60,11 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         JPanel topPanel = new JPanel(new GridBagLayout());
         UIUtils.FormUtility form = new UIUtils.FormUtility();
         txtSeqName = new JTextField("", 20);
+        txtSeqName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         txtUrl = new JTextField("", 20);
+        txtUrl.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         txtDescription = new JTextField("", 20);
+        txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
 
         form.addLabel("Sequence Name: ",topPanel);
@@ -266,9 +269,6 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     public void addMessage(RequestListModelObject req) {
         synchronized (modelAllRequests) {
             modelAllRequests.addElement(req);
-            if(txtUrl.getText().isEmpty()){
-                txtUrl.setText(req.getRequestObject().getHttpService().toString());
-            }
             if (!DataUtils.isInFilter(req.getAnalysed().getUrl())) {
                 modelDoRequests.addElement(req);
             }
@@ -297,5 +297,40 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
 
     public String getSequenceURL() {
         return txtUrl.getText();
+    }
+
+    public String getReferedURL() {
+        List<Request> rqs = getSelectedRequests();
+//        String path = rq.getAnalysedRequest().getUrl().getPath();
+        String url = rqs.get(0).getHttpService().toString();
+        for(Request rq : rqs){
+            if(!url.equals(rq.getHttpService().toString())){
+                return "";
+            }
+        }
+        String[] ptt = rqs.get(0).getAnalysedRequest().getUrl().getPath().split("/");
+        if(ptt.length <2){
+            return url;
+        }
+        for(Request rq : rqs){
+            String[] ptt2 = rq.getAnalysedRequest().getUrl().getPath().split("/");
+            for (int i = 0; i < ptt.length; i++) {
+                if(!ptt[i].equals(ptt2[i])){
+                    ptt[i] = "";
+                }
+            }
+        }
+        String path = "/";
+        for (int i = 0; i < ptt.length; i++) {
+            String p = ptt[i];
+            if(p.trim().isEmpty()){
+                if(i>0)
+                    break;
+                else
+                    continue;
+            }
+            path += p + "/";
+        }
+        return url + path;
     }
 }

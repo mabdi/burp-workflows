@@ -64,7 +64,7 @@ public class Request {
 
     @Override
     public String toString() {
-        return getAnalysedRequest().getMethod() + "  " + getAnalysedRequest().getUrl().getPath();
+        return getAnalysedRequest().getMethod() + "  " + getAnalysedRequest().getUrl().getFile();
     }
 
     public int getOrder() {

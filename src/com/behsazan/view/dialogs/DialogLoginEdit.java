@@ -4,6 +4,7 @@ import burp.BurpExtender;
 import com.behsazan.model.entity.Login;
 import com.behsazan.model.entity.Flow;
 import com.behsazan.model.settings.Settings;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 
 import javax.swing.*;
@@ -39,6 +40,7 @@ public class DialogLoginEdit extends AbstractDialog {
         setSize(400, 300);
         setTitle("Edit Login");
         setLocationRelativeTo(getParentWindow());
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(getFormPanel(), BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);
@@ -71,16 +73,17 @@ public class DialogLoginEdit extends AbstractDialog {
 
             formUtility.addLabel("Username :", formPanel);
             txtUsername = new JTextField();
-            txtUsername.setToolTipText("Local variable( @@username@@ )");
+            txtUsername.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtUsername, formPanel);
 
             formUtility.addLabel("Password :", formPanel);
             txtPassword = new JTextField();
-            txtPassword.setToolTipText("Local variable( @@password@@ )");
+            txtPassword.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtPassword, formPanel);
 
             formUtility.addLabel("Out Param Name:", formPanel);
             txtParam = new JTextField();
+            txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtParam, formPanel);
             formUtility.addLabel("Flow :", formPanel);
             modelCombo = new DefaultComboBoxModel<>();

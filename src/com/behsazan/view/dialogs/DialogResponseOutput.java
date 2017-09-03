@@ -2,6 +2,7 @@ package com.behsazan.view.dialogs;
 
 import com.behsazan.model.entity.ResponseOut;
 import com.behsazan.model.entity.Flow_Request;
+import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 
 import javax.swing.*;
@@ -34,12 +35,13 @@ public class DialogResponseOutput extends AbstractDialog {
         setSize(300,350);
         setTitle("Make Variable");
         setLocationRelativeTo(getParentWindow());
-
+        installEscapeCloseOperation();
         SpringLayout layoutTop = new SpringLayout();
         JPanel topPanel = new JPanel(layoutTop);
 
         JLabel lblSeqName = new JLabel("Var Name: ");
         txtPlaceHolder = new JTextField("",18);
+        txtPlaceHolder.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
         JLabel lblBase = new JLabel("Type: ");
         comboType = new JComboBox<>();
@@ -64,6 +66,7 @@ public class DialogResponseOutput extends AbstractDialog {
         });
         JLabel lblCookie = new JLabel("Values: ");
         txtValues = new JTextField("",18 );
+        txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
         topPanel.add(lblSeqName);
         topPanel.add(txtPlaceHolder);

@@ -54,7 +54,7 @@ public class DialogFlowNew extends AbstractDialog {
         setSize(800,600);
         setTitle("New Flow");
         setLocationRelativeTo(getParentWindow());
-
+        installEscapeCloseOperation();
         setLayout(new BorderLayout());
         add(getTopPanel(), BorderLayout.NORTH);
         add(getCenterSplitPanel(), BorderLayout.CENTER);
@@ -76,6 +76,7 @@ public class DialogFlowNew extends AbstractDialog {
 
             form.addLabel("Parameters (comma separated):", topPanel);
             txtParam = new JTextArea(2,10);
+            txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             form.addLastField(new JScrollPane(txtParam), topPanel);
 
         }
@@ -153,6 +154,7 @@ public class DialogFlowNew extends AbstractDialog {
     public JTextField getTxtflowName() {
         if(txtflowName == null){
             txtflowName = new JTextField("",20);
+            txtflowName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         }
         return txtflowName;
     }
@@ -386,6 +388,7 @@ public class DialogFlowNew extends AbstractDialog {
     public JTextField getTxtDescription() {
         if(txtDescription == null){
             txtDescription = new JTextField("",20);
+            txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         }
         return txtDescription;
     }

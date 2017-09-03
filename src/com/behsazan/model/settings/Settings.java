@@ -109,4 +109,21 @@ public class Settings {
     public static String[] getFilters(){
         return loadConfigFromDb(TABLE_KEY_FILTER,RECORD_FILTER);
     }
+
+    public static void addBaseUrl(String url) {
+        SettingDb db = new SettingDb();
+        String urls = "";
+        try {
+            String val = new SettingDb().loadSettings(Settings.TABLE_KEY_URLS);
+            if(val == null){
+                urls = url;
+            }else{
+                urls = val.trim() + "\n" + url;
+            }
+            db.updateKey(Settings.TABLE_KEY_URLS, urls);
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+
+    }
 }
