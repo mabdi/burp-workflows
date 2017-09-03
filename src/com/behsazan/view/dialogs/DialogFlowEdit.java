@@ -43,7 +43,6 @@ public class DialogFlowEdit extends AbstractDialog {
     private Vector<Vector<Object>> vectorCookie;
     private JTextArea txtParam;
     private JTextField txtDescription;
-    private JTextField txtCookieParam;
 
     public DialogFlowEdit() {
         super(false);
@@ -264,12 +263,8 @@ public class DialogFlowEdit extends AbstractDialog {
 //        activeSequence.getFlow_sequence().setBase1(txtBase1.getText());
 //        activeSequence.getFlow_sequence().setBase2(txtBase2.getText());
         if(cmbCookie.getSelectedIndex()>0) {
-            if(cmbCookie.getSelectedIndex()==cmbCookie.getItemCount()-1){
-                activeSequence.getFlow_sequence().setCookie(Settings.PARAM_IDENTIFIER.replace("var", txtCookieParam.getText()));
-            }else {
-                String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
-                activeSequence.getFlow_sequence().setCookie(Settings.GLOBAL_IDENTIFIER.replace("var", param));
-            }
+            String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
+            activeSequence.getFlow_sequence().setCookie(param);
         }else{
             activeSequence.getFlow_sequence().setCookie("");
         }
@@ -278,27 +273,18 @@ public class DialogFlowEdit extends AbstractDialog {
     private void showSequenceDetail() {
         Request req1 = activeSequence.getSequence().getRequest().get(0);
         cmbCookie.setEnabled(true);
-        String cookeOutParamVar = activeSequence.getFlow_sequence().getCookie();
-
+        String cookeOutParam = activeSequence.getFlow_sequence().getCookie();
         cmbCookie.setSelectedIndex(0);
-        if (!cookeOutParamVar.isEmpty()) {
-            if(cookeOutParamVar.matches(Settings.GLOBAL_PATTERN)) {
-                String cookeOutParam = cookeOutParamVar.substring(1,cookeOutParamVar.indexOf('@'));
-                int i = 1;
-                for (Vector<Object> obj : vectorCookie) {
-                    if (obj.get(3).equals(cookeOutParam)) {
-                        cmbCookie.setSelectedIndex(i);
-                        break;
-                    }
-                    i++;
+        if(!cookeOutParam.isEmpty()){
+            int i=1;
+            for(Vector<Object> obj: vectorCookie){
+                if(obj.get(3).equals(cookeOutParam)){
+                    cmbCookie.setSelectedIndex(i);
+                    break;
                 }
-            }else{
-                String cookeOutParam = cookeOutParamVar.substring(1,cookeOutParamVar.indexOf('@'));
-                cmbCookie.setSelectedIndex(cmbCookie.getItemCount()-1);
-                txtCookieParam.setText(cookeOutParam);
+                i++;
             }
         }
-
         btnRequest.setEnabled(true);
     }
 
@@ -363,24 +349,9 @@ public class DialogFlowEdit extends AbstractDialog {
             for(Vector<Object> login: vectorCookie){
                 modelCookie.addElement(""+ login.get(0) + ". " + login.get(1) + " (" + login.get(3) + ")");
             }
-            modelCookie.addElement("From parameters ...");
             cmbCookie = new JComboBox<String>(modelCookie);
-            cmbCookie.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if(cmbCookie.getSelectedIndex() == cmbCookie.getItemCount()-1){
-                        txtCookieParam.setEnabled(true);
-                    }else{
-                        txtCookieParam.setEnabled(false);
-                    }
-                }
-            });
             cmbCookie.setEnabled(false);
-            form.addMiddleField(cmbCookie,sequenceDetailPanel);
-            txtCookieParam = new JTextField();
-            txtCookieParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            txtCookieParam.setEnabled(false);
-            form.addLastField(txtCookieParam,sequenceDetailPanel);
+            form.addLastField(cmbCookie,sequenceDetailPanel);
 
             form.addLabel("Edit Requests: ",sequenceDetailPanel);
             btnRequest = new JButton("Edit Requests");

@@ -68,7 +68,7 @@ public class Controller {
                 String[] msg = DataUtils.ExplodeRequest(modReq);
                 msg = DataUtils.changeUrlBase(msg,oldBase,newBase);
                 if(!cookie.isEmpty()) {
-                    msg = DataUtils.changeCookie(msg, cookie );
+                    msg = DataUtils.changeCookie(msg, Flow_Running.queryGlobalVariable(cookie) );
                 }
                 msg = DataUtils.applyParameter(msg,instance);
                 byte[] newRequest = DataUtils.buildRequest(msg);
