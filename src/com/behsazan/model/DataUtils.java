@@ -1,13 +1,13 @@
 package com.behsazan.model;
 
 import burp.*;
+import com.behsazan.controller.Controller;
 import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.dialogs.DialogCaptcha;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -16,13 +16,12 @@ import org.jsoup.select.Elements;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -167,16 +166,24 @@ public class DataUtils {
         if (!oldBase.equals(newBase)) {
             msg = DataUtils.changeHost(msg,newBase.toString());
             msg = DataUtils.changeReferer(msg,newBase.toString());
-            oldBase = (oldBase.trim().startsWith("/"))?oldBase.substring(1).trim():oldBase.trim();
-            newBase = (newBase.trim().startsWith("/"))?newBase.substring(1).trim():newBase.trim();
+            URL urlOld = null,urlNew = null;
+            try {
+                urlOld = new URL(oldBase);
+                urlNew = new URL(newBase);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
             String line1 = msg[0].trim();
             String[] line1parts = line1.split(" ");
-            String[] pathes = line1parts[1].split("/");
-            if(pathes.length>1 && pathes[1].equals(oldBase.trim())){
-                pathes[1] = newBase;
-                line1parts[1] = StringUtils.join(pathes,"/");
-                msg[0] = StringUtils.join(line1parts," ");
-            }
+            line1parts[1] = line1parts[1].replace(urlOld.getPath(),urlNew.getPath());
+            msg[0] = StringUtils.join(line1parts," ");
+//            String[] pathes = line1parts[1].split("/");
+//            if(pathes.length>1 && pathes[1].equals(oldBase.trim())){
+//                pathes[1] = newBase;
+//                line1parts[1] = StringUtils.join(pathes,"/");
+//                msg[0] = StringUtils.join(line1parts," ");
+//            }
         }
         return msg;
     }
@@ -238,11 +245,11 @@ public class DataUtils {
         return  line;
     }
 
-    public static void setOutParameters(RequestListModelObject obj, ResponseOut outPar, Flow_Running instance) {
+    public static void setOutParameters(RequestListModelObject obj, ResponseOut outPar, Flow_Running instance, Controller.OnCaptchaRefresh onRefresh) {
         Request rq = obj.getRequestObject();
         IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
         if(outPar.getType() == ResponseOut.TYPE_CAPTCHA){
-            String captcha = showCaptcha(obj);
+            String captcha = showCaptcha(obj,onRefresh);
             if(outPar.isGlobal()) {
                 instance.updateGlobalVariable(outPar.getName(),captcha);
             } else {
@@ -309,15 +316,9 @@ public class DataUtils {
         }
     }
 
-    private static String showCaptcha(RequestListModelObject obj) {
-        IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
-
-        Request rq = obj.getRequestObject();
-        byte[] bodyBytes = new byte[rq.getResponse().length - response.getBodyOffset()];
-        System.arraycopy(rq.getResponse(),response.getBodyOffset(),bodyBytes,0,bodyBytes.length);
-        BufferedImage img = getImageObject(bodyBytes);
+    private static String showCaptcha(RequestListModelObject obj, Controller.OnCaptchaRefresh onRefresh) {
         DialogCaptcha dlg = new DialogCaptcha();
-        return dlg.setData(img);
+        return dlg.setData(obj,onRefresh);
     }
 
     public static void exportFlow(int id, File file) {
@@ -334,12 +335,35 @@ public class DataUtils {
 
     private static void exportFlow(Flow[] flows, File file) {
         GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        String json = gson.toJson(flows);
+        Gson gson = builder.excludeFieldsWithoutExposeAnnotation().registerTypeHierarchyAdapter(byte[].class,
+                new ByteArrayToBase64TypeAdapter()).create();
         try {
-            FileUtils.write(file,json,"UTF-8");
+            String json = gson.toJson(flows);
+            fileWrite(file,json);
+
+        } catch (Exception e) {
+            e.printStackTrace(BurpExtender.getInstance().getStdout());
+        }
+    }
+
+    private static void fileWrite(File file, String content) {
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(file);
+            bw = new BufferedWriter(fw);
+            bw.write(content);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null)
+                    bw.close();
+                if (fw != null)
+                    fw.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -354,11 +378,16 @@ public class DataUtils {
     }
 
     public static void exportJSON(File file) {
-        // TODO
+        List<Flow> flows = Flow.getAllFlows();
+        Flow[] fl_arr = new Flow[flows.size()];
+        for (int i = 0; i < fl_arr.length; i++) {
+            fl_arr[i] = flows.get(i);
+        }
+        exportFlow(fl_arr,file);
     }
 
     public static void importJSON(File file) {
-        // TODO
+        // TODO importJSON
     }
 
     public static boolean isInFilter(URL url) {
@@ -368,5 +397,18 @@ public class DataUtils {
             }
         }
         return false;
+    }
+
+    private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
+        @Override
+        public byte[] deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return Base64.decode(json.getAsString(), Base64.NO_WRAP);
+        }
+
+        @Override
+        public JsonElement serialize(byte[] src, Type type, JsonSerializationContext jsonSerializationContext) {
+            return new JsonPrimitive(Base64.encodeToString(src, Base64.NO_WRAP));
+        }
+
     }
 }

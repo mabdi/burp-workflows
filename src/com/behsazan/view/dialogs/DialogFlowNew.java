@@ -1,12 +1,11 @@
 package com.behsazan.view.dialogs;
 
 import burp.BurpExtender;
-import com.behsazan.model.DataUtils;
 import com.behsazan.model.adapters.SequenceListModelObject;
 import com.behsazan.model.entity.*;
+import com.behsazan.model.settings.Settings;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
-import com.behsazan.view.abstracts.AbstractTab;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -14,8 +13,6 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -43,6 +40,7 @@ public class DialogFlowNew extends AbstractDialog {
     private Vector<Vector<Object>> vectorCookie;
     private JTextArea txtParam;
     private JTextField txtDescription;
+    private JTextField txtCookieParam;
 
     public DialogFlowNew() {
         super();
@@ -155,6 +153,7 @@ public class DialogFlowNew extends AbstractDialog {
         if(txtflowName == null){
             txtflowName = new JTextField("",20);
             txtflowName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
+            txtflowName.requestFocus();
         }
         return txtflowName;
     }
@@ -241,8 +240,12 @@ public class DialogFlowNew extends AbstractDialog {
 //        activeSequence.getFlow_sequence().setBase1(txtBase1.getText());
 //        activeSequence.getFlow_sequence().setBase2(txtBase2.getText());
         if(cmbCookie.getSelectedIndex()>0) {
-            String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
-            activeSequence.getFlow_sequence().setCookie(param);
+            if(cmbCookie.getSelectedIndex()==cmbCookie.getItemCount()-1){
+                activeSequence.getFlow_sequence().setCookie(Settings.PARAM_IDENTIFIER.replace("var", txtCookieParam.getText()));
+            }else {
+                String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
+                activeSequence.getFlow_sequence().setCookie(Settings.GLOBAL_IDENTIFIER.replace("var", param));
+            }
         }else{
             activeSequence.getFlow_sequence().setCookie("");
         }
@@ -250,23 +253,25 @@ public class DialogFlowNew extends AbstractDialog {
 
     private void showSequenceDetail() {
         Request req1 = activeSequence.getSequence().getRequest().get(0);
-//        txtRootAddress.setText(DataUtils.getRootAddress(req1));
-//        txtRootAddress.setEnabled(true);
-//        txtBase1.setEnabled(true);
-//        txtBase1.setText(DataUtils.getBasePath(req1));
-//        txtBase2.setEnabled(true);
-//        txtBase2.setText(DataUtils.getBasePath(req1));
         cmbCookie.setEnabled(true);
-        String cookeOutParam = activeSequence.getFlow_sequence().getCookie();
+        String cookeOutParamVar = activeSequence.getFlow_sequence().getCookie();
+
         cmbCookie.setSelectedIndex(0);
-        if(!cookeOutParam.isEmpty()){
-            int i=1;
-            for(Vector<Object> obj: vectorCookie){
-                if(obj.get(3).equals(cookeOutParam)){
-                    cmbCookie.setSelectedIndex(i);
-                    break;
+        if (!cookeOutParamVar.isEmpty()) {
+            if(cookeOutParamVar.matches(Settings.GLOBAL_PATTERN)) {
+                String cookeOutParam = cookeOutParamVar.substring(1,cookeOutParamVar.indexOf('@'));
+                int i = 1;
+                for (Vector<Object> obj : vectorCookie) {
+                    if (obj.get(3).equals(cookeOutParam)) {
+                        cmbCookie.setSelectedIndex(i);
+                        break;
+                    }
+                    i++;
                 }
-                i++;
+            }else{
+                String cookeOutParam = cookeOutParamVar.substring(1,cookeOutParamVar.indexOf('@'));
+                cmbCookie.setSelectedIndex(cmbCookie.getItemCount()-1);
+                txtCookieParam.setText(cookeOutParam);
             }
         }
         btnRequest.setEnabled(true);
@@ -348,9 +353,24 @@ public class DialogFlowNew extends AbstractDialog {
             for(Vector<Object> login: vectorCookie){
                 modelCookie.addElement(""+ login.get(0) + ". " + login.get(1) + " (" + login.get(3) + ")");
             }
+            modelCookie.addElement("From parameters ...");
             cmbCookie = new JComboBox<String>(modelCookie);
+            cmbCookie.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if(cmbCookie.getSelectedIndex() == cmbCookie.getItemCount()-1){
+                        txtCookieParam.setEnabled(true);
+                    }else{
+                        txtCookieParam.setEnabled(false);
+                    }
+                }
+            });
             cmbCookie.setEnabled(false);
-            formUtility.addLastField(cmbCookie,sequenceDetailPanel);
+            formUtility.addMiddleField(cmbCookie,sequenceDetailPanel);
+            txtCookieParam = new JTextField();
+            txtCookieParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
+            txtCookieParam.setEnabled(false);
+            formUtility.addLastField(txtCookieParam,sequenceDetailPanel);
 
             formUtility.addLabel("Edit Requests: ",sequenceDetailPanel);
 
@@ -360,7 +380,7 @@ public class DialogFlowNew extends AbstractDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     DialogFlowRequests dlg = new DialogFlowRequests();
-                    Flow_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getFlow_sequence());
+                    Flow_Sequence data = dlg.setData(sequncesJlist.getSelectedValue().getFlow_sequence(), txtParam.getText());
 //                    if(data!=null){
 //                        sequncesJlist.getSelectedValue().getFlow_sequence().(data);
 //                    }

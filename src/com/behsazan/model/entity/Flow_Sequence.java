@@ -1,6 +1,7 @@
 package com.behsazan.model.entity;
 
 import com.behsazan.model.DataUtils;
+import com.google.gson.annotations.Expose;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,12 +12,13 @@ import java.util.List;
  * Created by admin on 08/07/2017.
  */
 public class Flow_Sequence {
+    @Expose
     private Sequence sequence;
+    @Expose
     private List<Flow_Request> requests;
-//    private URL url;
-//    private String base1;
-//    private String base2;
+    @Expose
     private String cookie;
+    @Expose
     private int Id;
     private Flow flow;
 

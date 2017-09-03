@@ -7,6 +7,7 @@ import burp.IResponseInfo;
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.sqlite.RequestDb;
 import com.behsazan.model.sqlite.SqliteHelper;
+import com.google.gson.annotations.Expose;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -15,10 +16,14 @@ import java.sql.SQLException;
  * Created by admin on 07/31/2017.
  */
 public class Request {
+    @Expose
     private int order;
     private Sequence sequence;
+    @Expose
     private byte[] request;
+    @Expose
     private byte[] response;
+    @Expose
     private int id;
     private IRequestInfo analyzedRequest;
     private IResponseInfo analyzedResponse;

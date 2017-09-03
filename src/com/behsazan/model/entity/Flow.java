@@ -2,6 +2,7 @@ package com.behsazan.model.entity;
 
 import com.behsazan.model.DataUtils;
 import com.behsazan.model.sqlite.FlowDb;
+import com.google.gson.annotations.Expose;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,10 +12,15 @@ import java.util.Vector;
  * Created by admin on 08/07/2017.
  */
 public class Flow {
+    @Expose
     private String name;
+    @Expose
     private List<Flow_Sequence> seqs;
+    @Expose
     private int Id;
+    @Expose
     private String description;
+    @Expose
     private String parameters;
 
     public Flow() {
@@ -143,5 +149,14 @@ public class Flow {
             list[i] = list[i].trim();
         }
         return list;
+    }
+
+    public static List<Flow> getAllFlows() {
+        try {
+            return new FlowDb().getAllFlows();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -17,6 +17,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -38,6 +39,7 @@ public class PanelFlowRequests extends AbstractPanel {
 //    private TableModelRequestIn modelRequestIn;
     private TableModelResponseOut modelResponseOut;
     private Flow_Request currentRequest;
+    private String strParams;
 
     @Override
     protected void initUI() {
@@ -117,14 +119,59 @@ public class PanelFlowRequests extends AbstractPanel {
             btnReqParam.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addPlaceHolder(requestViewer, Settings.PARAM_IDENTIFIER);
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem jmi = new JMenuItem("var");
+                    jmi.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            addPlaceHolder(requestViewer, Settings.PARAM_IDENTIFIER);
+                        }
+                    });
+                    popup.add(jmi);
+                    String[] params = strParams.split(",");
+                    for (String p:params) {
+                        final String data = Settings.PARAM_IDENTIFIER.replace("var",p);
+                        jmi = new JMenuItem(p);
+                        jmi.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                addPlaceHolder(requestViewer, data);
+                            }
+                        });
+                        popup.add(jmi);
+                    }
+                    popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
                 }
             });
             JButton btnReqLocal = new JButton("Add local var");
             btnReqLocal.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addPlaceHolder(requestViewer, Settings.LOCAL_IDENTIFIER);
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem jmi = new JMenuItem("var");
+                    jmi.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            addPlaceHolder(requestViewer, Settings.LOCAL_IDENTIFIER);
+                        }
+                    });
+                    popup.add(jmi);
+                    Enumeration<Flow_Request> els = modelRequests.elements();
+                    while (els.hasMoreElements()) {
+                        Flow_Request rq = els.nextElement();
+                        for(ResponseOut out: rq.getOutputParams()) {
+                            final String data = Settings.LOCAL_IDENTIFIER.replace("var", out.getName());
+                            jmi = new JMenuItem(out.getName());
+                            jmi.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    addPlaceHolder(requestViewer, data);
+                                }
+                            });
+                            popup.add(jmi);
+                        }
+                    }
+                    popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
                 }
             });
             JButton btnReqGlobal = new JButton("Add Global var");
@@ -260,7 +307,7 @@ public class PanelFlowRequests extends AbstractPanel {
                     popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
                 }
             });
-            JButton edit = new JButton("?");
+            JButton edit = new JButton("Edit");
             edit.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -309,7 +356,8 @@ public class PanelFlowRequests extends AbstractPanel {
 //        return jtableRequestIn;
 //    }
 
-    public void setData(Flow_Sequence sequence) {
+    public void setData(Flow_Sequence sequence,String params) {
+        this.strParams = params;
         for (Flow_Request obj : sequence.getRequests()) {
             modelRequests.addElement(obj);
         }

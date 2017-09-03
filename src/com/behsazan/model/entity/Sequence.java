@@ -1,6 +1,7 @@
 package com.behsazan.model.entity;
 
 import com.behsazan.model.sqlite.SequenceDb;
+import com.google.gson.annotations.Expose;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -10,10 +11,15 @@ import java.util.Vector;
  * Created by admin on 07/31/2017.
  */
 public class Sequence {
+    @Expose
     private String url;
+    @Expose
     private int id;
+    @Expose
     private List<Request> request;
+    @Expose
     private String name;
+    @Expose
     private String description;
 
     public Sequence() {

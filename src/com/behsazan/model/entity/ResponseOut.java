@@ -1,5 +1,7 @@
 package com.behsazan.model.entity;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,12 +15,17 @@ public class ResponseOut {
     public static final int TYPE_CSS = 106;
     public static final int TYPE_REGEX = 107;
 
-
+    @Expose
     private int id;
+    @Expose
     private String name;
+    @Expose
     private String param;
+    @Expose
     private int type;
+    @Expose
     private boolean global;
+
     private Flow_Request flow_request;
     private static Map<Integer, String> TYPES_STRING;
 

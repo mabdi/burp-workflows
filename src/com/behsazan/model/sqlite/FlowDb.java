@@ -421,4 +421,26 @@ public class FlowDb extends SqliteHelper {
     }
 
 
+    public List<Flow> getAllFlows() throws SQLException {
+        List<Flow> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            c = getConnection();
+            stmt = c.prepareStatement("SELECT ID from FLOW");
+            rq = stmt.executeQuery();
+            while (rq.next()) {
+                res.add( getFlowById(rq.getInt(1)));
+            }
+        } finally {
+            if (rq != null)
+                rq.close();
+            if (stmt != null)
+                stmt.close();
+            if (c != null)
+                c.close();
+        }
+        return res;
+    }
 }

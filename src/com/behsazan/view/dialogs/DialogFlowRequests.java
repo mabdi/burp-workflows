@@ -24,9 +24,9 @@ public class DialogFlowRequests extends AbstractDialog {
         super(false);
     }
 
-    public Flow_Sequence setData(Flow_Sequence sequence){
+    public Flow_Sequence setData(Flow_Sequence sequence, String strParams){
         this.sequence = sequence;
-        requestsPanel.setData(sequence);
+        requestsPanel.setData(sequence,strParams);
         setVisible(true);
         return result;
     }

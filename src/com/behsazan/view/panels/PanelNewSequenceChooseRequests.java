@@ -60,6 +60,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         JPanel topPanel = new JPanel(new GridBagLayout());
         UIUtils.FormUtility form = new UIUtils.FormUtility();
         txtSeqName = new JTextField("", 20);
+        txtSeqName.requestFocus();
         txtSeqName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
         txtUrl = new JTextField("", 20);
         txtUrl.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());

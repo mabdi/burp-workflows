@@ -1,5 +1,7 @@
 package com.behsazan.model.entity;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,9 +9,13 @@ import java.util.List;
  * Created by admin on 08/07/2017.
  */
 public class Flow_Request {
+    @Expose
     private List<ResponseOut> outputParams;
+    @Expose
     private Request request;
+    @Expose
     private byte[] modifiedRequest;
+    @Expose
     private int id;
     private Flow_Sequence flowSequence;
 

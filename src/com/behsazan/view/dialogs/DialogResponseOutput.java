@@ -168,7 +168,7 @@ public class DialogResponseOutput extends AbstractDialog {
 
     private void initData(String data) {
         comboType.setSelectedItem(data);
-
+        txtPlaceHolder.requestFocus();
     }
 
     public int getSelectedType() {

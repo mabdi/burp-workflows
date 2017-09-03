@@ -49,8 +49,8 @@ public class Controller {
         }
     }
 
-    public static List<RequestListModelObject> runTestCase(Flow_Running instance, RunTestCaseListener listener){
-        List<RequestListModelObject> requests = new ArrayList<>();
+    public static List<RequestListModelObject> runTestCase(Flow_Running instance, final RunTestCaseListener listener){
+        final List<RequestListModelObject> requests = new ArrayList<>();
         for(Flow_Sequence seq : instance.getFlow().getSeqs()){
             if(listener != null && listener.isRunFinished()){
                 break;
@@ -59,24 +59,32 @@ public class Controller {
             String oldBase = seq.getSequence().getUrl();
             String newBase = instance.getBaseUrl();
             String cookie = seq.getCookie();
-            for (Flow_Request req: reqs) {
+            for (final Flow_Request req: reqs) {
                 if(listener != null && listener.isRunFinished()){
                     break;
                 }
                 List<ResponseOut> outPars = req.getOutputParams();
                 byte[] modReq = req.getModifiedRequest();
                 String[] msg = DataUtils.ExplodeRequest(modReq);
-                msg = DataUtils.changeUrlBase(msg,oldBase,newBase); // TODO Error
+                msg = DataUtils.changeUrlBase(msg,oldBase,newBase);
                 if(!cookie.isEmpty()) {
-                    msg = DataUtils.changeCookie(msg, Flow_Running.queryGlobalVariable(cookie) );
+                    msg = DataUtils.changeCookie(msg, cookie );
                 }
                 msg = DataUtils.applyParameter(msg,instance);
                 byte[] newRequest = DataUtils.buildRequest(msg);
-                RequestListModelObject obj = makeHttpRequestAndWait(newBase,newRequest);
+                final RequestListModelObject obj = makeHttpRequestAndWait(newBase,newRequest);
                 obj.setTestInstance(instance);
                 obj.setTestRequest(req);
                 for (ResponseOut outPar : outPars) {
-                    DataUtils.setOutParameters(obj,outPar,instance);
+                    DataUtils.setOutParameters(obj,outPar,instance,new OnCaptchaRefresh(){
+                        @Override
+                        public void onRefresh(RequestListModelObject requestListModelObject) {
+                            if(listener != null) {
+                                listener.publishState(requestListModelObject);
+                                requests.add(requestListModelObject);
+                            }
+                        }
+                    });
                 }
                 instance.getRequestModelItem().add(obj);
                 if(listener != null) {
@@ -118,5 +126,8 @@ public class Controller {
     }
     public interface BuildTestCaseInstancesListener{
         void publishInstance(Flow_Running instance);
+    }
+    public interface OnCaptchaRefresh{
+        void onRefresh(RequestListModelObject requestListModelObject);
     }
 }

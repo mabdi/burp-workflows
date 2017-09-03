@@ -185,7 +185,7 @@ public class TabSettings extends AbstractTab {
                     String cookie = txtSession.getText().trim();
                     String delay = txtDelay.getText().trim();
                     String strUrls = txtUrls.getText().trim();
-                    String strFilters = txtUrls.getText().trim();
+                    String strFilters = txtFilters.getText().trim();
                     if(cookie.isEmpty() || delay.isEmpty() || strUrls.isEmpty()){
                         JOptionPane.showMessageDialog(TabSettings.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;

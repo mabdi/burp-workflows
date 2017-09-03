@@ -71,6 +71,11 @@ public class DialogLoginEdit extends AbstractDialog {
             cmbUrls = new JComboBox<>(urls);
             formUtility.addLastField(cmbUrls, formPanel);
 
+            formUtility.addLabel("Out Param Name:", formPanel);
+            txtParam = new JTextField();
+            txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
+            formUtility.addLastField(txtParam, formPanel);
+
             formUtility.addLabel("Username :", formPanel);
             txtUsername = new JTextField();
             txtUsername.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
@@ -81,10 +86,6 @@ public class DialogLoginEdit extends AbstractDialog {
             txtPassword.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             formUtility.addLastField(txtPassword, formPanel);
 
-            formUtility.addLabel("Out Param Name:", formPanel);
-            txtParam = new JTextField();
-            txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtParam, formPanel);
             formUtility.addLabel("Flow :", formPanel);
             modelCombo = new DefaultComboBoxModel<>();
             cmbFlow = new JComboBox<>(modelCombo);
