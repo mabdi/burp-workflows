@@ -35,10 +35,10 @@ public class TabFlow extends AbstractTab {
         add(getToolbar(), BorderLayout.NORTH);
         add(getTable(), BorderLayout.CENTER);
 
-        table.getColumnModel().getColumn(0).setPreferredWidth(10);
-        table.getColumnModel().getColumn(1).setPreferredWidth(400);
-        table.getColumnModel().getColumn(2).setPreferredWidth(40);
-        table.getColumnModel().getColumn(3).setPreferredWidth(40);
+        table.getColumnModel().getColumn(0).setMinWidth(10);
+        table.getColumnModel().getColumn(1).setMinWidth(400);
+        table.getColumnModel().getColumn(2).setMinWidth(40);
+        table.getColumnModel().getColumn(3).setMinWidth(40);
     }
 
     @Override
