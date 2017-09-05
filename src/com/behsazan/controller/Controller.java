@@ -86,7 +86,7 @@ public class Controller {
                         }
                     });
                 }
-                instance.getRequestModelItem().add(obj);
+                instance.addItemToRequests(obj);
                 if(listener != null) {
                     listener.publishState(obj);
                     requests.add(obj);

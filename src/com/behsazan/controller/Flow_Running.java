@@ -4,6 +4,7 @@ import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Flow;
 import com.behsazan.model.sqlite.GlobalsDb;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,6 +25,11 @@ public class Flow_Running {
     private String baseUrl;
     private int order;
 
+    private List<RequestListModelObject> requestModelItem;
+    private DefaultTableModel modelLocal;
+//    private DefaultListModel<RequestListModelObject> modelRequests;
+
+
     static {
         try {
             GLOBALS = new GlobalsDb().loadGlobals();
@@ -33,10 +39,11 @@ public class Flow_Running {
         }
     }
 
-    private List<RequestListModelObject> requestModelItem;
-    private DefaultTableModel modelLocal;
-
     public Flow_Running() {
+    }
+
+    public List<RequestListModelObject> getRequestModelItem() {
+        return requestModelItem;
     }
 
     public Flow_Running(Flow flow, String baseUrl, Map<String, String> params, int order) {
@@ -58,6 +65,7 @@ public class Flow_Running {
         localsToTableModel();
     }
 
+
     public String queryLocalVariable(String key){
         return locals.get(key);
     }
@@ -77,9 +85,13 @@ public class Flow_Running {
     }
 
 
-    public List<RequestListModelObject> getRequestModelItem() {
-        return requestModelItem;
+    public void addItemToRequests(RequestListModelObject obj) {
+        requestModelItem.add(obj);
     }
+
+//    public void addItemToRequestsModel(RequestListModelObject obj){
+//        getRequestsListModel().addElement(obj);
+//    }
 
     public Flow getFlow() {
         return flow;
@@ -144,4 +156,11 @@ public class Flow_Running {
     public Map<String, String> getParams() {
         return params;
     }
+
+//    public DefaultListModel<RequestListModelObject> getRequestsListModel() {
+//        if(modelRequests == null){
+//            modelRequests = new DefaultListModel<>();
+//        }
+//        return modelRequests;
+//    }
 }

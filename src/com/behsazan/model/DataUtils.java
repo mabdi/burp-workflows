@@ -110,7 +110,7 @@ public class DataUtils {
         return msg;
     }
 
-    public static String[] changeReferer(String[] msg, String newHost) {
+    private static String[] changeReferer(String[] msg, String newHost) {
         for (int i=0;i<msg.length;i++) {
             if (msg[i].trim().isEmpty()) {
                 break;
@@ -133,7 +133,7 @@ public class DataUtils {
         return msg;
     }
 
-    public static String[] changeHost(String[] msg, String newHost) {
+    private static String[] changeHost(String[] msg, String newHost) {
         for (int i=0;i<msg.length;i++) {
             if (msg[i].trim().isEmpty()) {
                 break;
@@ -176,7 +176,11 @@ public class DataUtils {
 
             String line1 = msg[0].trim();
             String[] line1parts = line1.split(" ");
-            line1parts[1] = line1parts[1].replace(urlOld.getPath(),urlNew.getPath());
+            if(!urlOld.getPath().isEmpty()) {
+                line1parts[1] = line1parts[1].replace(urlOld.getPath(), urlNew.getPath());
+            }else{
+                line1parts[1] = urlNew.getPath() + line1parts[1];
+            }
             msg[0] = StringUtils.join(line1parts," ");
 //            String[] pathes = line1parts[1].split("/");
 //            if(pathes.length>1 && pathes[1].equals(oldBase.trim())){

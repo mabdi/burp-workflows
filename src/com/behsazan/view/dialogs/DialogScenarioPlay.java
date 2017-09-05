@@ -1,13 +1,10 @@
 package com.behsazan.view.dialogs;
 
-import burp.ICookie;
 import com.behsazan.controller.Controller;
 import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Flow;
-import com.behsazan.model.entity.Login;
 import com.behsazan.model.entity.Scenario;
-import com.behsazan.model.settings.Settings;
 import com.behsazan.view.abstracts.AbstractDialog;
 import com.behsazan.view.panels.PanelFlowPlay;
 
@@ -17,10 +14,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by admin on 08/02/2017.

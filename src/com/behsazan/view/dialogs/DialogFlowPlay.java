@@ -50,7 +50,7 @@ public class DialogFlowPlay extends AbstractDialog {
     private JComboBox<String> cmbUrls;
     private JComboBox<String> cmbParams;
     private JTextArea txtValues;
-    private Map<String ,String[]> params;
+    private Map<String, String[]> params;
     private boolean testIsRunning;
     private DefaultComboBoxModel<String> modelParams;
 
@@ -61,9 +61,9 @@ public class DialogFlowPlay extends AbstractDialog {
         testIsRunning = false;
     }
 
-    public void setData(final int id){
+    public void setData(final int id) {
         final DialogWaiting waitDialog = DialogWaiting.showWaitingDialog(this);
-        final SwingWorker<Void,Flow_Running> worker = new SwingWorker<Void,Flow_Running>() {
+        final SwingWorker<Void, Flow_Running> worker = new SwingWorker<Void, Flow_Running>() {
             @Override
             protected Void doInBackground() throws Exception {
                 DialogFlowPlay.this.flow = Flow.getById(id);
@@ -80,7 +80,7 @@ public class DialogFlowPlay extends AbstractDialog {
             public void run() {
                 worker.execute();
                 waitDialog.setVisible(true);
-                for(String u: flow.getParametersExploded()){
+                for (String u : flow.getParametersExploded()) {
                     modelParams.addElement(u);
                 }
             }
@@ -91,7 +91,7 @@ public class DialogFlowPlay extends AbstractDialog {
 
     @Override
     protected void initUI() {
-        setSize(800,600);
+        setSize(800, 600);
         setTitle("Play Flow");
         setLocationRelativeTo(getParentWindow());
         installEscapeCloseOperation();
@@ -127,7 +127,7 @@ public class DialogFlowPlay extends AbstractDialog {
     }
 
     public JPanel getButtonsPanel() {
-        if(buttonsPanel==null){
+        if (buttonsPanel == null) {
             buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancelBtn = new JButton("Cancel");
             cancelBtn.addActionListener(new ActionListener() {
@@ -140,18 +140,18 @@ public class DialogFlowPlay extends AbstractDialog {
             actionBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if(actionBtn.getText().equalsIgnoreCase("next")){
+                    if (actionBtn.getText().equalsIgnoreCase("next")) {
                         updateParams((String) cmbParams.getSelectedItem());
                         cardLayout.next(cardPanel);
                         actionBtn.setText("Run");
                         calcInstances();
                         return;
                     }
-                    if(actionBtn.getText().equalsIgnoreCase("run") ||
-                            actionBtn.getText().equalsIgnoreCase("stop")){
-                        if(testIsRunning){
+                    if (actionBtn.getText().equalsIgnoreCase("run") ||
+                            actionBtn.getText().equalsIgnoreCase("stop")) {
+                        if (testIsRunning) {
                             forceStop = true;
-                        }else {
+                        } else {
                             testIsRunning = true;
                             forceStop = false;
                             mPlayInstancePanel.modelRequestClear();
@@ -170,11 +170,11 @@ public class DialogFlowPlay extends AbstractDialog {
     }
 
     private void runTest() {
-        SwingWorker<Void,RequestListModelObject> worker = new SwingWorker<Void, RequestListModelObject>() {
+        SwingWorker<Void, RequestListModelObject> worker = new SwingWorker<Void, RequestListModelObject>() {
             @Override
             protected Void doInBackground() throws Exception {
-                for (Flow_Running instance: flow_runnings) {
-                    if(forceStop){
+                for (Flow_Running instance : flow_runnings) {
+                    if (forceStop) {
                         break;
                     }
                     Controller.runTestCase(instance, new Controller.RunTestCaseListener() {
@@ -196,7 +196,8 @@ public class DialogFlowPlay extends AbstractDialog {
             @Override
             protected void process(List<RequestListModelObject> chunks) {
                 for (RequestListModelObject obj : chunks) {
-                    if(instancesJlist.getSelectedValue() == null || !instancesJlist.getSelectedValue().equals(obj.getTestInstance())) {
+//                    obj.getTestInstance().addItemToRequestsModel(obj);
+                    if (instancesJlist.getSelectedValue() == null || !instancesJlist.getSelectedValue().equals(obj.getTestInstance())) {
                         instancesJlist.setSelectedValue(obj.getTestInstance(), true);
                     }
                     mPlayInstancePanel.addNewRequest(obj);
@@ -215,17 +216,15 @@ public class DialogFlowPlay extends AbstractDialog {
     }
 
     public JList getInstanceJListPanel() {
-        if(instancesJlist == null){
+        if (instancesJlist == null) {
             modelInstances = new DefaultListModel<>();
             instancesJlist = new JList(modelInstances);
             instancesJlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             instancesJlist.addListSelectionListener(new ListSelectionListener() {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
-                    if(e.getValueIsAdjusting()) {
-                        currentlyDisplayedInstance = (Flow_Running) instancesJlist.getSelectedValue();
-                        mPlayInstancePanel.updateInstance(currentlyDisplayedInstance);
-                    }
+                    currentlyDisplayedInstance = (Flow_Running) instancesJlist.getSelectedValue();
+                    mPlayInstancePanel.updateInstance(currentlyDisplayedInstance);
                 }
             });
         }
@@ -233,19 +232,19 @@ public class DialogFlowPlay extends AbstractDialog {
     }
 
     public JPanel getParamPanel() {
-        if(paramPanel == null){
+        if (paramPanel == null) {
             paramPanel = new JPanel(new GridBagLayout());
             UIUtils.FormUtility formUtility = new UIUtils.FormUtility();
 
-            formUtility.addLabel("Base URL: ",paramPanel);
+            formUtility.addLabel("Base URL: ", paramPanel);
             DefaultComboBoxModel<String> urls = new DefaultComboBoxModel<String>();
-            for(String u: Settings.getBaseUrls()){
+            for (String u : Settings.getBaseUrls()) {
                 urls.addElement(u);
             }
             cmbUrls = new JComboBox<>(urls);
-            formUtility.addLastField(cmbUrls,paramPanel);
+            formUtility.addLastField(cmbUrls, paramPanel);
 
-            formUtility.addLabel("Parameters: ",paramPanel);
+            formUtility.addLabel("Parameters: ", paramPanel);
             modelParams = new DefaultComboBoxModel<>();
             cmbParams = new JComboBox<>(modelParams);
             cmbParams.addItemListener(new ItemListener() {
@@ -259,14 +258,14 @@ public class DialogFlowPlay extends AbstractDialog {
                     }
                 }
             });
-            formUtility.addLastField(cmbParams,paramPanel);
+            formUtility.addLastField(cmbParams, paramPanel);
 
-            formUtility.addLabel("Values: ",paramPanel);
-            txtValues = new JTextArea(5,10);
+            formUtility.addLabel("Values: ", paramPanel);
+            txtValues = new JTextArea(5, 10);
             txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtValues,paramPanel);
+            formUtility.addLastField(txtValues, paramPanel);
 
-            formUtility.addLabel("",paramPanel);
+            formUtility.addLabel("", paramPanel);
             JButton btnLoadFromFile = new JButton("Load from file");
             btnLoadFromFile.addActionListener(new ActionListener() {
                 @Override
@@ -301,33 +300,33 @@ public class DialogFlowPlay extends AbstractDialog {
             });
             JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
             jp.add(btnLoadFromFile);
-            formUtility.addLastField(jp,paramPanel);
+            formUtility.addLastField(jp, paramPanel);
         }
         return paramPanel;
     }
 
-    private void appendLine(String line){
+    private void appendLine(String line) {
         txtValues.append(line);
         txtValues.append("\n");
     }
 
-    private void updateParams(String name){
+    private void updateParams(String name) {
         String[] list = txtValues.getText().split("\n");
-        params.put(name ,list);
+        params.put(name, list);
     }
 
-    private void showParams(String name){
+    private void showParams(String name) {
         String[] list = params.get(name);
-        txtValues.setText(StringUtils.join(list,'\n'));
+        txtValues.setText(StringUtils.join(list, '\n'));
     }
 
-    private void calcInstances(){
+    private void calcInstances() {
         final DialogWaiting waitDialog = DialogWaiting.showWaitingDialog(this);
-        final SwingWorker<Void,Flow_Running> worker = new SwingWorker<Void,Flow_Running>() {
+        final SwingWorker<Void, Flow_Running> worker = new SwingWorker<Void, Flow_Running>() {
             @Override
             protected Void doInBackground() throws Exception {
                 String baseUrl = (String) cmbUrls.getSelectedItem();
-                flow_runnings = Controller.buildTestCaseInstances(DialogFlowPlay.this.flow,baseUrl,params, new Controller.BuildTestCaseInstancesListener() {
+                flow_runnings = Controller.buildTestCaseInstances(DialogFlowPlay.this.flow, baseUrl, params, new Controller.BuildTestCaseInstancesListener() {
                     @Override
                     public void publishInstance(Flow_Running instance) {
                         publish(instance);
@@ -338,6 +337,7 @@ public class DialogFlowPlay extends AbstractDialog {
 
             @Override
             protected void done() {
+                instancesJlist.setSelectedIndex(0);
                 DialogWaiting.closeWaitingDialog(waitDialog);
             }
 
@@ -345,6 +345,7 @@ public class DialogFlowPlay extends AbstractDialog {
             protected void process(List<Flow_Running> chunks) {
                 for (Flow_Running ins : chunks) {
                     modelInstances.addElement(ins);
+
                 }
             }
         };

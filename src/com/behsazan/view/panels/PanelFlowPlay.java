@@ -43,7 +43,11 @@ public class PanelFlowPlay extends AbstractPanel {
 
     public void updateInstance(Flow_Running instance){
         currentlyDisplayedInstance = instance;
-        updateRequest();
+        modelRequest.clear();
+        for(RequestListModelObject obj: currentlyDisplayedInstance.getRequestModelItem()){
+            modelRequest.addElement(obj);
+        }
+        updateRequestInfo();
     }
 
     public JSplitPane getSplitPaneRequests() {
@@ -87,6 +91,10 @@ public class PanelFlowPlay extends AbstractPanel {
         jtableLocals.setModel(currentlyDisplayedInstance.localsToTableModel());
     }
 
+    public void addNewRequest(RequestListModelObject obj) {
+
+        modelRequest.addElement(obj);
+    }
 
 
     public JTabbedPane getTabs() {
@@ -183,20 +191,8 @@ public class PanelFlowPlay extends AbstractPanel {
         return jtableGlobals;
     }
 
-    private void updateRequest() {
-        modelRequest.clear();
-        for(RequestListModelObject obj: currentlyDisplayedInstance.getRequestModelItem()){
-            modelRequest.addElement(obj);
-        }
-        jtableLocals.setModel(currentlyDisplayedInstance.localsToTableModel());
-    }
-
     public void modelRequestClear() {
         modelRequest.clear();
     }
 
-    public void addNewRequest(RequestListModelObject obj) {
-
-        modelRequest.addElement(obj);
-    }
 }

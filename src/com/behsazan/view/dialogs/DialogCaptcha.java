@@ -24,6 +24,7 @@ public class DialogCaptcha extends AbstractDialog {
     private BufferedImage img;
     private RequestListModelObject requestListModelObject;
     private Controller.OnCaptchaRefresh onRefresh;
+    private JLabel picLabel;
 
     public DialogCaptcha() {
         super(false);
@@ -46,8 +47,7 @@ public class DialogCaptcha extends AbstractDialog {
         BufferedImage img = DataUtils.getImageObject(bodyBytes);
 
         this.img = img;
-        JLabel picLabel = new JLabel(new ImageIcon(img));
-        add(picLabel,BorderLayout.CENTER);
+        picLabel.setIcon(new ImageIcon(img));
         pack();
     }
 
@@ -58,6 +58,8 @@ public class DialogCaptcha extends AbstractDialog {
         setLocationRelativeTo(getParentWindow());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         add(getControlls(), BorderLayout.SOUTH);
+        picLabel = new JLabel("");
+        add(picLabel,BorderLayout.CENTER);
     }
 
     public JPanel getControlls() {
@@ -88,11 +90,22 @@ public class DialogCaptcha extends AbstractDialog {
     }
 
     private void doRefresh() {
-        requestListModelObject = Controller.makeHttpRequest(requestListModelObject.getHttpService(), requestListModelObject.getRequest());
-        if(onRefresh!=null){
-            onRefresh.onRefresh(requestListModelObject);
-        }
-        buildImg();
+        new SwingWorker<Void,Void>(){
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                requestListModelObject = Controller.makeHttpRequest(requestListModelObject.getHttpService(), requestListModelObject.getRequest());
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                if(onRefresh!=null){
+                    onRefresh.onRefresh(requestListModelObject);
+                }
+                buildImg();
+            }
+        }.execute();
     }
 
     public JTextField getTextField() {

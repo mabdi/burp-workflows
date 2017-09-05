@@ -61,12 +61,18 @@ public class TabSettings extends AbstractTab {
             backupButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    UIUtils.invokeNotInDispatchThreadIfNeeded(new Runnable() {
+                    new SwingWorker<Void, Void>() {
                         @Override
-                        public void run() {
+                        protected Void doInBackground() throws Exception {
                             Settings.backupDb(TabSettings.this);
+                            return null;
                         }
-                    });
+
+                        @Override
+                        protected void done() {
+                            super.done();
+                        }
+                    }.execute();
 
                 }
             });

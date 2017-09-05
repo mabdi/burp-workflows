@@ -11,10 +11,7 @@ import com.behsazan.view.dialogs.DialogWaiting;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.sql.SQLException;
 
 /**
@@ -25,6 +22,7 @@ public class TabScenarios extends AbstractTab {
     private JTable table;
     private TableModelScenarios tableModel;
     private JScrollPane tableScroll;
+    private JPopupMenu popup;
 
     @Override
     protected void initUI() {
@@ -63,40 +61,14 @@ public class TabScenarios extends AbstractTab {
             editView.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogScenarioEdit dlg = new DialogScenarioEdit();
-                    dlg.setData(id);
-                    dlg.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosed(WindowEvent e) {
-                            refreshMainView();
-                        }
-                    });
+                    actionEdit();
                 }
             });
             JButton clone = new JButton("Clone");
             clone.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-
-                    try {
-                        Scenario.cloneScenario(id);
-                        refreshMainView();
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                        UIUtils.showGenerealError( );
-                    }
+                    actionClone();
 
 
                 }
@@ -105,46 +77,14 @@ public class TabScenarios extends AbstractTab {
             delete.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    final int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    int response = JOptionPane.showConfirmDialog(TabScenarios.this,"Are you sure to delete Scenario with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
-                    if(response == JOptionPane.YES_OPTION){
-                        final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabScenarios.this);
-                        final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
-
-                            @Override
-                            protected Void doInBackground() throws SQLException {
-                                Scenario.deleteScenario(id);
-                                return null;
-                            }
-
-                            @Override
-                            protected void done() {
-                                pleaseWaitDialog.dispose();
-                                refreshMainView();
-                            }
-                        };
-                        worker.execute();
-                        pleaseWaitDialog.setVisible(true);
-                    }
+                    actionDelete();
                 }
             });
             JButton playTest = new JButton("Play/Test");
             playTest.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogScenarioPlay dlg = new DialogScenarioPlay();
-                    dlg.setData(id);
+                    actionPlay();
 
                 }
             });
@@ -163,12 +103,143 @@ public class TabScenarios extends AbstractTab {
     }
 
     public Component getTable() {
-        if(tableScroll == null){
+        if(tableScroll == null) {
             table = new JTable();
             tableModel = new TableModelScenarios();
             table.setModel(tableModel);
             tableScroll = new JScrollPane(table);
+            table.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                }
+
+                public void mouseReleased(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        JTable source = (JTable) e.getSource();
+                        int row = source.rowAtPoint(e.getPoint());
+                        int column = source.columnAtPoint(e.getPoint());
+
+                        if (!source.isRowSelected(row))
+                            source.changeSelection(row, column, false, false);
+
+                        getJtablePopup().show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            });
         }
         return tableScroll;
+    }
+
+
+    private JPopupMenu getJtablePopup() {
+        if(popup == null) {
+            popup = new JPopupMenu();
+            JMenuItem menuItemEdit = new JMenuItem("Edit");
+            menuItemEdit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionEdit();
+                }
+            });
+            JMenuItem menuItemClone = new JMenuItem("Clone");
+            menuItemClone.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionClone();
+                }
+            });
+            JMenuItem menuItemDelete = new JMenuItem("Delete");
+            menuItemDelete.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionDelete();
+                }
+            });
+            JMenuItem menuItemPlay = new JMenuItem("Test");
+            menuItemPlay.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionPlay();
+                }
+            });
+            popup.add(menuItemEdit);
+            popup.add(menuItemClone);
+            popup.add(menuItemDelete);
+            popup.add(menuItemPlay);
+        }
+        return  popup;
+    }
+
+    private void actionClone() {
+        int tableSelectedRow = table.getSelectedRow();
+        if(tableSelectedRow<0){
+            JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+
+        try {
+            Scenario.cloneScenario(id);
+            refreshMainView();
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+            UIUtils.showGenerealError( );
+        }
+    }
+
+    private void actionDelete() {
+        int tableSelectedRow = table.getSelectedRow();
+        if(tableSelectedRow<0){
+            JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        final int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+        int response = JOptionPane.showConfirmDialog(TabScenarios.this,"Are you sure to delete Scenario with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+        if(response == JOptionPane.YES_OPTION){
+            final DialogWaiting pleaseWaitDialog = DialogWaiting.showWaitingDialog(TabScenarios.this);
+            final SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+
+                @Override
+                protected Void doInBackground() throws SQLException {
+                    Scenario.deleteScenario(id);
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    pleaseWaitDialog.dispose();
+                    refreshMainView();
+                }
+            };
+            worker.execute();
+            pleaseWaitDialog.setVisible(true);
+        }
+    }
+
+    private void actionPlay() {
+        int tableSelectedRow = table.getSelectedRow();
+        if(tableSelectedRow<0){
+            JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+        DialogScenarioPlay dlg = new DialogScenarioPlay();
+        dlg.setData(id);
+    }
+
+    private void actionEdit() {
+        int tableSelectedRow = table.getSelectedRow();
+        if(tableSelectedRow<0){
+            JOptionPane.showMessageDialog(TabScenarios.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+        DialogScenarioEdit dlg = new DialogScenarioEdit();
+        dlg.setData(id);
+        dlg.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                refreshMainView();
+            }
+        });
     }
 }

@@ -13,10 +13,7 @@ import com.behsazan.view.dialogs.DialogSequencePlay;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.sql.SQLException;
 
 /**
@@ -28,6 +25,7 @@ public class TabSequnces extends AbstractTab {
     private JTable table;
     private Component tableScroll;
     private TableModelSequences tableModel;
+    private JPopupMenu popup;
 
     @Override
     protected void initUI() {
@@ -54,86 +52,28 @@ public class TabSequnces extends AbstractTab {
             newNoCookie.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    BurpExtender.getInstance().getCallbacks().setProxyInterceptionEnabled(false);
-                    DialogSequenceNew dlg = new DialogSequenceNew();
-                    dlg.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosed(WindowEvent e) {
-                            refreshMainView();
-                        }
-                    });
+                    actionNew();
                 }
             });
             JButton editView = new JButton("Edit/View");
             editView.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    DialogSequenceEdit dlg = new DialogSequenceEdit(id);
-                    dlg.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosed(WindowEvent e) {
-                            refreshMainView();
-                        }
-                    });
+                    actionEdit();
                 }
             });
             JButton clone = new JButton("Clone");
             clone.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    String name = (String) tableModel.getValueAt(tableSelectedRow,1);
-                    String response = JOptionPane.showInputDialog(TabSequnces.this,"Enter new sequence Name: ","Copy Of " + name);
-                    if(response!= null && !response.isEmpty()){
-                        if(Sequence.isSequenceNameUsed(response)){
-                            JOptionPane.showMessageDialog(TabSequnces.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        try {
-                            Sequence.cloneSequence(id,response);
-                        } catch (SQLException e1) {
-                            e1.printStackTrace();
-                            UIUtils.showGenerealError();
-                        }
-                        refreshMainView();
-                    }
+                    actionClone();
                 }
             });
             JButton delete = new JButton("Delete");
             delete.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int tableSelectedRow = table.getSelectedRow();
-                    if(tableSelectedRow<0){
-                        JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
-                    if(!Sequence.isPossibleToDeleteSequence(id)){
-                        JOptionPane.showMessageDialog(TabSequnces.this,"The Sequence is used somewhere.","Oops!",JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    int response = JOptionPane.showConfirmDialog(TabSequnces.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
-                    if(response == JOptionPane.YES_OPTION){
-                        try {
-                            Sequence.deleteSequence(id);
-                            refreshMainView();
-                        } catch (SQLException e1) {
-                            e1.printStackTrace();
-                            UIUtils.showGenerealError( );
-                        }
-                    }
+                    actionDelete();
                 }
             });
 //            JButton playTest = new JButton("Play/Test");
@@ -160,6 +100,80 @@ public class TabSequnces extends AbstractTab {
         return toolbar;
     }
 
+    private void actionDelete() {
+        int tableSelectedRow = table.getSelectedRow();
+        if(tableSelectedRow<0){
+            JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+        if(!Sequence.isPossibleToDeleteSequence(id)){
+            JOptionPane.showMessageDialog(TabSequnces.this,"The Sequence is used somewhere.","Oops!",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int response = JOptionPane.showConfirmDialog(TabSequnces.this,"Are you sure to delete sequence with Id="+id,"Delete",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+        if(response == JOptionPane.YES_OPTION){
+            try {
+                Sequence.deleteSequence(id);
+                refreshMainView();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+                UIUtils.showGenerealError( );
+            }
+        }
+    }
+
+    private void actionClone() {
+        int tableSelectedRow = table.getSelectedRow();
+        if(tableSelectedRow<0){
+            JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+        String name = (String) tableModel.getValueAt(tableSelectedRow,1);
+        String response = JOptionPane.showInputDialog(TabSequnces.this,"Enter new sequence Name: ","Copy Of " + name);
+        if(response!= null && !response.isEmpty()){
+            if(Sequence.isSequenceNameUsed(response)){
+                JOptionPane.showMessageDialog(TabSequnces.this,"The name is duplicated.","Error",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            try {
+                Sequence.cloneSequence(id,response);
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+                UIUtils.showGenerealError();
+            }
+            refreshMainView();
+        }
+    }
+
+    private void actionEdit() {
+        int tableSelectedRow = table.getSelectedRow();
+        if(tableSelectedRow<0){
+            JOptionPane.showMessageDialog(TabSequnces.this,"No row is selected.","Oops!",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) tableModel.getValueAt(tableSelectedRow,0);
+        DialogSequenceEdit dlg = new DialogSequenceEdit(id);
+        dlg.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                refreshMainView();
+            }
+        });
+    }
+
+    private void actionNew() {
+        BurpExtender.getInstance().getCallbacks().setProxyInterceptionEnabled(false);
+        DialogSequenceNew dlg = new DialogSequenceNew();
+        dlg.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                refreshMainView();
+            }
+        });
+    }
+
     private void refreshMainView() {
         tableModel.updateData();
         tableModel.fireTableDataChanged();
@@ -171,8 +185,60 @@ public class TabSequnces extends AbstractTab {
             tableModel = new TableModelSequences();
             table.setModel(tableModel);
             tableScroll = new JScrollPane(table);
+            table.addMouseListener( new MouseAdapter()
+            {
+                public void mousePressed(MouseEvent e)
+                {
+                }
+
+                public void mouseReleased(MouseEvent e)
+                {
+                    if (e.isPopupTrigger())
+                    {
+                        JTable source = (JTable)e.getSource();
+                        int row = source.rowAtPoint( e.getPoint() );
+                        int column = source.columnAtPoint( e.getPoint() );
+
+                        if (! source.isRowSelected(row))
+                            source.changeSelection(row, column, false, false);
+
+                        getJtablePopup().show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            });
         }
         return tableScroll;
+    }
+
+    private JPopupMenu getJtablePopup() {
+        if(popup == null) {
+            popup = new JPopupMenu();
+            JMenuItem menuItemEdit = new JMenuItem("Edit");
+            menuItemEdit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionEdit();
+                }
+            });
+            JMenuItem menuItemClone = new JMenuItem("Clone");
+            menuItemClone.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionClone();
+                }
+            });
+            JMenuItem menuItemDelete = new JMenuItem("Delete");
+            menuItemDelete.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actionDelete();
+                }
+            });
+            popup.add(menuItemEdit);
+            popup.add(menuItemClone);
+            popup.add(menuItemDelete);
+        }
+        return  popup;
     }
 
 }

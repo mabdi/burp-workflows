@@ -4,6 +4,7 @@ import burp.BurpExtender;
 import com.behsazan.model.sqlite.SettingDb;
 import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.tabs.TabSettings;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -74,6 +75,7 @@ public class Settings {
             retval = new SettingDb().loadSettings(key);
             if(retval == null){
                 retval = default_val;
+                new SettingDb().updateKey(key, default_val);
             }
         } catch (SQLException e) {
 
@@ -87,6 +89,7 @@ public class Settings {
         try {
             String val = new SettingDb().loadSettings(key);
             if(val == null){
+                new SettingDb().updateKey(key, StringUtils.join(default_val,"\n" ) );
                 retval = default_val;
             }else{
                 retval = val.split("\n");
