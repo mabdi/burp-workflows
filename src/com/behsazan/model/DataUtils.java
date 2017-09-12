@@ -9,6 +9,7 @@ import com.behsazan.model.settings.Settings;
 import com.behsazan.view.dialogs.DialogCaptcha;
 import com.google.gson.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,6 +22,7 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
@@ -414,5 +416,14 @@ public class DataUtils {
             return new JsonPrimitive(Base64.encodeToString(src, Base64.NO_WRAP));
         }
 
+    }
+
+    public static String readAsset(String filename) throws IOException {
+        URL url = new URL("jar:file:/"+BurpExtender.getInstance().getCallbacks().getExtensionFilename()+"!/assets/"+ filename);
+        InputStream in = url.openStream();
+//        InputStream in = DataUtils.class.getClassLoader().getResourceAsStream("/assets/" + filename);
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(in, writer, StandardCharsets.UTF_8);
+        return writer.toString();
     }
 }

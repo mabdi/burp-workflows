@@ -47,6 +47,12 @@ public class Settings {
             ".jpg",
             ".pdf"
     };
+    public static final String FILENAME_ON_TEST_START = "on_test_start";
+    public static final String FILENAME_ON_TEST_FINISH = "on_test_finish";
+    public static final String FILENAME_ON_REQUEST_BEFORE_ASSIGNMENT = "on_request_before";
+    public static final String FILENAME_ON_REQUEST_AFTER_ASSIGNMENT = "on_request_after";
+    public static final String FILENAME_ON_RESPONSE_RECEIVED = "on_response";
+
 
     public static void backupDb(TabSettings tabSettings) {
         SqliteHelper db = new SqliteHelper();

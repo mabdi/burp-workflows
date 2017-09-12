@@ -1,6 +1,9 @@
 package com.behsazan.view.dialogs;
 
+import burp.BurpExtender;
+import com.behsazan.model.DataUtils;
 import com.behsazan.model.entity.Script;
+import com.behsazan.model.settings.Settings;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -11,6 +14,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -26,6 +31,7 @@ public class DialogScriptNew extends AbstractDialog {
     private JComboBox<String> comboType;
     private JComboBox<String> comboLang;
     private RSyntaxTextArea textArea;
+
 
     @Override
     protected void initUI() {
@@ -56,6 +62,12 @@ public class DialogScriptNew extends AbstractDialog {
                 modelCombo.addElement(v);
             }
             comboType.setModel(modelCombo);
+            comboType.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    updateEditor();
+                }
+            });
             form.addLastField(comboType,topPanel);
 
             form.addLabel("Language:",topPanel);
@@ -69,25 +81,56 @@ public class DialogScriptNew extends AbstractDialog {
             comboLang.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    switch (getSelectedLang()){
-                        case Script.LANG_JS:
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
-                            textArea.revalidate();
-                            break;
-                        case Script.LANG_PYTHON:
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
-                            textArea.revalidate();
-                            break;
-                        case Script.LANG_RUBY:
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_RUBY);
-                            textArea.revalidate();
-                            break;
-                    }
+                    updateEditor();
                 }
             });
             form.addLastField(comboLang,topPanel);
         }
         return topPanel;
+    }
+
+    private void updateEditor() {
+        String ext = ".js";
+
+        switch (getSelectedLang()){
+            case Script.LANG_JS:
+                textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+                textArea.setEditable(true);
+                ext = ".js";
+                break;
+            case Script.LANG_PYTHON:
+                textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+                textArea.setEditable(true);
+                ext = ".py";
+                break;
+            case Script.LANG_RUBY:
+                textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_RUBY);
+                textArea.setEditable(true);
+                ext = ".rb";
+                break;
+        }
+        try {
+            switch (getSelectedType()) {
+                case Script.TYPE_ON_TEST_START:
+                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_TEST_START + ext));
+                    break;
+                case Script.TYPE_ON_TEST_FINISH:
+                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_TEST_FINISH + ext));
+                    break;
+                case Script.TYPE_ON_REQUEST_BEFORE_ASSIGNMENT:
+                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_REQUEST_BEFORE_ASSIGNMENT + ext));
+                    break;
+                case Script.TYPE_ON_REQUEST_AFTER_ASSIGNMENT:
+                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_REQUEST_AFTER_ASSIGNMENT + ext));
+                    break;
+                case Script.TYPE_ON_RESPONSE_RECEIVED:
+                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_RESPONSE_RECEIVED + ext));
+                    break;
+            }
+        }catch (IOException ex){
+            ex.printStackTrace(BurpExtender.getInstance().getStdout());
+        }
+        textArea.revalidate();
     }
 
     public int getSelectedType() {
@@ -117,6 +160,7 @@ public class DialogScriptNew extends AbstractDialog {
             textArea = new RSyntaxTextArea(20, 60);
             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
             textArea.setCodeFoldingEnabled(true);
+            textArea.setEditable(true);
             centerCodeEditor = new RTextScrollPane(textArea);
         }
         return centerCodeEditor;
