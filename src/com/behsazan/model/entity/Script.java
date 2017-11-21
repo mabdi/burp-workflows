@@ -156,4 +156,13 @@ public class Script {
     public static void insert(Script script) throws SQLException {
         new ScriptDb().insertScript(script);
     }
+
+    public static Script getById(int id) {
+        try {
+            return new ScriptDb().getScriptById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

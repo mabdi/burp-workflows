@@ -1,7 +1,5 @@
 package com.behsazan.model.sqlite;
 
-import com.behsazan.model.DataUtils;
-import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Script;
 
 import java.sql.*;
@@ -166,6 +164,4 @@ public class ScriptDb extends SqliteHelper {
 
         return res;
     }
-
-
 }

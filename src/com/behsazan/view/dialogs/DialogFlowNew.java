@@ -40,6 +40,7 @@ public class DialogFlowNew extends AbstractDialog {
     private Vector<Vector<Object>> vectorCookie;
     private JTextArea txtParam;
     private JTextField txtDescription;
+    private List<Script> selectedScripts;
 
     public DialogFlowNew() {
         super();
@@ -76,6 +77,22 @@ public class DialogFlowNew extends AbstractDialog {
             txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             form.addLastField(new JScrollPane(txtParam));
 
+            form.addLabel("Scripts:");
+            JPanel jpn = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JButton btn = new JButton("Manage Scripts");
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DialogFlowScripts dlg = new DialogFlowScripts();
+                    List<Script> scripts = dlg.getData();
+                    if(scripts!=null){
+                        DialogFlowNew.this.selectedScripts = scripts;
+                    }
+                }
+            });
+            jpn.add(btn);
+            form.addLastField(jpn);
+
         }
         return topPanel;
     }
@@ -96,6 +113,7 @@ public class DialogFlowNew extends AbstractDialog {
     public JPanel getButtonsPanel() {
         if(buttonsPanel==null){
             buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
             JButton cancelBtn = new JButton("Cancel");
             cancelBtn.addActionListener(new ActionListener() {
                 @Override
@@ -361,6 +379,7 @@ public class DialogFlowNew extends AbstractDialog {
             JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
             jp.add(btnRequest);
             formUtility.addLastField(jp);
+            formUtility.fillReminder();
         }
         return sequenceDetailPanel;
     }

@@ -50,21 +50,6 @@ public class DialogScriptNew extends AbstractDialog {
         comboLang.setSelectedIndex(0);
         comboType.setSelectedIndex(0);
 
-
-
-
-//        URLClassLoader ucl = (URLClassLoader) DataUtils.class.getClassLoader();
-//        for(URL url : ucl.getURLs()) {
-//            BurpExtender.getInstance().getCallbacks().printOutput(url.toString());
-//        }
-//
-//        InputStream in = DataUtils.class.getClassLoader().getResourceAsStream("assets/on_test_start.js");
-//        try {
-//            in.read();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
     }
 
     public JPanel getTopPanel() {
@@ -214,39 +199,22 @@ public class DialogScriptNew extends AbstractDialog {
             addBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-//                    java.util.List<SequenceListModelObject> reqs = getSelectedSequences();
-//                    String name = txtflowName.getText();
-//                    String description = txtDescription.getText();
-//                    String parameters = txtParam.getText();
-//                    if(name.isEmpty() ){
-//                        JOptionPane.showMessageDialog(DialogFlowNew.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
-//                        return;
-//                    }
-//                    if(reqs.size()==0){
-//                        JOptionPane.showMessageDialog(DialogFlowNew.this,"No sequence is added.","Error",JOptionPane.ERROR_MESSAGE);
-//                        return;
-//                    }
-//                    if(Flow.isFlowNameUsed(name)){
-//                        JOptionPane.showMessageDialog(DialogFlowNew.this,"Flow Name is Duplicated.","Error",JOptionPane.ERROR_MESSAGE);
-//                        return;
-//                    }
-//                    if (!validateUpdate()) {
-//                        JOptionPane.showMessageDialog(DialogFlowNew.this,"Invalid Data.","Error",JOptionPane.ERROR_MESSAGE);
-//                        return;
-//                    }
-//                    updateSequenceDetail();
-//                    try {
-//                        java.util.List<Flow_Sequence> ts = new ArrayList<>();
-//                        for (SequenceListModelObject req: reqs) {
-//                            ts.add(req.getFlow_sequence());
-//                        }
-//                        Flow.insertFlow(new Flow(name, description ,parameters,ts));
-//                        dissmiss();
-//
-//                    }catch (Exception x){
-//                        BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");
-//                        x.printStackTrace(BurpExtender.getInstance().getStdout());
-//                    }
+                    String name = txtName.getText();
+                    String script = textArea.getText();
+                    int type = getSelectedType();
+                    int lang = getSelectedLang();
+                    if(name.isEmpty() ){
+                        JOptionPane.showMessageDialog(DialogScriptNew.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    try {
+                        Script.insert(new Script(-1, name, script, type,lang));
+                        dissmiss();
+
+                    }catch (Exception x){
+                        BurpExtender.getInstance().getStdout().println("save Error "+x.getMessage() + "\n");
+                        x.printStackTrace(BurpExtender.getInstance().getStdout());
+                    }
                 }
             });
             buttonsPanel.add(cancelBtn);

@@ -105,6 +105,19 @@ public class DialogFlowEdit extends AbstractDialog {
             form.addLastField(new JScrollPane(txtParam));
 
 
+            form.addLabel("Scripts:");
+            JPanel jpn = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JButton btn = new JButton("Manage Scripts");
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DialogFlowScripts dlg = new DialogFlowScripts();
+                    List<Script> scripts = dlg.getData();
+                }
+            });
+            jpn.add(btn);
+            form.addLastField(jpn);
+
         }
         return topPanel;
     }
@@ -369,7 +382,7 @@ public class DialogFlowEdit extends AbstractDialog {
             JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
             jp.add(btnRequest);
             form.addLastField(jp);
-//            form.addFiller(sequenceDetailPanel);
+            form.fillReminder();
         }
         return sequenceDetailPanel;
     }
