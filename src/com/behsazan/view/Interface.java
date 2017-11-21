@@ -2,6 +2,7 @@ package com.behsazan.view;
 
 import burp.BurpExtender;
 import burp.ITab;
+import com.behsazan.model.settings.Settings;
 import com.behsazan.view.abstracts.AbstractTab;
 import com.behsazan.view.tabs.*;
 
@@ -24,15 +25,17 @@ public class Interface implements ITab {
     private void initUI() {
         tabsPane = new JTabbedPane();
         AbstractTab[] tabs = new AbstractTab[]{
-                new TabSequnces(),
-                new TabScripts(),
+                (Settings.isShowTabSequence())? new TabSequnces():null,
+                (Settings.isShowTabScript())? new TabScripts():null,
                 new TabFlow(),
                 new TabLogins(),
                 new TabScenarios(),
                 new TabSettings(),
         };
         for (AbstractTab tab : tabs) {
-            tabsPane.addTab(tab.getTabTitle(),tab);
+            if(tab!=null) {
+                tabsPane.addTab(tab.getTabTitle(), tab);
+            }
         }
     }
 

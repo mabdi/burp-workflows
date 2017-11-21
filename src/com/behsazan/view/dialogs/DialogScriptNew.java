@@ -134,6 +134,12 @@ public class DialogScriptNew extends AbstractDialog {
                 case Script.TYPE_ON_TEST_FINISH:
                     codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_TEST_FINISH + ext);
                     break;
+                case Script.TYPE_ON_SEQUENCE_START:
+                    codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_SEQUENCE_START+ ext);
+                    break;
+                case Script.TYPE_ON_SEQUENCE_FINISH:
+                    codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_SEQUENCE_FINISH+ ext);
+                    break;
                 case Script.TYPE_ON_REQUEST_BEFORE_ASSIGNMENT:
                     codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_REQUEST_BEFORE_ASSIGNMENT + ext);
                     break;

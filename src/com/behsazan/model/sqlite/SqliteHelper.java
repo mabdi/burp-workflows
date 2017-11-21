@@ -129,6 +129,8 @@ public class SqliteHelper {
                 " LANG            INTEGER     NOT NULL " +
                 " )";
         stmt.executeUpdate(createTableScript);
+
+        BurpExtender.logText("db updated to version 5");
     }
 
     private void update_v6(Statement stmt) throws SQLException {
@@ -139,6 +141,8 @@ public class SqliteHelper {
                 " SCRIPT_ID           INTEGER    NOT NULL " +
                 " )";
         stmt.executeUpdate(createTableScript);
+
+        BurpExtender.logText("db updated to version 6");
     }
 
     private void update_v1(Statement stmt) throws SQLException {
@@ -161,6 +165,8 @@ public class SqliteHelper {
 
         stmt.executeUpdate(createTableSquence);
         stmt.executeUpdate(createTableRequest);
+
+        BurpExtender.logText("db updated to version 1");
 
     }
 
@@ -204,6 +210,8 @@ public class SqliteHelper {
         stmt.executeUpdate(createTableFlowSequence);
         stmt.executeUpdate(createTableFlowRequest);
         stmt.executeUpdate(createTableResponseOut);
+
+        BurpExtender.logText("db updated to version 2");
     }
 
     private void update_v3(Statement stmt) throws SQLException {
@@ -253,6 +261,8 @@ public class SqliteHelper {
         stmt.executeUpdate(createTableSuite);
         stmt.executeUpdate(createTableScenario);
         stmt.executeUpdate(createTableSetting);
+
+        BurpExtender.logText("db updated to version 3");
     }
 
     private void update_v4(Statement stmt) throws SQLException {
@@ -261,6 +271,8 @@ public class SqliteHelper {
         stmt.executeUpdate("DROP TABLE IF EXISTS TESTCASE_SEQUENCE;");
         update_v2(stmt);
         update_v3(stmt);
+
+        BurpExtender.logText("db updated to version 4");
     }
 
     protected static Vector<Vector<Object>> resultSetToVector(ResultSet allRequests) throws SQLException {

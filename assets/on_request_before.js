@@ -1,9 +1,9 @@
 // on request before
 
-function enbale(x){
+function enbale(instance, seq, req, modReq, msg){
     return false;
 }
 
-function action(x){
+function action(instance, seq, req, modReq, msg){
 
 }

@@ -22,18 +22,30 @@ public class Flow {
     private String description;
     @Expose
     private String parameters;
+    @Expose
+    private List<Script> scripts;
+
 
     public Flow() {
     }
 
-    public Flow(String name, String description, String parameters, List<Flow_Sequence> seqs) {
+    public Flow(String name, String description, String parameters, List<Flow_Sequence> seqs,List<Script> scripts) {
         this.name = name;
         this.seqs = seqs;
+        this.scripts = scripts;
         this.parameters = parameters;
         this.description = description;
         for (Flow_Sequence tcs : seqs) {
             tcs.setFlow(this);
         }
+    }
+
+    public List<Script> getScripts() {
+        return scripts;
+    }
+
+    public void setScripts(List<Script> scripts) {
+        this.scripts = scripts;
     }
 
     public String getName() {

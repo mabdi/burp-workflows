@@ -1,9 +1,9 @@
 // on response
 
-function enbale(x){
+function enbale(instance, seq, req, newRequest, obj){
     return false;
 }
 
-function action(x){
+function action(instance, seq, req, newRequest, obj){
 
 }

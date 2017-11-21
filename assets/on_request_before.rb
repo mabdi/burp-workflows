@@ -1,9 +1,9 @@
 # on request before
 
-def enbale(x)
+def enbale(instance, seq, req, modReq, msg)
     return false
 end
 
-def action(x)
+def action(instance, seq, req, modReq, msg)
 
 end

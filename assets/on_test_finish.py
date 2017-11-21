@@ -1,7 +1,7 @@
 # on test finish
 
-def enbale(x):
+def enbale(instance):
     return False
 
-def action(x):
+def action(instance):
     pass

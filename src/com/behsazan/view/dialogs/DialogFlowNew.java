@@ -151,7 +151,7 @@ public class DialogFlowNew extends AbstractDialog {
                         for (SequenceListModelObject req: reqs) {
                             ts.add(req.getFlow_sequence());
                         }
-                        Flow.insertFlow(new Flow(name, description ,parameters,ts));
+                        Flow.insertFlow(new Flow(name, description ,parameters,ts,selectedScripts));
                         dissmiss();
 
                     }catch (Exception x){

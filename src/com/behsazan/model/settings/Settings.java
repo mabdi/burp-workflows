@@ -22,11 +22,15 @@ public class Settings {
     public final static String TABLE_KEY_SESSION = "SESSION_COOKIE";
     public final static String TABLE_KEY_FILTER = "FILTER";
     public final static String TABLE_KEY_URLS = "URLS";
+    public final static String TABLE_SHOW_TAB_SEQUENCE = "SHOW_TAB_SEQUENCE";
+    public final static String TABLE_SHOW_TAB_SCRIPT = "SHOW_TAB_SCRIPT";
 
 
 
     private static final long DELAY = 300;
     private static final String SESSION_COOKIENAME = "JSESSIONID";
+    private static final String SHOW_TAB_SEQUENCE = "0";
+    private static final String SHOW_TAB_SCRIPT = "0";
     public static final String SECTION_CHAR = "\u00A7";
     public static final String LOCAL_IDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
     public static final String LOCAL_PATTERN = "\u00A7" + "(\\w+)@locals" + "\u00A7";
@@ -49,6 +53,8 @@ public class Settings {
     };
     public static final String FILENAME_ON_TEST_START = "on_test_start";
     public static final String FILENAME_ON_TEST_FINISH = "on_test_finish";
+    public static final String FILENAME_ON_SEQUENCE_START = "on_sequence_start";
+    public static final String FILENAME_ON_SEQUENCE_FINISH = "on_sequence_finish";
     public static final String FILENAME_ON_REQUEST_BEFORE_ASSIGNMENT = "on_request_before";
     public static final String FILENAME_ON_REQUEST_AFTER_ASSIGNMENT = "on_request_after";
     public static final String FILENAME_ON_RESPONSE_RECEIVED = "on_response";
@@ -134,5 +140,15 @@ public class Settings {
             e1.printStackTrace();
         }
 
+    }
+
+    public static  boolean isShowTabSequence(){
+        String val = loadConfigFromDb(TABLE_SHOW_TAB_SEQUENCE, String.valueOf(SHOW_TAB_SEQUENCE) );
+        return Integer.parseInt(val) == 1;
+    }
+
+    public static  boolean isShowTabScript(){
+        String val = loadConfigFromDb(TABLE_SHOW_TAB_SCRIPT, String.valueOf(SHOW_TAB_SCRIPT) );
+        return Integer.parseInt(val) == 1;
     }
 }

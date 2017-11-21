@@ -43,6 +43,7 @@ public class DialogFlowEdit extends AbstractDialog {
     private Vector<Vector<Object>> vectorCookie;
     private JTextArea txtParam;
     private JTextField txtDescription;
+    private List<Script> selectedScripts;
 
     public DialogFlowEdit() {
         super(false);
@@ -113,6 +114,9 @@ public class DialogFlowEdit extends AbstractDialog {
                 public void actionPerformed(ActionEvent e) {
                     DialogFlowScripts dlg = new DialogFlowScripts();
                     List<Script> scripts = dlg.getData();
+                    if(scripts!=null){
+                        selectedScripts = scripts;
+                    }
                 }
             });
             jpn.add(btn);
@@ -170,6 +174,7 @@ public class DialogFlowEdit extends AbstractDialog {
                         flow.setName(name);
                         flow.setDescription(description);
                         flow.setParameters(params);
+                        flow.setScripts(selectedScripts);
                         Flow.updateFlow(flow);
                         dissmiss();
 

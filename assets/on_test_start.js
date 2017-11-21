@@ -1,9 +1,9 @@
 // on test start
 
-function enbale(x){
+function enbale(instance){
     return false;
 }
 
-function action(x){
+function action(instance){
 
 }

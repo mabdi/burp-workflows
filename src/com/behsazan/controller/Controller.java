@@ -7,6 +7,10 @@ import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.*;
 import com.behsazan.model.settings.Settings;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -51,10 +55,24 @@ public class Controller {
 
     public static List<RequestListModelObject> runTestCase(Flow_Running instance, final RunTestCaseListener listener){
         final List<RequestListModelObject> requests = new ArrayList<>();
+        // injection point -- test start
+        for(Script script: instance.getFlow().getScripts()){
+            if(script.getType() == Script.TYPE_ON_TEST_START){
+                inject_script(script,instance);
+            }
+        }
         for(Flow_Sequence seq : instance.getFlow().getSeqs()){
+
             if(listener != null && listener.isRunFinished()){
                 break;
             }
+            // injection point -- sequence start
+            for(Script script: instance.getFlow().getScripts()){
+                if(script.getType() == Script.TYPE_ON_SEQUENCE_START){
+                    inject_script(script,instance, seq);
+                }
+            }
+
             List<Flow_Request> reqs = seq.getRequests();
             String oldBase = seq.getSequence().getUrl();
             String newBase = instance.getBaseUrl();
@@ -63,18 +81,44 @@ public class Controller {
                 if(listener != null && listener.isRunFinished()){
                     break;
                 }
+
                 List<ResponseOut> outPars = req.getOutputParams();
                 byte[] modReq = req.getModifiedRequest();
                 String[] msg = DataUtils.ExplodeRequest(modReq);
+                // injection point -- before request modify
+                for(Script script: instance.getFlow().getScripts()){
+                    if(script.getType() == Script.TYPE_ON_REQUEST_BEFORE_ASSIGNMENT){
+                        Object res = inject_script(script, instance, seq, req, modReq, msg);
+                        if(res != null && res instanceof String[]){
+                            msg = (String[])res;
+                        }
+                    }
+                }
                 msg = DataUtils.changeUrlBase(msg,oldBase,newBase);
                 if(!cookie.isEmpty()) {
                     msg = DataUtils.changeCookie(msg, Flow_Running.queryGlobalVariable(cookie) );
                 }
                 msg = DataUtils.applyParameter(msg,instance);
+                // injection point -- after request modify
+                for(Script script: instance.getFlow().getScripts()){
+                    if(script.getType() == Script.TYPE_ON_REQUEST_AFTER_ASSIGNMENT){
+                        Object res = inject_script(script, instance, seq, req, modReq, msg);
+                        if(res != null && res instanceof String[]){
+                            msg = (String[])res;
+                        }
+                    }
+                }
+
                 byte[] newRequest = DataUtils.buildRequest(msg);
                 final RequestListModelObject obj = makeHttpRequestAndWait(newBase,newRequest);
                 obj.setTestInstance(instance);
                 obj.setTestRequest(req);
+                // injection point -- on response
+                for(Script script: instance.getFlow().getScripts()){
+                    if(script.getType() == Script.TYPE_ON_RESPONSE_RECEIVED){
+                        inject_script(script, instance, seq, req, newRequest, obj);
+                    }
+                }
                 for (ResponseOut outPar : outPars) {
                     DataUtils.setOutParameters(obj,outPar,instance,new OnCaptchaRefresh(){
                         @Override
@@ -92,8 +136,50 @@ public class Controller {
                     requests.add(obj);
                 }
             }
+            // injection point -- sequence finished
+            // injection point -- on response
+            for(Script script: instance.getFlow().getScripts()){
+                if(script.getType() == Script.TYPE_ON_SEQUENCE_FINISH){
+                    inject_script(script, instance,seq);
+                }
+            }
+        }
+        // injection point -- test finished
+        // injection point -- on response
+        for(Script script: instance.getFlow().getScripts()){
+            if(script.getType() == Script.TYPE_ON_TEST_FINISH){
+                inject_script(script, instance);
+            }
         }
         return requests;
+    }
+
+    private static Object inject_script(Script script,Object... params){
+        try {
+            ScriptEngineManager manager = new ScriptEngineManager();
+            String engineLang = "JavaScript";
+            switch (script.getLang()){
+                case Script.LANG_PYTHON:
+                    engineLang = "python";
+                    break;
+                case Script.LANG_RUBY:
+                    engineLang = "ruby";
+                    break;
+            }
+            ScriptEngine engine = manager.getEngineByName(engineLang);
+            engine.eval(script.getText());
+
+            Invocable invokable = (Invocable) engine;
+            Object result = invokable.invokeFunction("enbale",params);
+            if((Boolean) result){
+                return invokable.invokeFunction("action",params);
+            }
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static RequestListModelObject makeHttpRequestAndWait(String strUrl, byte[] newRequest){

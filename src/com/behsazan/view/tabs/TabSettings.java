@@ -30,6 +30,8 @@ public class TabSettings extends AbstractTab {
     private JTextArea txtUrls;
     private JButton updateButton;
     private JTextArea txtFilters;
+    private JCheckBox cmbShowScript;
+    private JCheckBox cmbShowSequence;
 
     @Override
     public String getTabTitle() {
@@ -178,6 +180,22 @@ public class TabSettings extends AbstractTab {
                 txtFilters.append("\n");
             }
             form.addLastField(txtFilters);
+
+
+            form.addLabel("Show Sequence Tab: ");
+            cmbShowSequence = new JCheckBox("Show Sequence Tab (needs restart)");
+            cmbShowSequence.setSelected(Settings.isShowTabSequence());
+//            txtShowSequence = new JTextField(Settings.getShowSequenceTab());
+//            txtShowSequence.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
+            form.addLastField(cmbShowSequence);
+
+
+            form.addLabel("Show Script Tab: ");
+            cmbShowScript = new JCheckBox("Show Script Tab (needs restart)");
+            cmbShowScript.setSelected(Settings.isShowTabScript());
+//            txtShowScript.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
+            form.addLastField(cmbShowScript);
+
             form.fillReminder();
         }
         return body;
@@ -193,6 +211,9 @@ public class TabSettings extends AbstractTab {
                     String delay = txtDelay.getText().trim();
                     String strUrls = txtUrls.getText().trim();
                     String strFilters = txtFilters.getText().trim();
+                    boolean strShowTabScript = cmbShowScript.isSelected();
+                    boolean strShowTabSequence = cmbShowSequence.isSelected();
+
                     if(cookie.isEmpty() || delay.isEmpty() || strUrls.isEmpty()){
                         JOptionPane.showMessageDialog(TabSettings.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
@@ -203,6 +224,7 @@ public class TabSettings extends AbstractTab {
                         JOptionPane.showMessageDialog(TabSettings.this,"Not valid delay value.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+
                     String[] urls = strUrls.split("\n");
                     for(String url:urls){
                         if(!DataUtils.isValidURL(url)){
@@ -216,6 +238,10 @@ public class TabSettings extends AbstractTab {
                         db.updateKey(Settings.TABLE_KEY_SESSION,cookie);
                         db.updateKey(Settings.TABLE_KEY_URLS,strUrls);
                         db.updateKey(Settings.TABLE_KEY_FILTER,strFilters);
+                        db.updateKey(Settings.TABLE_SHOW_TAB_SCRIPT,(strShowTabScript)?"1":"0");
+                        db.updateKey(Settings.TABLE_SHOW_TAB_SEQUENCE,(strShowTabSequence)?"1":"0");
+
+                        JOptionPane.showMessageDialog(TabSettings.this,"Saved.","Setting",JOptionPane.INFORMATION_MESSAGE);
                     } catch (SQLException e1) {
                         e1.printStackTrace();
                     }

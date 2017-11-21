@@ -26,6 +26,8 @@ public class Script {
     public static final int TYPE_ON_REQUEST_BEFORE_ASSIGNMENT = 3;
     public static final int TYPE_ON_REQUEST_AFTER_ASSIGNMENT = 4;
     public static final int TYPE_ON_RESPONSE_RECEIVED = 5;
+    public static final int TYPE_ON_SEQUENCE_START = 6;
+    public static final int TYPE_ON_SEQUENCE_FINISH = 7;
 
     private static final HashMap<Integer, String> TYPES_STRING;
 

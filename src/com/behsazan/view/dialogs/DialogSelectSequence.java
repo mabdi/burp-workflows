@@ -7,10 +7,7 @@ import com.behsazan.view.abstracts.AbstractDialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -69,6 +66,20 @@ public class DialogSelectSequence extends AbstractDialog {
     public JPanel getButtonsPanel() {
         if(buttonsPanel == null){
             buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            JButton newDialog = new JButton("New Sequence");
+            newDialog.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DialogSequenceNew dlg = new DialogSequenceNew();
+                    dlg.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosed(WindowEvent e) {
+                            modelList.removeAllElements();
+                            setData();
+                        }
+                    });
+                }
+            });
             JButton btnOk = new JButton("Ok");
             btnOk.addActionListener(new ActionListener() {
                 @Override
@@ -83,6 +94,8 @@ public class DialogSelectSequence extends AbstractDialog {
                     dissmiss();
                 }
             });
+
+            buttonsPanel.add(newDialog);
             buttonsPanel.add(btnOk);
             buttonsPanel.add(btnCancel);
         }

@@ -1,7 +1,7 @@
 # on response
 
-def enbale(x):
+def enbale(instance, seq, req, newRequest, obj):
     return False
 
-def action(x):
+def action(instance, seq, req, newRequest, obj):
     pass

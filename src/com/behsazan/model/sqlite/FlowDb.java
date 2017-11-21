@@ -60,6 +60,15 @@ public class FlowDb extends SqliteHelper {
     }
 
     private void insertFlowParts(Connection c, Flow flow) throws SQLException {
+        for(Script scr : flow.getScripts()){
+            PreparedStatement stmt2 = c.prepareStatement("INSERT INTO FLOW_SCRIPT " +
+                    "(FLOW_ID,SCRIPT_ID) VALUES (?,?)");
+            stmt2.setInt(1, flow.getId());
+            stmt2.setInt(2, scr.getId());
+            stmt2.executeUpdate();
+            stmt2.close();
+        }
+
         for (Flow_Sequence sq : flow.getSeqs()) {
             PreparedStatement stmt2 = c.prepareStatement("INSERT INTO FLOW_SEQUENCE " +
                     "(FLOW_ID,SEQUENCE_ID,COOKIE) VALUES (?,?,?)");
@@ -122,6 +131,9 @@ public class FlowDb extends SqliteHelper {
             stmt = c.prepareStatement("DELETE from FLOW_SEQUENCE WHERE FLOW_ID =?");
             stmt.setInt(1, id);
             stmt.executeUpdate();
+            stmt = c.prepareStatement("DELETE from FLOW_SCRIPT WHERE FLOW_ID =?");
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
             stmt = c.prepareStatement("DELETE from FLOW_REQUEST WHERE FLOW_ID =?");
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -173,10 +185,41 @@ public class FlowDb extends SqliteHelper {
                 String descr = rq.getString(5);
                 String params = rq.getString(6);
                 List<Flow_Sequence> reqs = getFlowSequenceById(id);
-                Flow s = new Flow(name, descr,params, reqs);
+                List<Script> scripts = getFlowScriptsById(id);
+                Flow s = new Flow(name, descr,params, reqs, scripts);
                 s.setId(id);
 
                 res = s;
+            }
+        } finally {
+            if (rq != null)
+                rq.close();
+            if (stmt != null)
+                stmt.close();
+            if (c != null)
+                c.close();
+        }
+        return res;
+    }
+
+    private List<Script> getFlowScriptsById(int id) throws SQLException {
+        List<Script> res = new ArrayList<>();
+        Connection c = null;
+        PreparedStatement stmt = null;
+        ResultSet rq = null;
+        try {
+            c = getConnection();
+            stmt = c.prepareStatement("SELECT ID,FLOW_ID,SCRIPT_ID " +
+                    "from FLOW_SCRIPT WHERE FLOW_ID= ?");
+            stmt.setInt(1, id);
+            rq = stmt.executeQuery();
+            while (rq.next()) {
+                int record_id = rq.getInt(1);
+                int flow_id = rq.getInt(3);
+                int script_id = rq.getInt(3);
+
+                Script script = Script.getById(script_id);
+                res.add(script);
             }
         } finally {
             if (rq != null)
@@ -207,7 +250,8 @@ public class FlowDb extends SqliteHelper {
                 String descr = rq.getString(5);
                 String params = rq.getString(6);
                 List<Flow_Sequence> reqs = getFlowSequenceById(id);
-                Flow s = new Flow(selectedflow, descr,params, reqs);
+                List<Script> scripts = getFlowScriptsById(id);
+                Flow s = new Flow(selectedflow, descr, params, reqs, scripts);
                 s.setId(id);
 
                 res = s;
