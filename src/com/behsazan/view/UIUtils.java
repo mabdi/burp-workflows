@@ -80,6 +80,7 @@ public class UIUtils {
     }
 
     public static class FormUtility {
+        private final Container parent;
         /**
          * Grid bag constraints for fields and labels
          */
@@ -87,7 +88,8 @@ public class UIUtils {
         private GridBagConstraints middleConstraints = null;
         private GridBagConstraints labelConstraints = null;
 
-        public FormUtility() {
+        public FormUtility(Container parent) {
+            this.parent = parent;
             // Set up the constraints for the "last" field in each
             // row first, then copy and modify those constraints.
 
@@ -135,7 +137,7 @@ public class UIUtils {
          * component will be stretched to take the remainder of
          * the current row.
          */
-        public void addLastField(Component c, Container parent) {
+        public void addLastField(Component c) {
             GridBagLayout gbl = (GridBagLayout) parent.getLayout();
             gbl.setConstraints(c, lastConstraints);
             parent.add(c);
@@ -147,7 +149,7 @@ public class UIUtils {
          * to the minimum width of the widest component on the
          * form.
          */
-        public void addLabel(Component c, Container parent) {
+        public void addLabel(Component c) {
             GridBagLayout gbl = (GridBagLayout) parent.getLayout();
             gbl.setConstraints(c, labelConstraints);
             parent.add(c);
@@ -156,9 +158,9 @@ public class UIUtils {
         /**
          * Adds a JLabel with the given string to the label column
          */
-        public JLabel addLabel(String s, Container parent) {
+        public JLabel addLabel(String s) {
             JLabel c = new JLabel(s);
-            addLabel(c, parent);
+            addLabel(c);
             return c;
         }
 
@@ -168,7 +170,7 @@ public class UIUtils {
          * the space between the label and the "last" field. All
          * "middle" fields in the layout will be the same width.
          */
-        public void addMiddleField(Component c, Container parent) {
+        public void addMiddleField(Component c) {
             GridBagLayout gbl = (GridBagLayout) parent.getLayout();
             gbl.setConstraints(c, middleConstraints);
             parent.add(c);
@@ -180,6 +182,18 @@ public class UIUtils {
 //            horizontalFill.fill = GridBagConstraints.HORIZONTAL;
 //            parent.add(Box.createHorizontalGlue(), horizontalFill);
 //        }
+
+
+        public void fillReminder(){
+            GridBagLayout gbl = (GridBagLayout) parent.getLayout();
+            Component c = new JLabel("");
+            GridBagConstraints fillConstranint = new GridBagConstraints();
+            fillConstranint.weighty = 1.0;
+            fillConstranint.anchor = GridBagConstraints.NORTHWEST;
+            fillConstranint.gridwidth = 1;
+            gbl.setConstraints(c, fillConstranint);
+            parent.add(c);
+        }
 
     }
 }

@@ -64,17 +64,17 @@ public class DialogFlowNew extends AbstractDialog {
 //            topPanel.add(new JLabel("FLOW Name: "));
 //            topPanel.add(getTxtFlowName());
             topPanel = new JPanel(new GridBagLayout());
-            UIUtils.FormUtility form = new UIUtils.FormUtility();
-            form.addLabel("Name :", topPanel);
-            form.addLastField(getTxtflowName(), topPanel);
+            UIUtils.FormUtility form = new UIUtils.FormUtility(topPanel);
+            form.addLabel("Name :");
+            form.addLastField(getTxtflowName());
 
-            form.addLabel("Description :", topPanel);
-            form.addLastField(getTxtDescription(), topPanel);
+            form.addLabel("Description :");
+            form.addLastField(getTxtDescription());
 
-            form.addLabel("Parameters (comma separated):", topPanel);
+            form.addLabel("Parameters (comma separated):");
             txtParam = new JTextArea(2,10);
             txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            form.addLastField(new JScrollPane(txtParam), topPanel);
+            form.addLastField(new JScrollPane(txtParam));
 
         }
         return topPanel;
@@ -332,8 +332,8 @@ public class DialogFlowNew extends AbstractDialog {
         if(sequenceDetailPanel == null){
             sequenceDetailPanel = new JPanel(new GridBagLayout());
 
-            UIUtils.FormUtility formUtility = new UIUtils.FormUtility();
-            formUtility.addLabel("Change Cookie: ",sequenceDetailPanel);
+            UIUtils.FormUtility formUtility = new UIUtils.FormUtility(sequenceDetailPanel);
+            formUtility.addLabel("Change Cookie: ");
             modelCookie = new DefaultComboBoxModel<String>();
             vectorCookie = Login.getAllLogins_Table();
             modelCookie.addElement("none");
@@ -342,9 +342,9 @@ public class DialogFlowNew extends AbstractDialog {
             }
             cmbCookie = new JComboBox<String>(modelCookie);
             cmbCookie.setEnabled(false);
-            formUtility.addLastField(cmbCookie,sequenceDetailPanel);
+            formUtility.addLastField(cmbCookie);
 
-            formUtility.addLabel("Edit Requests: ",sequenceDetailPanel);
+            formUtility.addLabel("Edit Requests: ");
 
             btnRequest = new JButton("Edit Requests");
             btnRequest.setEnabled(false);
@@ -360,7 +360,7 @@ public class DialogFlowNew extends AbstractDialog {
             });
             JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
             jp.add(btnRequest);
-            formUtility.addLastField(jp,sequenceDetailPanel);
+            formUtility.addLastField(jp);
         }
         return sequenceDetailPanel;
     }

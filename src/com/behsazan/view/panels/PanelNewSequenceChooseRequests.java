@@ -58,7 +58,7 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     @Override
     protected void initUI() {
         JPanel topPanel = new JPanel(new GridBagLayout());
-        UIUtils.FormUtility form = new UIUtils.FormUtility();
+        UIUtils.FormUtility form = new UIUtils.FormUtility(topPanel);
         txtSeqName = new JTextField("", 20);
         txtSeqName.requestFocus();
         txtSeqName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
@@ -68,14 +68,14 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
 
-        form.addLabel("Sequence Name: ",topPanel);
-        form.addLastField(txtSeqName,topPanel);
+        form.addLabel("Sequence Name: " );
+        form.addLastField(txtSeqName);
 
-        form.addLabel("Description: ",topPanel);
-        form.addLastField(txtDescription,topPanel);
+        form.addLabel("Description: ");
+        form.addLastField(txtDescription);
 
-        form.addLabel("Base URL: ",topPanel);
-        form.addLastField(txtUrl,topPanel);
+        form.addLabel("Base URL: ");
+        form.addLastField(txtUrl);
 
         enableFilter = new JCheckBox("Apply filter");
         enableFilter.addActionListener(new ActionListener() {
@@ -119,8 +119,8 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         btnBar.add(startRecord);
         btnBar.add(stopRecord);
         btnBar.add(enableFilter);
-        form.addLabel("",topPanel);
-        form.addLastField(btnBar,topPanel);
+        form.addLabel("");
+        form.addLastField(btnBar);
 //        topPanel.add(txtSeqName);
 //        topPanel.add(startRecord);
 //        topPanel.add(stopRecord);

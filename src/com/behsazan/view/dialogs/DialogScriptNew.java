@@ -15,7 +15,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
 /**
@@ -31,6 +33,7 @@ public class DialogScriptNew extends AbstractDialog {
     private JComboBox<String> comboType;
     private JComboBox<String> comboLang;
     private RSyntaxTextArea textArea;
+    private String codeTemplate;
 
 
     @Override
@@ -44,55 +47,84 @@ public class DialogScriptNew extends AbstractDialog {
         add(getCenterCodeEditor(), BorderLayout.CENTER);
         add(getButtonsPanel(), BorderLayout.SOUTH);
 
+        comboLang.setSelectedIndex(0);
+        comboType.setSelectedIndex(0);
+
+
+
+
+//        URLClassLoader ucl = (URLClassLoader) DataUtils.class.getClassLoader();
+//        for(URL url : ucl.getURLs()) {
+//            BurpExtender.getInstance().getCallbacks().printOutput(url.toString());
+//        }
+//
+//        InputStream in = DataUtils.class.getClassLoader().getResourceAsStream("assets/on_test_start.js");
+//        try {
+//            in.read();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
     }
 
     public JPanel getTopPanel() {
-        if(topPanel == null){
+        if (topPanel == null) {
             topPanel = new JPanel(new GridBagLayout());
-            UIUtils.FormUtility form = new UIUtils.FormUtility();
-            form.addLabel("Name:",topPanel);
+            UIUtils.FormUtility form = new UIUtils.FormUtility(topPanel);
+            form.addLabel("Name:");
             txtName = new JTextField();
-            form.addLastField(txtName,topPanel);
+            form.addLastField(txtName);
 
-            form.addLabel("Type:",topPanel);
+            form.addLabel("Type:");
             comboType = new JComboBox<>();
             DefaultComboBoxModel<String> modelCombo = new DefaultComboBoxModel<>();
             Map<Integer, String> kvp = Script.getTypesString();
-            for (String v:kvp.values() ) {
+            for (String v : kvp.values()) {
                 modelCombo.addElement(v);
             }
             comboType.setModel(modelCombo);
             comboType.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    updateEditor();
+                    alertChange();
                 }
             });
-            form.addLastField(comboType,topPanel);
+            form.addLastField(comboType);
 
-            form.addLabel("Language:",topPanel);
+            form.addLabel("Language:");
             comboLang = new JComboBox<>();
             DefaultComboBoxModel<String> modelCombo2 = new DefaultComboBoxModel<>();
             kvp = Script.getLangsString();
-            for (String v:kvp.values() ) {
+            for (String v : kvp.values()) {
                 modelCombo2.addElement(v);
             }
             comboLang.setModel(modelCombo2);
             comboLang.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    updateEditor();
+                    alertChange();
                 }
             });
-            form.addLastField(comboLang,topPanel);
+            form.addLastField(comboLang);
         }
         return topPanel;
+    }
+
+    private void alertChange() {
+        if (codeTemplate != null && !textArea.getText().equals(codeTemplate)) {
+            int rsp = JOptionPane.showConfirmDialog(DialogScriptNew.this, "Modified text will be lost. Are you sure to change?", "Change Data", JOptionPane.YES_NO_OPTION);
+            if (rsp == JOptionPane.YES_OPTION) {
+                updateEditor();
+            }
+        }else{
+            updateEditor();
+        }
     }
 
     private void updateEditor() {
         String ext = ".js";
 
-        switch (getSelectedLang()){
+        switch (getSelectedLang()) {
             case Script.LANG_JS:
                 textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
                 textArea.setEditable(true);
@@ -112,22 +144,24 @@ public class DialogScriptNew extends AbstractDialog {
         try {
             switch (getSelectedType()) {
                 case Script.TYPE_ON_TEST_START:
-                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_TEST_START + ext));
+                    codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_TEST_START + ext);
                     break;
                 case Script.TYPE_ON_TEST_FINISH:
-                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_TEST_FINISH + ext));
+                    codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_TEST_FINISH + ext);
                     break;
                 case Script.TYPE_ON_REQUEST_BEFORE_ASSIGNMENT:
-                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_REQUEST_BEFORE_ASSIGNMENT + ext));
+                    codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_REQUEST_BEFORE_ASSIGNMENT + ext);
                     break;
                 case Script.TYPE_ON_REQUEST_AFTER_ASSIGNMENT:
-                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_REQUEST_AFTER_ASSIGNMENT + ext));
+                    codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_REQUEST_AFTER_ASSIGNMENT + ext);
                     break;
                 case Script.TYPE_ON_RESPONSE_RECEIVED:
-                    textArea.setText(DataUtils.readAsset(Settings.FILENAME_ON_RESPONSE_RECEIVED + ext));
+                    codeTemplate = DataUtils.readAsset(Settings.FILENAME_ON_RESPONSE_RECEIVED + ext);
                     break;
             }
-        }catch (IOException ex){
+
+            textArea.setText(codeTemplate);
+        } catch (IOException ex) {
             ex.printStackTrace(BurpExtender.getInstance().getStdout());
         }
         textArea.revalidate();
@@ -136,8 +170,8 @@ public class DialogScriptNew extends AbstractDialog {
     public int getSelectedType() {
         String selected = (String) comboType.getSelectedItem();
         Set<Map.Entry<Integer, String>> kvp = Script.getTypesString().entrySet();
-        for (Map.Entry<Integer,String> kv:kvp) {
-            if(kv.getValue().equals(selected)){
+        for (Map.Entry<Integer, String> kv : kvp) {
+            if (kv.getValue().equals(selected)) {
                 return kv.getKey();
             }
         }
@@ -146,9 +180,9 @@ public class DialogScriptNew extends AbstractDialog {
 
     public int getSelectedLang() {
         String selected = (String) comboLang.getSelectedItem();
-        Set<Map.Entry<Integer, String>> kvp = Script.getTypesString().entrySet();
-        for (Map.Entry<Integer,String> kv:kvp) {
-            if(kv.getValue().equals(selected)){
+        Set<Map.Entry<Integer, String>> kvp = Script.getLangsString().entrySet();
+        for (Map.Entry<Integer, String> kv : kvp) {
+            if (kv.getValue().equals(selected)) {
                 return kv.getKey();
             }
         }
@@ -156,7 +190,7 @@ public class DialogScriptNew extends AbstractDialog {
     }
 
     public RTextScrollPane getCenterCodeEditor() {
-        if(centerCodeEditor == null){
+        if (centerCodeEditor == null) {
             textArea = new RSyntaxTextArea(20, 60);
             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
             textArea.setCodeFoldingEnabled(true);
@@ -167,7 +201,7 @@ public class DialogScriptNew extends AbstractDialog {
     }
 
     public JPanel getButtonsPanel() {
-        if(buttonsPanel==null){
+        if (buttonsPanel == null) {
             buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancelBtn = new JButton("Cancel");
             cancelBtn.addActionListener(new ActionListener() {

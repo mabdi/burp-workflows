@@ -63,36 +63,36 @@ public class DialogScenarioNew extends AbstractDialog {
         if(formPanel == null){
             formPanel = new JPanel();
             formPanel.setLayout(new GridBagLayout());
-            UIUtils.FormUtility formUtility = new UIUtils.FormUtility();
+            UIUtils.FormUtility formUtility = new UIUtils.FormUtility(formPanel);
 
-            formUtility.addLabel("Name :", formPanel);
+            formUtility.addLabel("Name :" );
             txtName = new JTextField();
             txtName.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtName, formPanel);
+            formUtility.addLastField(txtName);
 
-            formUtility.addLabel("Description :", formPanel);
+            formUtility.addLabel("Description :");
             txtDescription = new JTextArea(2,10);
             txtDescription.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtDescription, formPanel);
+            formUtility.addLastField(txtDescription);
 
-            formUtility.addLabel("Url :", formPanel);
+            formUtility.addLabel("Url :");
             DefaultComboBoxModel<String> urls = new DefaultComboBoxModel<String>();
             for(String u: Settings.getBaseUrls()){
                 urls.addElement(u);
             }
             cmbUrls = new JComboBox<>(urls);
-            formUtility.addLastField(cmbUrls, formPanel);
+            formUtility.addLastField(cmbUrls);
 
-            formUtility.addLabel("Flow :", formPanel);
+            formUtility.addLabel("Flow :");
             modelCombo = new DefaultComboBoxModel<>();
             cmbFlow = new JComboBox<>(modelCombo);
             List<String> tests = Flow.getAllFlowName();
             for (String t: tests) {
                 modelCombo.addElement(t);
             }
-            formUtility.addLastField(cmbFlow, formPanel);
+            formUtility.addLastField(cmbFlow);
 
-            formUtility.addLabel("Parameters: ",formPanel);
+            formUtility.addLabel("Parameters: ");
             modelParams = new DefaultComboBoxModel<>();
             cmbParams = new JComboBox<>(modelParams);
             cmbParams.addItemListener(new ItemListener() {
@@ -106,14 +106,14 @@ public class DialogScenarioNew extends AbstractDialog {
                     }
                 }
             });
-            formUtility.addLastField(cmbParams,formPanel);
+            formUtility.addLastField(cmbParams);
 
-            formUtility.addLabel("Values: ",formPanel);
+            formUtility.addLabel("Values: ");
             txtValues = new JTextArea(5,10);
             txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtValues,formPanel);
+            formUtility.addLastField(txtValues);
 
-            formUtility.addLabel("",formPanel);
+            formUtility.addLabel("");
             JButton btnLoadFromFile = new JButton("Load from file");
             btnLoadFromFile.addActionListener(new ActionListener() {
                 @Override
@@ -148,7 +148,7 @@ public class DialogScenarioNew extends AbstractDialog {
             });
             JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
             jp.add(btnLoadFromFile);
-            formUtility.addLastField(jp,formPanel);
+            formUtility.addLastField(jp);
         }
         return formPanel;
     }

@@ -419,11 +419,13 @@ public class DataUtils {
     }
 
     public static String readAsset(String filename) throws IOException {
-        URL url = new URL("jar:file:/"+BurpExtender.getInstance().getCallbacks().getExtensionFilename()+"!/assets/"+ filename);
-        InputStream in = url.openStream();
-//        InputStream in = DataUtils.class.getClassLoader().getResourceAsStream("/assets/" + filename);
+//        URL url = new URL("jar:file:/"+BurpExtender.getInstance().getCallbacks().getExtensionFilename()+"!/assets/"+ filename);
+//        InputStream in = url.openStream();
+//        @url: https://support.portswigger.net/customer/portal/questions/17136484-extension-resource-loading
+        InputStream in = DataUtils.class.getClassLoader().getResourceAsStream("assets/" + filename);
         StringWriter writer = new StringWriter();
         IOUtils.copy(in, writer, StandardCharsets.UTF_8);
+        in.close();
         return writer.toString();
     }
 }

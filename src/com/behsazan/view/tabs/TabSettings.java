@@ -149,35 +149,36 @@ public class TabSettings extends AbstractTab {
     public JPanel getBody() {
         if(body == null){
             body = new JPanel(new GridBagLayout());
-            UIUtils.FormUtility form = new UIUtils.FormUtility();
+            UIUtils.FormUtility form = new UIUtils.FormUtility(body);
 
-            form.addLabel("Delay between requests (millies): ",body);
+            form.addLabel("Delay between requests (millies): ");
             txtDelay = new JTextField(String.valueOf(Settings.getDelay()));
             txtDelay.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            form.addLastField(txtDelay,body);
+            form.addLastField(txtDelay);
 
-            form.addLabel("Session cookie name: ",body);
+            form.addLabel("Session cookie name: ");
             txtSession = new JTextField(Settings.getCookie());
             txtSession.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            form.addLastField(txtSession,body);
+            form.addLastField(txtSession);
 
-            form.addLabel("Base URLs: ",body);
+            form.addLabel("Base URLs: ");
             txtUrls = new JTextArea("",5,10);
             txtUrls.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             for(String s: Settings.getBaseUrls()){
                 txtUrls.append(s);
                 txtUrls.append("\n");
             }
-            form.addLastField(txtUrls,body);
+            form.addLastField(txtUrls);
 
-            form.addLabel("Filter patterns: ",body);
+            form.addLabel("Filter patterns: ");
             txtFilters = new JTextArea("",5,10);
             txtFilters.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             for(String s: Settings.getFilters()){
                 txtFilters.append(s);
                 txtFilters.append("\n");
             }
-            form.addLastField(txtFilters,body);
+            form.addLastField(txtFilters);
+            form.fillReminder();
         }
         return body;
     }

@@ -16,7 +16,7 @@ import java.util.Vector;
  * Created by admin on 07/31/2017.
  */
 public class SqliteHelper {
-    public static final int DB_VERSION = 5;
+    public static final int DB_VERSION = 6;
     private List<Connection> connections = new ArrayList<>();
 
 
@@ -113,6 +113,10 @@ public class SqliteHelper {
             update_v5(stmt);
             ver++;
         }
+        if (ver < 6) {
+            update_v6(stmt);
+            ver++;
+        }
     }
 
     private void update_v5(Statement stmt) throws SQLException {
@@ -123,6 +127,16 @@ public class SqliteHelper {
                 " BODY           TEXT    NOT NULL, " +
                 " TYPE           INTEGER    NOT NULL, " +
                 " LANG            INTEGER     NOT NULL " +
+                " )";
+        stmt.executeUpdate(createTableScript);
+    }
+
+    private void update_v6(Statement stmt) throws SQLException {
+        String createTableScript = "DROP TABLE IF EXISTS FLOW_SCRIPT;" +
+                "CREATE TABLE FLOW_SCRIPT " +
+                "(ID  INTEGER PRIMARY KEY AUTOINCREMENT," +
+                " FLOW_ID           INTEGER    NOT NULL, " +
+                " SCRIPT_ID           INTEGER    NOT NULL " +
                 " )";
         stmt.executeUpdate(createTableScript);
     }

@@ -48,40 +48,40 @@ public class DialogLoginNew extends AbstractDialog {
         if(formPanel == null){
             formPanel = new JPanel();
             formPanel.setLayout(new GridBagLayout());
-            UIUtils.FormUtility formUtility = new UIUtils.FormUtility();
+            UIUtils.FormUtility formUtility = new UIUtils.FormUtility(formPanel);
 
-            formUtility.addLabel("Url :", formPanel);
+            formUtility.addLabel("Url :" );
             DefaultComboBoxModel<String> urls = new DefaultComboBoxModel<String>();
             for(String u: Settings.getBaseUrls()){
                 urls.addElement(u);
             }
             cmbUrls = new JComboBox<>(urls);
-            formUtility.addLastField(cmbUrls, formPanel);
+            formUtility.addLastField(cmbUrls);
 
-            formUtility.addLabel("Username :", formPanel);
+            formUtility.addLabel("Username :");
             txtUsername = new JTextField();
             txtUsername.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             txtUsername.setToolTipText("As `username` parameter");
-            formUtility.addLastField(txtUsername, formPanel);
+            formUtility.addLastField(txtUsername);
 
-            formUtility.addLabel("Password :", formPanel);
+            formUtility.addLabel("Password :");
             txtPassword = new JTextField();
             txtPassword.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
             txtPassword.setToolTipText("As `password` parameter");
-            formUtility.addLastField(txtPassword, formPanel);
+            formUtility.addLastField(txtPassword);
 
-            formUtility.addLabel("Out Param Name:", formPanel);
+            formUtility.addLabel("Out Param Name:");
             txtParam = new JTextField();
             txtParam.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtParam, formPanel);
-            formUtility.addLabel("Flow :", formPanel);
+            formUtility.addLastField(txtParam);
+            formUtility.addLabel("Flow :");
             modelCombo = new DefaultComboBoxModel<>();
             cmbFlow = new JComboBox<>(modelCombo);
             List<String> tests = Flow.getAllFlowName();
             for (String t: tests) {
                 modelCombo.addElement(t);
             }
-            formUtility.addLastField(cmbFlow, formPanel);
+            formUtility.addLastField(cmbFlow);
         }
         return formPanel;
     }

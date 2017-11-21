@@ -234,17 +234,17 @@ public class DialogFlowPlay extends AbstractDialog {
     public JPanel getParamPanel() {
         if (paramPanel == null) {
             paramPanel = new JPanel(new GridBagLayout());
-            UIUtils.FormUtility formUtility = new UIUtils.FormUtility();
+            UIUtils.FormUtility formUtility = new UIUtils.FormUtility(paramPanel);
 
-            formUtility.addLabel("Base URL: ", paramPanel);
+            formUtility.addLabel("Base URL: " );
             DefaultComboBoxModel<String> urls = new DefaultComboBoxModel<String>();
             for (String u : Settings.getBaseUrls()) {
                 urls.addElement(u);
             }
             cmbUrls = new JComboBox<>(urls);
-            formUtility.addLastField(cmbUrls, paramPanel);
+            formUtility.addLastField(cmbUrls);
 
-            formUtility.addLabel("Parameters: ", paramPanel);
+            formUtility.addLabel("Parameters: ");
             modelParams = new DefaultComboBoxModel<>();
             cmbParams = new JComboBox<>(modelParams);
             cmbParams.addItemListener(new ItemListener() {
@@ -258,14 +258,14 @@ public class DialogFlowPlay extends AbstractDialog {
                     }
                 }
             });
-            formUtility.addLastField(cmbParams, paramPanel);
+            formUtility.addLastField(cmbParams);
 
-            formUtility.addLabel("Values: ", paramPanel);
+            formUtility.addLabel("Values: ");
             txtValues = new JTextArea(5, 10);
             txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtValues, paramPanel);
+            formUtility.addLastField(txtValues);
 
-            formUtility.addLabel("", paramPanel);
+            formUtility.addLabel("");
             JButton btnLoadFromFile = new JButton("Load from file");
             btnLoadFromFile.addActionListener(new ActionListener() {
                 @Override
@@ -300,7 +300,7 @@ public class DialogFlowPlay extends AbstractDialog {
             });
             JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
             jp.add(btnLoadFromFile);
-            formUtility.addLastField(jp, paramPanel);
+            formUtility.addLastField(jp);
         }
         return paramPanel;
     }
