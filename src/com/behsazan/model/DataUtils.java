@@ -164,6 +164,8 @@ public class DataUtils {
     }
 
     public static String[] changeUrlBase(String[] msg,String oldBase,String newBase){
+        newBase = (newBase.endsWith("/"))?newBase.substring(0,newBase.length()-1):newBase;
+        oldBase = (oldBase.endsWith("/"))?oldBase.substring(0,oldBase.length()-1):oldBase;
         if (!oldBase.equals(newBase)) {
             msg = DataUtils.changeHost(msg,newBase.toString());
             msg = DataUtils.changeReferer(msg,newBase.toString());

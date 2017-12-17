@@ -174,7 +174,11 @@ public class DialogFlowEdit extends AbstractDialog {
                         flow.setName(name);
                         flow.setDescription(description);
                         flow.setParameters(params);
-                        flow.setScripts(selectedScripts);
+                        if(selectedScripts == null){
+                            flow.setScripts(new ArrayList<Script>());
+                        }else {
+                            flow.setScripts(selectedScripts);
+                        }
                         Flow.updateFlow(flow);
                         dissmiss();
 
