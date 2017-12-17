@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BurpExtender implements IBurpExtender {
-    private static final String EXTENSION_NAME = "Tadarokat V1";
+    private static final String EXTENSION_NAME = "Workfolws";
     private static BurpExtender instance = null;
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;

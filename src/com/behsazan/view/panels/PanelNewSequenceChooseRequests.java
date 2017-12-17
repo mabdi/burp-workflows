@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
+import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -303,9 +304,9 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
     public String getReferedURL() {
         List<Request> rqs = getSelectedRequests();
 //        String path = rq.getAnalysedRequest().getUrl().getPath();
-        String url = rqs.get(0).getHttpService().toString();
+        String url = DataUtils.getRootAddress(rqs.get(0));
         for(Request rq : rqs){
-            if(!url.equals(rq.getHttpService().toString())){
+            if(!url.equals(  DataUtils.getRootAddress(rq))){
                 return "";
             }
         }

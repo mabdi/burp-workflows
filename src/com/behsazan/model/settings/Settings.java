@@ -25,8 +25,6 @@ public class Settings {
     public final static String TABLE_SHOW_TAB_SEQUENCE = "SHOW_TAB_SEQUENCE";
     public final static String TABLE_SHOW_TAB_SCRIPT = "SHOW_TAB_SCRIPT";
 
-
-
     private static final long DELAY = 300;
     private static final String SESSION_COOKIENAME = "JSESSIONID";
     private static final String SHOW_TAB_SEQUENCE = "0";
@@ -39,8 +37,8 @@ public class Settings {
     public static final String PARAM_IDENTIFIER = "\u00A7" + "var@params" + "\u00A7";
     public static final String PARAM_PATTERN = "\u00A7" + "(\\w+)@params" + "\u00A7";
     private static final String[] BASE_URLS = new String[]{
-            "http://172.16.27.12:9080/eproc4qa/",
-            "http://172.16.27.12:9080/eproc4dev/"
+            "http://localhost:8000/app4qa/",
+            "http://localhost:8001/app4dev/"
     };
 
     private static final String[] RECORD_FILTER = new String[]{

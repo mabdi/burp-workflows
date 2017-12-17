@@ -40,7 +40,7 @@ public class DialogFlowNew extends AbstractDialog {
     private Vector<Vector<Object>> vectorCookie;
     private JTextArea txtParam;
     private JTextField txtDescription;
-    private List<Script> selectedScripts;
+    private List<Script> selectedScripts= new ArrayList<>();
 
     public DialogFlowNew() {
         super();

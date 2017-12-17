@@ -5,6 +5,7 @@ import com.behsazan.model.sqlite.FlowDb;
 import com.google.gson.annotations.Expose;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -32,7 +33,11 @@ public class Flow {
     public Flow(String name, String description, String parameters, List<Flow_Sequence> seqs,List<Script> scripts) {
         this.name = name;
         this.seqs = seqs;
-        this.scripts = scripts;
+
+        if (scripts == null)
+            this.scripts = new ArrayList<>();
+        else
+            this.scripts = scripts;
         this.parameters = parameters;
         this.description = description;
         for (Flow_Sequence tcs : seqs) {

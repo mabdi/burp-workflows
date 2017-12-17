@@ -23,8 +23,8 @@ public class SequenceDb extends SqliteHelper {
         stmt.setString(2, sq.getUrl());
         stmt.setString(3, sq.getDescription());
         stmt.setInt(4, sq.getRequest().size());
-        stmt.setString(5, sq.getRequest().get(0).getHttpService().toString());
-        stmt.setString(6, sq.getRequest().get(sq.getRequest().size() - 1).getHttpService().toString());
+        stmt.setString(5, sq.getRequest().get(0).toString());
+        stmt.setString(6, sq.getRequest().get(sq.getRequest().size() - 1).toString());
         stmt.executeUpdate();
 
         ResultSet rs = c.createStatement().executeQuery("select last_insert_rowid();");
@@ -37,7 +37,7 @@ public class SequenceDb extends SqliteHelper {
             stmt2.setInt(1, rq.getSequence().getId());
             stmt2.setBytes(2, rq.getRequest());
             stmt2.setBytes(3, rq.getResponse());
-            stmt2.setString(4, rq.getHttpService().toString());
+            stmt2.setString(4, DataUtils.getRootAddress(rq)) ;
             stmt2.setInt(5, order);
             stmt2.executeUpdate();
             stmt2.close();

@@ -37,7 +37,7 @@ public class DataUtils {
 
     public static String getAppHome() {
         String home = System.getProperty("user.home");
-        String appHome = home + "\\TadarokatBurp";
+        String appHome = home + "\\WorkflowsBurp";
         new File(appHome).mkdirs();
         return appHome;
     }
@@ -84,7 +84,7 @@ public class DataUtils {
         List<IParameter> hds = request.getAnalysedRequest().getParameters();
         for (IParameter hd :
                 hds) {
-            if (hd.getType() == IParameter.PARAM_COOKIE && hd.getName().equals("JSESSIONID")) {
+            if (hd.getType() == IParameter.PARAM_COOKIE && hd.getName().equals(Settings.getCookie())) {
                 return hd.getValue();
             }
         }
@@ -99,13 +99,12 @@ public class DataUtils {
             String hd = msg[i].trim();
             if (!newCookie.isEmpty()) {
                 if (hd.startsWith("Cookie: ")) {
-                    Pattern pattern = Pattern.compile("JSESSIONID=([^;]+)");
+                    Pattern pattern = Pattern.compile(Settings.getCookie() + "=([^;]+)");
                     Matcher matcher = pattern.matcher(hd);
                     if(matcher.find()){
                         String oldCookie = matcher.group(1);
                         msg[i] = hd.replace(oldCookie, newCookie);
                     }
-
                 }
             }
         }
