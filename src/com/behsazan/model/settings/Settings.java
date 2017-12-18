@@ -27,8 +27,8 @@ public class Settings {
 
     private static final long DELAY = 300;
     private static final String SESSION_COOKIENAME = "JSESSIONID";
-    private static final String SHOW_TAB_SEQUENCE = "0";
-    private static final String SHOW_TAB_SCRIPT = "0";
+    private static final String SHOW_TAB_SEQUENCE = "1";
+    private static final String SHOW_TAB_SCRIPT = "1";
     public static final String SECTION_CHAR = "\u00A7";
     public static final String LOCAL_IDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
     public static final String LOCAL_PATTERN = "\u00A7" + "(\\w+)@locals" + "\u00A7";

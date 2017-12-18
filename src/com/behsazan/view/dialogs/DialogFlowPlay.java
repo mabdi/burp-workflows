@@ -48,11 +48,13 @@ public class DialogFlowPlay extends AbstractDialog {
     private CardLayout cardLayout;
     private JPanel paramPanel;
     private JComboBox<String> cmbUrls;
-    private JComboBox<String> cmbParams;
+//    private JComboBox<String> cmbParams;
     private JTextArea txtValues;
     private Map<String, String[]> params;
     private boolean testIsRunning;
-    private DefaultComboBoxModel<String> modelParams;
+//    private DefaultComboBoxModel<String> modelParams;
+    private JList<String> listParams;
+    private DefaultListModel<String> modelParams;
 
     public DialogFlowPlay() {
         super(false);
@@ -141,7 +143,7 @@ public class DialogFlowPlay extends AbstractDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (actionBtn.getText().equalsIgnoreCase("next")) {
-                        updateParams((String) cmbParams.getSelectedItem());
+                        updateParams((String) listParams.getSelectedValue());
                         cardLayout.next(cardPanel);
                         actionBtn.setText("Run");
                         calcInstances();
@@ -245,27 +247,35 @@ public class DialogFlowPlay extends AbstractDialog {
             formUtility.addLastField(cmbUrls);
 
             formUtility.addLabel("Parameters: ");
-            modelParams = new DefaultComboBoxModel<>();
-            cmbParams = new JComboBox<>(modelParams);
-            cmbParams.addItemListener(new ItemListener() {
+
+            modelParams = new DefaultListModel<>();
+            listParams = new JList<>(modelParams);
+            listParams.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            listParams.addListSelectionListener(new ListSelectionListener() {
+                int selectedIndex = -1;
                 @Override
-                public void itemStateChanged(ItemEvent e) {
-                    if (e.getStateChange() == ItemEvent.DESELECTED) {
-                        updateParams((String) e.getItem());
-                    }
-                    if (e.getStateChange() == ItemEvent.SELECTED) {
-                        showParams((String) e.getItem());
+                public void valueChanged(ListSelectionEvent e) {
+                    if (e.getValueIsAdjusting()) {
+                        if(selectedIndex>=0)
+                            updateParams(modelParams.elementAt(selectedIndex));
+                        selectedIndex = e.getFirstIndex();
+                        showParams(modelParams.elementAt(selectedIndex));
                     }
                 }
             });
-            formUtility.addLastField(cmbParams);
+//            formUtility.addMiddleField();
 
-            formUtility.addLabel("Values: ");
             txtValues = new JTextArea(5, 10);
             txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtValues);
 
-            formUtility.addLabel("");
+            JSplitPane splitp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+            splitp.setLeftComponent(new JScrollPane(listParams));
+            splitp.setRightComponent(new JScrollPane(txtValues));
+            splitp.setDividerLocation(0.3);
+
+
+            formUtility.addLastField( splitp );
+
             JButton btnLoadFromFile = new JButton("Load from file");
             btnLoadFromFile.addActionListener(new ActionListener() {
                 @Override
@@ -298,7 +308,7 @@ public class DialogFlowPlay extends AbstractDialog {
                     }
                 }
             });
-            JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JPanel jp = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             jp.add(btnLoadFromFile);
             formUtility.addLastField(jp);
         }

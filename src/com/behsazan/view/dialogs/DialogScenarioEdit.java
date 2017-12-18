@@ -11,6 +11,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,19 +41,26 @@ public class DialogScenarioEdit extends AbstractDialog {
     private Scenario scenario;
     private Map<String ,String[]> params;
     private JComboBox<String> cmbUrls;
-    private DefaultComboBoxModel<String> modelParams;
-    private JComboBox<String> cmbParams;
+    private DefaultListModel<String> modelParams;
     private JTextArea txtValues;
     private JTextField txtName;
     private JTextArea txtDescription;
+    private JList<String> listParams;
+    private List<Flow> mflows;
 
     public DialogScenarioEdit() {
         super(false);
     }
 
+    public Map<String, String[]> getParams() {
+        if(params==null)
+            params = new HashMap<>();
+        return params;
+    }
+
     @Override
     protected void initUI() {
-        setSize(400, 300);
+        setSize(800, 600);
         setTitle("Edit Scenario");
         setLocationRelativeTo(getParentWindow());
         installEscapeCloseOperation();
@@ -96,34 +106,58 @@ public class DialogScenarioEdit extends AbstractDialog {
             formUtility.addLabel("Flow :");
             modelCombo = new DefaultComboBoxModel<>();
             cmbFlow = new JComboBox<>(modelCombo);
-            List<String> tests = Flow.getAllFlowName();
-            for (String t: tests) {
-                modelCombo.addElement(t);
+            mflows = Flow.getAllFlows();
+            for (Flow t: mflows) {
+                modelCombo.addElement(t.getName());
             }
-            formUtility.addLastField(cmbFlow);
 
-            formUtility.addLabel("Parameters: ");
-            modelParams = new DefaultComboBoxModel<>();
-            cmbParams = new JComboBox<>(modelParams);
-            cmbParams.addItemListener(new ItemListener() {
+            JButton btnShowParams = new JButton("Update Parameters");
+            btnShowParams.addActionListener(new ActionListener() {
                 @Override
-                public void itemStateChanged(ItemEvent e) {
-                    if (e.getStateChange() == ItemEvent.DESELECTED) {
-                        updateParams((String) e.getItem());
-                    }
-                    if (e.getStateChange() == ItemEvent.SELECTED) {
-                        showParams((String) e.getItem());
+                public void actionPerformed(ActionEvent e) {
+                    modelParams.removeAllElements();
+                    getParams().clear();
+                    Flow flow = mflows.get(cmbFlow.getSelectedIndex());
+                    for (String u : flow.getParametersExploded()) {
+                        modelParams.addElement(u);
                     }
                 }
             });
-            formUtility.addLastField(cmbParams);
+            JPanel jpr = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            jpr.add(btnShowParams);
+            formUtility.addMiddleField(cmbFlow);
+            formUtility.addLastField(jpr);
+            formUtility.addLabel("Parameters: ");
 
-            formUtility.addLabel("Values: ");
-            txtValues = new JTextArea(5,10);
+            modelParams = new DefaultListModel<>();
+            listParams = new JList<>(modelParams);
+            listParams.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            listParams.addListSelectionListener(new ListSelectionListener() {
+                int selectedIndex = -1;
+                @Override
+                public void valueChanged(ListSelectionEvent e) {
+                    if (e.getValueIsAdjusting()) {
+                        if(selectedIndex>=0)
+                            updateParams(modelParams.elementAt(selectedIndex));
+                        selectedIndex = e.getFirstIndex();
+                        showParams(modelParams.elementAt(selectedIndex));
+                    }
+                }
+            });
+            listParams.setSelectedIndex(0);
+//            formUtility.addMiddleField();
+
+            txtValues = new JTextArea(5, 10);
             txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
-            formUtility.addLastField(txtValues);
 
-            formUtility.addLabel("");
+            JSplitPane splitp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+            splitp.setLeftComponent(new JScrollPane(listParams));
+            splitp.setRightComponent(new JScrollPane(txtValues));
+            splitp.setDividerLocation(0.3);
+
+
+            formUtility.addLastField( splitp );
+
             JButton btnLoadFromFile = new JButton("Load from file");
             btnLoadFromFile.addActionListener(new ActionListener() {
                 @Override
@@ -156,9 +190,67 @@ public class DialogScenarioEdit extends AbstractDialog {
                     }
                 }
             });
-            JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JPanel jp = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             jp.add(btnLoadFromFile);
             formUtility.addLastField(jp);
+
+//            formUtility.addLabel("Parameters: ");
+//            modelParams = new DefaultComboBoxModel<>();
+//            cmbParams = new JComboBox<>(modelParams);
+//            cmbParams.addItemListener(new ItemListener() {
+//                @Override
+//                public void itemStateChanged(ItemEvent e) {
+//                    if (e.getStateChange() == ItemEvent.DESELECTED) {
+//                        updateParams((String) e.getItem());
+//                    }
+//                    if (e.getStateChange() == ItemEvent.SELECTED) {
+//                        showParams((String) e.getItem());
+//                    }
+//                }
+//            });
+//            formUtility.addLastField(cmbParams);
+//
+//            formUtility.addLabel("Values: ");
+//            txtValues = new JTextArea(5,10);
+//            txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
+//            formUtility.addLastField(txtValues);
+//
+//            formUtility.addLabel("");
+//            JButton btnLoadFromFile = new JButton("Load from file");
+//            btnLoadFromFile.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    final JFileChooser fc = new JFileChooser();
+//                    int returnVal = fc.showOpenDialog(DialogScenarioEdit.this);
+//                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+//                    fc.addChoosableFileFilter(new FileFilter() {
+//                        @Override
+//                        public boolean accept(File f) {
+//                            return f.getAbsolutePath().toLowerCase().endsWith(".txt");
+//                        }
+//
+//                        @Override
+//                        public String getDescription() {
+//                            return "Text Files (*.txt)";
+//                        }
+//                    });
+//                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+//                        File file = fc.getSelectedFile();
+//                        try {
+//                            List<String> lines = FileUtils.readLines(file, Charset.forName("UTF-8"));
+//                            for (String line :
+//                                    lines) {
+//                                appendLine(line);
+//                            }
+//                        } catch (IOException e1) {
+//                            e1.printStackTrace();
+//                        }
+//                    }
+//                }
+//            });
+//            JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//            jp.add(btnLoadFromFile);
+//            formUtility.addLastField(jp);
         }
         return formPanel;
     }
