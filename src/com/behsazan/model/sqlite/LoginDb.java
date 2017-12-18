@@ -9,6 +9,7 @@ import java.util.Vector;
 /**
  * Created by admin on 08/24/2017.
  */
+@Deprecated
 public class LoginDb extends SqliteHelper {
 
 

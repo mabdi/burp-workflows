@@ -19,6 +19,7 @@ import static com.behsazan.view.UIUtils.FormUtility;
 /**
  * Created by admin on 08/21/2017.
  */
+@Deprecated
 public class DialogLoginEdit extends AbstractDialog {
 
     private JPanel formPanel;

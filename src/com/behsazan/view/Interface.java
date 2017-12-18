@@ -26,10 +26,10 @@ public class Interface implements ITab {
         tabsPane = new JTabbedPane();
         AbstractTab[] tabs = new AbstractTab[]{
                 (Settings.isShowTabSequence())? new TabSequnces():null,
-                (Settings.isShowTabScript())? new TabScripts():null,
                 new TabFlow(),
-                new TabLogins(),
+//                new TabLogins(),
                 new TabScenarios(),
+                (Settings.isShowTabScript())? new TabScripts():null,
                 new TabSettings(),
         };
         for (AbstractTab tab : tabs) {

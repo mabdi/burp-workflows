@@ -11,6 +11,7 @@ import java.util.Vector;
 /**
  * Created by admin on 07/31/2017.
  */
+@Deprecated
 public class TableModelLogins extends AbstractTableModel {
     private Vector<Vector<Object>> data;
     private String[] columns = new String[]{

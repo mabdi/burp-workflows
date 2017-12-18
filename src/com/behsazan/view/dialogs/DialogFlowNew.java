@@ -31,16 +31,18 @@ public class DialogFlowNew extends AbstractDialog {
 //    private JTextField txtRootAddress;
 //    private JTextField txtBase1;
 //    private JTextField txtBase2;
-    private JComboBox<String> cmbCookie;
+//    private JComboBox<String> cmbCookie;
     private JPanel centerPanel;
     private DefaultListModel<SequenceListModelObject> modelSequeces;
     private JButton btnRequest;
     private SequenceListModelObject activeSequence;
-    private DefaultComboBoxModel<String> modelCookie;
-    private Vector<Vector<Object>> vectorCookie;
+//    private DefaultComboBoxModel<String> modelCookie;
+//    private Vector<Vector<Object>> vectorCookie;
     private JTextArea txtParam;
     private JTextField txtDescription;
     private List<Script> selectedScripts= new ArrayList<>();
+    private JTextField txtCookie;
+    private JButton btnCookie;
 
     public DialogFlowNew() {
         super();
@@ -256,29 +258,70 @@ public class DialogFlowNew extends AbstractDialog {
 //        }
 //        activeSequence.getFlow_sequence().setBase1(txtBase1.getText());
 //        activeSequence.getFlow_sequence().setBase2(txtBase2.getText());
-        if(cmbCookie.getSelectedIndex()>0) {
-            String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
-            activeSequence.getFlow_sequence().setCookie(param);
-        }else{
-            activeSequence.getFlow_sequence().setCookie("");
-        }
+
+
+        activeSequence.getFlow_sequence().setCookie(txtCookie.getText().trim());
+
+
+
+//        if(cmbCookie.getSelectedIndex()>0) {
+//            String param = (String) vectorCookie.get(cmbCookie.getSelectedIndex() - 1).get(3);
+//            activeSequence.getFlow_sequence().setCookie(param);
+//        }else{
+//            activeSequence.getFlow_sequence().setCookie("");
+//        }
     }
 
     private void showSequenceDetail() {
         Request req1 = activeSequence.getSequence().getRequest().get(0);
-        cmbCookie.setEnabled(true);
-        String cookeOutParam = activeSequence.getFlow_sequence().getCookie();
-        cmbCookie.setSelectedIndex(0);
-        if(!cookeOutParam.isEmpty()){
-            int i=1;
-            for(Vector<Object> obj: vectorCookie){
-                if(obj.get(3).equals(cookeOutParam)){
-                    cmbCookie.setSelectedIndex(i);
-                    break;
-                }
-                i++;
+        txtCookie.setEnabled(true);
+        btnCookie.setEnabled(true);
+        btnCookie.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JPopupMenu popup = new JPopupMenu();
+                JMenuItem jmi = new JMenuItem(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
+                jmi.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        txtCookie.setText(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
+                    }
+                });
+                popup.add(jmi);
+                JMenuItem jmi2 = new JMenuItem(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
+                jmi2.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        txtCookie.setText(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
+                    }
+                });
+                popup.add(jmi2);
+                JMenuItem jmi3 = new JMenuItem(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
+                jmi3.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        txtCookie.setText(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
+                    }
+                });
+                popup.add(jmi3);
+
+                popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
             }
-        }
+        });
+//        cmbCookie.setEnabled(true);
+        String cookeOutParam = activeSequence.getFlow_sequence().getCookie();
+        txtCookie.setText(cookeOutParam);
+//        cmbCookie.setSelectedIndex(0);
+//        if(!cookeOutParam.isEmpty()){
+//            int i=1;
+//            for(Vector<Object> obj: vectorCookie){
+//                if(obj.get(3).equals(cookeOutParam)){
+//                    cmbCookie.setSelectedIndex(i);
+//                    break;
+//                }
+//                i++;
+//            }
+//        }
         btnRequest.setEnabled(true);
     }
 
@@ -352,15 +395,24 @@ public class DialogFlowNew extends AbstractDialog {
 
             UIUtils.FormUtility formUtility = new UIUtils.FormUtility(sequenceDetailPanel);
             formUtility.addLabel("Change Cookie: ");
-            modelCookie = new DefaultComboBoxModel<String>();
-            vectorCookie = Login.getAllLogins_Table();
-            modelCookie.addElement("none");
-            for(Vector<Object> login: vectorCookie){
-                modelCookie.addElement(""+ login.get(0) + ". " + login.get(1) + " (" + login.get(3) + ")");
-            }
-            cmbCookie = new JComboBox<String>(modelCookie);
-            cmbCookie.setEnabled(false);
-            formUtility.addLastField(cmbCookie);
+
+//            modelCookie = new DefaultComboBoxModel<String>();
+//            vectorCookie = Login.getAllLogins_Table();
+//            modelCookie.addElement("none");
+//            for(Vector<Object> login: vectorCookie){
+//                modelCookie.addElement(""+ login.get(0) + ". " + login.get(1) + " (" + login.get(3) + ")");
+//            }
+//            cmbCookie = new JComboBox<String>(modelCookie);
+//            cmbCookie.setEnabled(false);
+//            formUtility.addLastField(cmbCookie);
+            txtCookie = new JTextField();
+            txtCookie.setEnabled(false);
+            formUtility.addMiddleField(txtCookie);
+            btnCookie = new JButton("From variables");
+            btnCookie.setEnabled(false);
+            JPanel jpn = new JPanel(new FlowLayout(FlowLayout.LEFT  ));
+            jpn.add(btnCookie);
+            formUtility.addLastField(jpn);
 
             formUtility.addLabel("Edit Requests: ");
 

@@ -19,6 +19,7 @@ import java.util.List;
 /**
  * Created by admin on 08/02/2017.
  */
+@Deprecated
 public class DialogLoginPlay extends AbstractDialog {
 
     private DialogWaiting pleaseWaitDialog;

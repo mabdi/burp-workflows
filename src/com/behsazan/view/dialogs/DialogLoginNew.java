@@ -17,6 +17,7 @@ import java.util.List;
 /**
  * Created by admin on 08/21/2017.
  */
+@Deprecated
 public class DialogLoginNew extends AbstractDialog {
 
     private JPanel formPanel;

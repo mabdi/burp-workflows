@@ -14,6 +14,7 @@ import java.sql.SQLException;
 /**
  * Created by admin on 07/29/2017.
  */
+@Deprecated
 public class TabLogins extends AbstractTab {
 
     private JPanel toolbar;

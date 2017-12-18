@@ -8,6 +8,7 @@ import java.util.Vector;
 /**
  * Created by admin on 08/21/2017.
  */
+@Deprecated
 public class Login {
     private int id;
     private String username;
