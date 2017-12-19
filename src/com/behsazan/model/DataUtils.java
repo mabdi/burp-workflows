@@ -4,11 +4,12 @@ import burp.*;
 import com.behsazan.controller.Controller;
 import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
-import com.behsazan.model.entity.*;
+import com.behsazan.model.entity.Flow;
+import com.behsazan.model.entity.Request;
+import com.behsazan.model.entity.ResponseOut;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.dialogs.DialogCaptcha;
 import com.google.gson.*;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -23,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -70,7 +70,7 @@ public class DataUtils {
         if(h.getPort()!=80 && h.getPort()!= 443){
             port = ":" + h.getPort();
         }
-        return h.getProtocol()+"://"+h.getHost()+port+"/";
+        return h.getProtocol() + "://" + h.getHost() + port;
     }
 
     public static String getBasePath(Request request) {

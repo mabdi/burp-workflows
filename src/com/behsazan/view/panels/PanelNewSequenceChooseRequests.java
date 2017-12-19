@@ -10,8 +10,6 @@ import com.behsazan.view.abstracts.AbstractPanel;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableModel;
-import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -77,6 +75,9 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
 
         form.addLabel("Base URL: ");
         form.addLastField(txtUrl);
+
+        form.addLabel("");
+        form.addLastField(new JLabel("Leave blank to set automatically."));
 
         enableFilter = new JCheckBox("Apply filter");
         enableFilter.addActionListener(new ActionListener() {
@@ -310,28 +311,30 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
                 return "";
             }
         }
-        String[] ptt = rqs.get(0).getAnalysedRequest().getUrl().getPath().split("/");
-        if(ptt.length <2){
+        String pttStr = rqs.get(0).getAnalysedRequest().getUrl().getPath();
+        if (pttStr.trim().isEmpty()) {
+            return url;
+        }
+        String[] ptt = pttStr.substring(1).split("/");
+        if (ptt.length == 0) {
             return url;
         }
         for(Request rq : rqs){
-            String[] ptt2 = rq.getAnalysedRequest().getUrl().getPath().split("/");
-            for (int i = 0; i < ptt.length; i++) {
+            String pttStr2 = rq.getAnalysedRequest().getUrl().getPath();
+            String[] ptt2 = pttStr2.substring(1).split("/");
+            for (int i = 0; i < ptt.length && i < ptt2.length; i++) {
                 if(!ptt[i].equals(ptt2[i])){
                     ptt[i] = "";
                 }
             }
         }
-        String path = "/";
+        String path = "";
         for (int i = 0; i < ptt.length; i++) {
             String p = ptt[i];
             if(p.trim().isEmpty()){
-                if(i>0)
                     break;
-                else
-                    continue;
             }
-            path += p + "/";
+            path += "/" + p;
         }
         return url + path;
     }
