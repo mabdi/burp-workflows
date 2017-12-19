@@ -4,9 +4,9 @@ import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.ITextEditor;
 import com.behsazan.model.adapters.TableModelResponseOut;
-import com.behsazan.model.entity.ResponseOut;
 import com.behsazan.model.entity.Flow_Request;
 import com.behsazan.model.entity.Flow_Sequence;
+import com.behsazan.model.entity.ResponseOut;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.abstracts.AbstractPanel;
 import com.behsazan.view.dialogs.DialogResponseOutput;
@@ -130,8 +130,8 @@ public class PanelFlowRequests extends AbstractPanel {
                     popup.add(jmi);
                     String[] params = strParams.split(",");
                     for (String p:params) {
-                        final String data = Settings.PARAM_IDENTIFIER.replace("var",p);
-                        jmi = new JMenuItem(p);
+                        final String data = Settings.PARAM_IDENTIFIER.replace("var", p.trim());
+                        jmi = new JMenuItem(p.trim());
                         jmi.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {

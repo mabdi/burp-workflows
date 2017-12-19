@@ -127,6 +127,7 @@ public class DataUtils {
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
+                    // TODO: It seems it's logic is incorrect. debug it in future.
                     msg[i] = "Referer: " + (urlNew.toString() + urlOld.getFile().substring(1));
                 }
             }
@@ -266,7 +267,11 @@ public class DataUtils {
         }
         if(outPar.getType() == ResponseOut.TYPE_COOKIE){
             for (ICookie coo :response.getCookies()) {
-                if(coo.getName().equals(Settings.getCookie())){
+                String cookie = outPar.getParam();
+                if (cookie == null || cookie.trim().isEmpty()) {
+                    cookie = Settings.getCookie();
+                }
+                if (coo.getName().equals(cookie)) {
                     if(outPar.isGlobal()) {
                         instance.updateGlobalVariable(outPar.getName(),coo.getValue());
                     } else {

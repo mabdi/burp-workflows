@@ -1,7 +1,7 @@
 package com.behsazan.view.dialogs;
 
 import com.behsazan.model.entity.ResponseOut;
-import com.behsazan.model.entity.Flow_Request;
+import com.behsazan.model.settings.Settings;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
 
@@ -168,6 +168,22 @@ public class DialogResponseOutput extends AbstractDialog {
 
     private void initData(String data) {
         comboType.setSelectedItem(data);
+        if (data.equals(ResponseOut.getTypesString().get(ResponseOut.TYPE_CAPTCHA))) {
+            txtPlaceHolder.setText("captcha");
+        }
+        if (data.equals(ResponseOut.getTypesString().get(ResponseOut.TYPE_COOKIE))) {
+            txtPlaceHolder.setText("cookie");
+            txtValues.setText(Settings.getCookie());
+        }
+        if (data.equals(ResponseOut.getTypesString().get(ResponseOut.TYPE_HIDDEN))) {
+            txtPlaceHolder.setText("form");
+        }
+        if (data.equals(ResponseOut.getTypesString().get(ResponseOut.TYPE_CSS))) {
+            txtPlaceHolder.setText("css");
+        }
+        if (data.equals(ResponseOut.getTypesString().get(ResponseOut.TYPE_REGEX))) {
+            txtPlaceHolder.setText("regex");
+        }
         txtPlaceHolder.requestFocus();
     }
 

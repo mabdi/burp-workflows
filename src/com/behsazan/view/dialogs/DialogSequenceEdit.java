@@ -49,7 +49,6 @@ public class DialogSequenceEdit extends AbstractDialog implements IMessageEditor
         this.txtSeqName.setText(sequence.getName());
         this.txtDescription.setText(sequence.getDescription());
         this.txtUrl.setText(sequence.getUrl());
-
         this.txtSeqName.repaint();
         List<Request> requests = sequence.getRequest();
         for (Request rq: requests) {

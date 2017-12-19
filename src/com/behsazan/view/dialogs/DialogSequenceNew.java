@@ -8,10 +8,8 @@ import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.entity.Request;
 import com.behsazan.model.entity.Sequence;
 import com.behsazan.model.settings.Settings;
-import com.behsazan.model.sqlite.SqliteHelper;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
-import com.behsazan.view.panels.PanelEditSequence;
 import com.behsazan.view.panels.PanelNewSequenceChooseRequests;
 
 import javax.swing.*;
@@ -108,11 +106,8 @@ public class DialogSequenceNew extends AbstractDialog {
                         return;
                     }
                     if(url.isEmpty()){
-                        url = choosePanel.getReferedURL();
-                        if(url.isEmpty()){
-                            JOptionPane.showMessageDialog(DialogSequenceNew.this,"Url is not set.","Error",JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
+                        JOptionPane.showMessageDialog(DialogSequenceNew.this, "Url is not set.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
                     if(!DataUtils.isValidURL(url)){
                         JOptionPane.showMessageDialog(DialogSequenceNew.this,"Invalid Url.","Error",JOptionPane.ERROR_MESSAGE);

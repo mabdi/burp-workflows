@@ -74,10 +74,18 @@ public class PanelNewSequenceChooseRequests extends AbstractPanel implements IMe
         form.addLastField(txtDescription);
 
         form.addLabel("Base URL: ");
-        form.addLastField(txtUrl);
 
-        form.addLabel("");
-        form.addLastField(new JLabel("Leave blank to set automatically."));
+        form.addMiddleField(txtUrl);
+        JPanel jpnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton jbtn = new JButton("Try to set");
+        jbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                txtUrl.setText(getReferedURL());
+            }
+        });
+        jpnl.add(jbtn);
+        form.addLastField(jpnl);
 
         enableFilter = new JCheckBox("Apply filter");
         enableFilter.addActionListener(new ActionListener() {
