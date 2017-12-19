@@ -30,6 +30,7 @@ public class Interface implements ITab {
 //                new TabLogins(),
                 new TabScenarios(),
                 (Settings.isShowTabScript())? new TabScripts():null,
+                new TabGlobals(),
                 new TabSettings(),
         };
         for (AbstractTab tab : tabs) {

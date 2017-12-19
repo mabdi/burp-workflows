@@ -28,7 +28,7 @@ public class ScriptDb extends SqliteHelper {
     public Vector<Vector<Object>> getAllScripts_Table() throws SQLException {
         Connection c = getConnection();
         Statement stmt = c.createStatement();
-        ResultSet allRequests = stmt.executeQuery("SELECT ID,NAME,BODY, TYPE ,LANG from SCRIPT");
+        ResultSet allRequests = stmt.executeQuery("SELECT ID,NAME, TYPE ,LANG from SCRIPT");
         Vector<Vector<Object>> data = resultSetToVector(allRequests);
         allRequests.close();
         stmt.close();
@@ -62,10 +62,9 @@ public class ScriptDb extends SqliteHelper {
 
 
     public boolean isPossibleToDeleteScript(int id) throws SQLException {
-        // TODO
         Connection c = null;
         c = getConnection();
-        PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) from FLOW_SEQUENCE WHERE SEQUENCE_ID =?");
+        PreparedStatement stmt = c.prepareStatement("SELECT COUNT(*) from FLOW_SCRIPT WHERE SCRIPT_ID =?");
         stmt.setInt(1, id);
         ResultSet allRequests = stmt.executeQuery();
         allRequests.next();
@@ -139,7 +138,7 @@ public class ScriptDb extends SqliteHelper {
 
         try {
             c = getConnection();
-            stmt = c.prepareStatement("SELECT ID,NAME,BODY,TYPE,LANG from SEQUENCE WHERE ID=?");
+            stmt = c.prepareStatement("SELECT ID,NAME,BODY,TYPE,LANG from SCRIPT WHERE ID=?");
             stmt.setInt(1, sid);
             rq = stmt.executeQuery();
             if (!rq.next()) {

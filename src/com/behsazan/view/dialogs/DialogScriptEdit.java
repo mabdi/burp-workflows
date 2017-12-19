@@ -35,7 +35,27 @@ public class DialogScriptEdit extends AbstractDialog {
 
 
     public DialogScriptEdit(int id) {
+        super(false);
         this.scriptObj = Script.getById(id);
+        txtName.setText(scriptObj.getName());
+        comboType.getModel().setSelectedItem(Script.getTypesString().get(scriptObj.getType()));
+        comboLang.getModel().setSelectedItem(Script.getLangsString().get(scriptObj.getLang()));
+        switch (getSelectedLang()) {
+            case Script.LANG_JS:
+                textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+                break;
+            case Script.LANG_PYTHON:
+                textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+                break;
+            case Script.LANG_RUBY:
+                textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_RUBY);
+                break;
+        }
+        textArea.revalidate();
+        textArea.setText(scriptObj.getText());
+        setVisible(true);
+
+
     }
 
 
@@ -71,12 +91,12 @@ public class DialogScriptEdit extends AbstractDialog {
                 modelCombo.addElement(v);
             }
             comboType.setModel(modelCombo);
-            comboType.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    alertChange();
-                }
-            });
+//            comboType.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    alertChange();
+//                }
+//            });
             form.addLastField(comboType);
 
             form.addLabel("Language:");
@@ -87,12 +107,12 @@ public class DialogScriptEdit extends AbstractDialog {
                 modelCombo2.addElement(v);
             }
             comboLang.setModel(modelCombo2);
-            comboLang.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    alertChange();
-                }
-            });
+//            comboLang.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    alertChange();
+//                }
+//            });
             form.addLastField(comboLang);
         }
         return topPanel;

@@ -3,7 +3,7 @@ package com.behsazan.view.dialogs;
 import com.behsazan.controller.Controller;
 import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
-import com.behsazan.model.entity.*;
+import com.behsazan.model.entity.Flow;
 import com.behsazan.model.settings.Settings;
 import com.behsazan.view.UIUtils;
 import com.behsazan.view.abstracts.AbstractDialog;
@@ -18,8 +18,6 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -255,10 +253,10 @@ public class DialogFlowPlay extends AbstractDialog {
                 int selectedIndex = -1;
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
-                    if (e.getValueIsAdjusting()) {
+                    if (!e.getValueIsAdjusting()) {
                         if(selectedIndex>=0)
                             updateParams(modelParams.elementAt(selectedIndex));
-                        selectedIndex = e.getFirstIndex();
+                        selectedIndex = listParams.getSelectedIndex();
                         showParams(modelParams.elementAt(selectedIndex));
                     }
                 }

@@ -23,23 +23,13 @@ public abstract class AbstractDialog extends JDialog {
         this(true);
     }
 
-    public AbstractDialog(boolean setVisible){
+    public AbstractDialog(final boolean setVisible) {
         this.parent_window = BurpExtender.getUiParent();
         setModalityType(ModalityType.APPLICATION_MODAL);
-        preInitUI();
         initUI();
-        postInitUI();
         if(setVisible) {
             setVisible(true);
         }
-    }
-
-    protected void postInitUI() {
-
-    }
-
-    protected void preInitUI() {
-
     }
 
     protected abstract void initUI();

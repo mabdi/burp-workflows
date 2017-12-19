@@ -17,11 +17,8 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -136,10 +133,10 @@ public class DialogScenarioEdit extends AbstractDialog {
                 int selectedIndex = -1;
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
-                    if (e.getValueIsAdjusting()) {
+                    if (!e.getValueIsAdjusting()) {
                         if(selectedIndex>=0)
                             updateParams(modelParams.elementAt(selectedIndex));
-                        selectedIndex = e.getFirstIndex();
+                        selectedIndex = listParams.getSelectedIndex();
                         showParams(modelParams.elementAt(selectedIndex));
                     }
                 }
@@ -293,7 +290,7 @@ public class DialogScenarioEdit extends AbstractDialog {
                         JOptionPane.showMessageDialog(DialogScenarioEdit.this,"Some required filed is not set.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    if(DataUtils.isValidURL(url)){
+                    if (!DataUtils.isValidURL(url)) {
                         JOptionPane.showMessageDialog(DialogScenarioEdit.this,"Invalid URL.","Error",JOptionPane.ERROR_MESSAGE);
                         return;
                     }

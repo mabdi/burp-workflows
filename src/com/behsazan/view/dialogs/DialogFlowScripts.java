@@ -1,6 +1,5 @@
 package com.behsazan.view.dialogs;
 
-import com.behsazan.model.adapters.TableModelScripts;
 import com.behsazan.model.adapters.TableModelScriptsSelect;
 import com.behsazan.model.entity.Script;
 import com.behsazan.view.abstracts.AbstractDialog;
@@ -26,6 +25,10 @@ public class DialogFlowScripts extends AbstractDialog {
     private JPopupMenu popup;
     private List<Script> result;
 
+    public DialogFlowScripts() {
+        super(false);
+    }
+
     @Override
     protected void initUI() {
         setSize(800, 600);
@@ -40,7 +43,20 @@ public class DialogFlowScripts extends AbstractDialog {
     }
 
     public List<Script> getData() {
+        setVisible(true);
         return result;
+    }
+
+    public List<Script> getData(List<Script> scripts) {
+        for (Script s1 : scripts) {
+            for (Script s2 : tableAllModel.getData()) {
+                if (s2.getId() == s1.getId()) {
+                    tableSelectedModel.getData().add(s1);
+                }
+            }
+        }
+        tableSelectedModel.fireTableDataChanged();
+        return getData();
     }
 
     private JPanel getCenterPanel() {
@@ -198,6 +214,7 @@ public class DialogFlowScripts extends AbstractDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 tableSelectedModel.getData().add(tableAllModel.getData().get(tableAll.getSelectedRow()));
+                tableSelectedModel.fireTableDataChanged();
             }
         });
         buttonPanel.add(buttonin);
@@ -207,7 +224,10 @@ public class DialogFlowScripts extends AbstractDialog {
         buttonout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tableSelectedModel.getData().remove(tableSelected.getSelectedRow());
+                if (tableSelected.getSelectedRow() > 0) {
+                    tableSelectedModel.getData().remove(tableSelected.getSelectedRow());
+                    tableSelectedModel.fireTableDataChanged();
+                }
             }
         });
         buttonPanel.add(buttonout);

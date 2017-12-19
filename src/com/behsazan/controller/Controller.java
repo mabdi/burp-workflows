@@ -13,7 +13,10 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by admin on 08/24/2017.
@@ -96,7 +99,7 @@ public class Controller {
                 }
                 msg = DataUtils.changeUrlBase(msg,oldBase,newBase);
                 if(!cookie.isEmpty()) {
-                    msg = DataUtils.changeCookie(msg, Flow_Running.queryGlobalVariable(cookie) );
+                    msg = DataUtils.changeCookie(msg, cookie);
                 }
                 msg = DataUtils.applyParameter(msg,instance);
                 // injection point -- after request modify
