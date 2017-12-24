@@ -3,9 +3,9 @@ package com.behsazan.view.panels;
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.IMessageEditor;
+import com.behsazan.controller.Flow_Running;
 import com.behsazan.model.adapters.RequestListModelObject;
 import com.behsazan.model.adapters.TableModelResponseOut;
-import com.behsazan.controller.Flow_Running;
 import com.behsazan.view.abstracts.AbstractPanel;
 
 import javax.swing.*;
@@ -88,7 +88,9 @@ public class PanelFlowPlay extends AbstractPanel {
         requestViewer.setMessage(currentlyDisplayedRequest.getRequest(), true);
         responseViewer.setMessage(currentlyDisplayedRequest.getResponse(), false);
         requestTemplateViewer.setMessage(currentlyDisplayedRequest.getTestRequest().getModifiedRequest(), true);
-        jtableLocals.setModel(currentlyDisplayedInstance.localsToTableModel());
+        if (currentlyDisplayedInstance != null) {
+            jtableLocals.setModel(currentlyDisplayedInstance.localsToTableModel());
+        }
     }
 
     public void addNewRequest(RequestListModelObject obj) {
