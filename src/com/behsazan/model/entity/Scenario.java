@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -167,9 +168,15 @@ public class Scenario {
 
     public static Map<String,String[]> toMapParam(String json){
         Gson gson = new GsonBuilder().create();
-        Map<String,String[]> map = new HashMap<>();
-        map = (Map<String, String[]>) gson.fromJson(json, map.getClass());
-        // CAST PROBLEM :(X TODO
-        return map;
+        // https://stackoverflow.com/questions/47889531/java-gson-classcastexception-on-decoding-to-mapstring-string/47890117#47890117
+        Map<String, List<String>> map = new HashMap<>();
+        map = (Map<String, List<String>>) gson.fromJson(json, map.getClass());
+        Map<String, String[]> map2 = new HashMap<>();
+        for (String key : map.keySet()) {
+            List<String> usernames = map.get("username");
+            String[] val = usernames.toArray(new String[0]);
+            map2.put(key, val);
+        }
+        return map2;
     }
 }
