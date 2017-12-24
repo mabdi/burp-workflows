@@ -135,6 +135,35 @@ public class DataUtils {
         return msg;
     }
 
+
+    public static String[] setContentLength(String[] msg) {
+        for (int i = 0; i < msg.length; i++) {
+            if (msg[i].trim().isEmpty()) {
+                break;
+            }
+            String hd = msg[i].trim();
+            if (hd.startsWith("Content-Length: ")) {
+                msg[i] = "Content-Length: " + calculateContentLength(msg);
+            }
+        }
+        return msg;
+    }
+
+    private static int calculateContentLength(String[] msg) {
+        boolean isblankLinePassed = false;
+        int res = 0;
+        for (int i = 0; i < msg.length; i++) {
+            if (msg[i].trim().isEmpty()) {
+                isblankLinePassed = true;
+                continue;
+            }
+            if (isblankLinePassed) {
+                res += msg[i].getBytes().length;
+            }
+        }
+        return res;
+    }
+
     private static String[] changeHost(String[] msg, String newHost) {
         for (int i=0;i<msg.length;i++) {
             if (msg[i].trim().isEmpty()) {
@@ -410,6 +439,7 @@ public class DataUtils {
         }
         return false;
     }
+
 
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
         @Override

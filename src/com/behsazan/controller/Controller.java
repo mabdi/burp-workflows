@@ -102,6 +102,7 @@ public class Controller {
                     msg = DataUtils.changeCookie(msg, cookie);
                 }
                 msg = DataUtils.applyParameter(msg,instance);
+                msg = DataUtils.setContentLength(msg);
                 // injection point -- after request modify
                 for(Script script: instance.getFlow().getScripts()){
                     if(script.getType() == Script.TYPE_ON_REQUEST_AFTER_ASSIGNMENT){

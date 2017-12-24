@@ -69,9 +69,17 @@ public class DialogScenarioEdit extends AbstractDialog {
     public void setData(int id){
         Scenario scenario = Scenario.getById(id);
         this.scenario = scenario;
+        txtName.setText(scenario.getName());
+        txtDescription.setText(scenario.getDescription());
         cmbUrls.setSelectedItem(scenario.getUrl());
         cmbFlow.setSelectedItem(scenario.getFlow().getName());
         params = scenario.getParams_map();
+        for (String u : scenario.getFlow().getParametersExploded()) {
+            modelParams.addElement(u);
+        }
+        if (modelParams.size() > 0) {
+            listParams.setSelectedIndex(0);
+        }
         setVisible(true);
     }
 
@@ -112,12 +120,7 @@ public class DialogScenarioEdit extends AbstractDialog {
             btnShowParams.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    modelParams.removeAllElements();
-                    getParams().clear();
-                    Flow flow = mflows.get(cmbFlow.getSelectedIndex());
-                    for (String u : flow.getParametersExploded()) {
-                        modelParams.addElement(u);
-                    }
+                    updateParametersOnclick();
                 }
             });
             JPanel jpr = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -250,6 +253,15 @@ public class DialogScenarioEdit extends AbstractDialog {
 //            formUtility.addLastField(jp);
         }
         return formPanel;
+    }
+
+    private void updateParametersOnclick() {
+        modelParams.removeAllElements();
+        getParams().clear();
+        Flow flow = mflows.get(cmbFlow.getSelectedIndex());
+        for (String u : flow.getParametersExploded()) {
+            modelParams.addElement(u);
+        }
     }
 
     private void appendLine(String line){

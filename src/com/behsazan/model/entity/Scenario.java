@@ -168,6 +168,8 @@ public class Scenario {
     public static Map<String,String[]> toMapParam(String json){
         Gson gson = new GsonBuilder().create();
         Map<String,String[]> map = new HashMap<>();
-        return (Map<String,String[]>)gson.fromJson(json, map.getClass());
+        map = (Map<String, String[]>) gson.fromJson(json, map.getClass());
+        // CAST PROBLEM :(X TODO
+        return map;
     }
 }
