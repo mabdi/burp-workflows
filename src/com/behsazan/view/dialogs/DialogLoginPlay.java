@@ -45,7 +45,7 @@ public class DialogLoginPlay extends AbstractDialog {
                 Map<String,String> map = new HashMap<>();
                 map.put("username",login.getUsername());
                 map.put("password",login.getPassword());
-                run = new Flow_Running(login.getFlow(),login.getUrl(),map,1);
+                run = new Flow_Running(login.getFlow(),login.getUsername(),login.getUrl(),map,1);
                 return null;
             }
 

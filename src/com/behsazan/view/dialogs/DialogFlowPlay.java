@@ -334,7 +334,7 @@ public class DialogFlowPlay extends AbstractDialog {
             @Override
             protected Void doInBackground() throws Exception {
                 String baseUrl = (String) cmbUrls.getSelectedItem();
-                flow_runnings = Controller.buildTestCaseInstances(DialogFlowPlay.this.flow, baseUrl, params, new Controller.BuildTestCaseInstancesListener() {
+                flow_runnings = Controller.buildTestCaseInstances(DialogFlowPlay.this.flow,DialogFlowPlay.this.flow.getName() + "-test", baseUrl, params, new Controller.BuildTestCaseInstancesListener() {
                     @Override
                     public void publishInstance(Flow_Running instance) {
                         publish(instance);

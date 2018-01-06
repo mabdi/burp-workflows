@@ -30,6 +30,9 @@ public class Settings {
     private static final String SHOW_TAB_SEQUENCE = "1";
     private static final String SHOW_TAB_SCRIPT = "1";
     public static final String SECTION_CHAR = "\u00A7";
+
+    public static final String TYPE_PATTERN = "\u00A7" + "(\\w+)@(\\w+)" + "\u00A7";
+
     public static final String LOCAL_IDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
     public static final String LOCAL_PATTERN = "\u00A7" + "(\\w+)@locals" + "\u00A7";
     public static final String GLOBAL_IDENTIFIER = "\u00A7" + "var@globals" + "\u00A7";

@@ -23,13 +23,13 @@ import java.util.Map;
  */
 public class Controller {
 
-    public static List<Flow_Running> buildTestCaseInstances(Flow tcase, String baseUrl , Map<String,String[]> params,  BuildTestCaseInstancesListener listener){
+    public static List<Flow_Running> buildTestCaseInstances(Flow tcase, String name, String baseUrl , Map<String,String[]> params,  BuildTestCaseInstancesListener listener){
         List<Flow_Running> testCaseInstances = new ArrayList<>();
         Map<String ,String> maps = new HashMap<>();
         List<Map<String,String>> pars = new ArrayList<>();
         permutation(pars,params,maps);
         for (Map<String,String> ins: pars) {
-            Flow_Running insta = new Flow_Running(tcase,baseUrl,ins,0);
+            Flow_Running insta = new Flow_Running(tcase,name, baseUrl,ins,0);
             testCaseInstances.add(insta);
             if(listener!=null){
                 listener.publishInstance(insta);

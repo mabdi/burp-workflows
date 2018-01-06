@@ -25,6 +25,7 @@ public class DialogResponseOutput extends AbstractDialog {
     private JCheckBox checkBoxGlobal;
     private ResponseOut responseOut;
     private ResponseOut result;
+//    private JButton btnVarName;
 
     public DialogResponseOutput() {
         super(false);
@@ -32,16 +33,51 @@ public class DialogResponseOutput extends AbstractDialog {
 
     @Override
     protected void initUI() {
-        setSize(300,350);
+        setSize(450,350);
         setTitle("Make Variable");
         setLocationRelativeTo(getParentWindow());
         installEscapeCloseOperation();
         SpringLayout layoutTop = new SpringLayout();
         JPanel topPanel = new JPanel(layoutTop);
 
+        JLabel lblhint = new JLabel("Use the var name `return` and check `Global` option, to set return value.");
+
         JLabel lblSeqName = new JLabel("Var Name: ");
         txtPlaceHolder = new JTextField("",18);
         txtPlaceHolder.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
+//        btnVarName = new JButton("Variable Name");
+//        btnVarName.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                JPopupMenu popup = new JPopupMenu();
+//                JMenuItem jmi = new JMenuItem(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
+//                jmi.addActionListener(new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+//                        txtPlaceHolder.setText(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
+//                    }
+//                });
+//                popup.add(jmi);
+//                JMenuItem jmi2 = new JMenuItem(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
+//                jmi2.addActionListener(new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+//                        txtPlaceHolder.setText(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
+//                    }
+//                });
+//                popup.add(jmi2);
+//                JMenuItem jmi3 = new JMenuItem(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
+//                jmi3.addActionListener(new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+//                        txtPlaceHolder.setText(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
+//                    }
+//                });
+//                popup.add(jmi3);
+//
+//                popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
+//            }
+//        });
 
         JLabel lblBase = new JLabel("Type: ");
         comboType = new JComboBox<>();
@@ -68,8 +104,10 @@ public class DialogResponseOutput extends AbstractDialog {
         txtValues = new JTextField("",18 );
         txtValues.setComponentPopupMenu(UIUtils.buildNewPopMenuCopyCutPaste());
 
+        topPanel.add(lblhint);
         topPanel.add(lblSeqName);
         topPanel.add(txtPlaceHolder);
+//        topPanel.add(btnVarName);
         topPanel.add(lblBase);
         topPanel.add(comboType);
         topPanel.add(lblCookie);
@@ -79,11 +117,19 @@ public class DialogResponseOutput extends AbstractDialog {
         int PADD_WEST = 80;
         int PADD_EAST = -20;
 
+
+        layoutTop.putConstraint(SpringLayout.WEST,lblhint,10,SpringLayout.WEST,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,lblhint,10,SpringLayout.NORTH,topPanel);
+
         layoutTop.putConstraint(SpringLayout.WEST,lblSeqName,10,SpringLayout.WEST,topPanel);
-        layoutTop.putConstraint(SpringLayout.NORTH,lblSeqName,10,SpringLayout.NORTH,topPanel);
+        layoutTop.putConstraint(SpringLayout.NORTH,lblSeqName,10,SpringLayout.SOUTH,lblhint);
+//        layoutTop.putConstraint(SpringLayout.NORTH,btnVarName,0,SpringLayout.NORTH,lblSeqName);
+//        layoutTop.putConstraint(SpringLayout.EAST,btnVarName,PADD_EAST,SpringLayout.EAST,topPanel);
+//        layoutTop.putConstraint(SpringLayout.WEST,btnVarName,-170,SpringLayout.EAST,topPanel);
         layoutTop.putConstraint(SpringLayout.WEST,txtPlaceHolder,PADD_WEST,SpringLayout.WEST,topPanel);
         layoutTop.putConstraint(SpringLayout.EAST,txtPlaceHolder,PADD_EAST,SpringLayout.EAST,topPanel);
         layoutTop.putConstraint(SpringLayout.NORTH,txtPlaceHolder,0,SpringLayout.NORTH,lblSeqName);
+
 
 
         layoutTop.putConstraint(SpringLayout.WEST,lblBase,10,SpringLayout.WEST,topPanel);
@@ -101,6 +147,8 @@ public class DialogResponseOutput extends AbstractDialog {
         layoutTop.putConstraint(SpringLayout.WEST,checkBoxGlobal,PADD_WEST,SpringLayout.WEST,topPanel);
         layoutTop.putConstraint(SpringLayout.EAST,checkBoxGlobal,PADD_EAST,SpringLayout.EAST,topPanel);
         layoutTop.putConstraint(SpringLayout.NORTH,checkBoxGlobal,10,SpringLayout.SOUTH,txtValues);
+
+
 
 
         setLayout(new BorderLayout());

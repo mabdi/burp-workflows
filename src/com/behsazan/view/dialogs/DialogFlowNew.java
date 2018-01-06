@@ -276,38 +276,6 @@ public class DialogFlowNew extends AbstractDialog {
         Request req1 = activeSequence.getSequence().getRequest().get(0);
         txtCookie.setEnabled(true);
         btnCookie.setEnabled(true);
-        btnCookie.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JPopupMenu popup = new JPopupMenu();
-                JMenuItem jmi = new JMenuItem(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
-                jmi.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        txtCookie.setText(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
-                    }
-                });
-                popup.add(jmi);
-                JMenuItem jmi2 = new JMenuItem(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
-                jmi2.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        txtCookie.setText(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
-                    }
-                });
-                popup.add(jmi2);
-                JMenuItem jmi3 = new JMenuItem(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
-                jmi3.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        txtCookie.setText(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
-                    }
-                });
-                popup.add(jmi3);
-
-                popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
-            }
-        });
 //        cmbCookie.setEnabled(true);
         String cookeOutParam = activeSequence.getFlow_sequence().getCookie();
         txtCookie.setText(cookeOutParam);
@@ -409,6 +377,38 @@ public class DialogFlowNew extends AbstractDialog {
             txtCookie.setEnabled(false);
             formUtility.addMiddleField(txtCookie);
             btnCookie = new JButton("From variables");
+            btnCookie.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem jmi = new JMenuItem(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
+                    jmi.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            txtCookie.setText(Settings.LOCAL_IDENTIFIER.replace("var","cookie"));
+                        }
+                    });
+                    popup.add(jmi);
+                    JMenuItem jmi2 = new JMenuItem(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
+                    jmi2.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            txtCookie.setText(Settings.GLOBAL_IDENTIFIER.replace("var","cookie"));
+                        }
+                    });
+                    popup.add(jmi2);
+                    JMenuItem jmi3 = new JMenuItem(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
+                    jmi3.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            txtCookie.setText(Settings.PARAM_IDENTIFIER.replace("var","cookie"));
+                        }
+                    });
+                    popup.add(jmi3);
+
+                    popup.show((Component)e.getSource(), 0, ((Component) e.getSource()).getHeight());
+                }
+            });
             btnCookie.setEnabled(false);
             JPanel jpn = new JPanel(new FlowLayout(FlowLayout.LEFT  ));
             jpn.add(btnCookie);

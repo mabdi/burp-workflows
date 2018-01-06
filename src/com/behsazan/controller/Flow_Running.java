@@ -22,6 +22,7 @@ public class Flow_Running {
 
     private static DefaultTableModel modelGlobal;
     private Flow flow;
+    private String name;
     private String baseUrl;
     private int order;
 
@@ -42,13 +43,18 @@ public class Flow_Running {
     public Flow_Running() {
     }
 
+    public String getName() {
+        return name;
+    }
+
     public List<RequestListModelObject> getRequestModelItem() {
         return requestModelItem;
     }
 
-    public Flow_Running(Flow flow, String baseUrl, Map<String, String> params, int order) {
+    public Flow_Running(Flow flow, String name, String baseUrl, Map<String, String> params, int order) {
         this.baseUrl = baseUrl;
         this.flow = flow;
+        this.name = name;
         this.locals = new HashMap<>();
         this.params = params;
         this.order = order;

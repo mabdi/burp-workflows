@@ -287,11 +287,7 @@ public class DataUtils {
         IResponseInfo response = obj.getRequestObject().getAnalysedResponse();
         if(outPar.getType() == ResponseOut.TYPE_CAPTCHA){
             String captcha = showCaptcha(obj,onRefresh);
-            if(outPar.isGlobal()) {
-                instance.updateGlobalVariable(outPar.getName(),captcha);
-            } else {
-                instance.updateLocalVariable(outPar.getName(),captcha);
-            }
+            updateVariable(instance,outPar.getName(),captcha,outPar.isGlobal());
             return;
         }
         if(outPar.getType() == ResponseOut.TYPE_COOKIE){
@@ -301,11 +297,7 @@ public class DataUtils {
                     cookie = Settings.getCookie();
                 }
                 if (coo.getName().equals(cookie)) {
-                    if(outPar.isGlobal()) {
-                        instance.updateGlobalVariable(outPar.getName(),coo.getValue());
-                    } else {
-                        instance.updateLocalVariable(outPar.getName(),coo.getValue());
-                    }
+                    updateVariable(instance,outPar.getName(),coo.getValue(),outPar.isGlobal());
                     return;
                 }
             }
@@ -316,11 +308,7 @@ public class DataUtils {
             Pattern p = Pattern.compile(outPar.getParam());
             Matcher m = p.matcher(allres);
             if(m.find()) {
-                if(outPar.isGlobal()) {
-                    instance.updateGlobalVariable(outPar.getName(),m.group());
-                } else {
-                    instance.updateLocalVariable(outPar.getName(),m.group());
-                }
+                updateVariable(instance,outPar.getName(),m.group(),outPar.isGlobal());
             }
             return;
         }
@@ -331,11 +319,7 @@ public class DataUtils {
         Document htmlDoc = Jsoup.parse(body);
         if(outPar.getType() == ResponseOut.TYPE_HIDDEN){
             Elements hidden = htmlDoc.getElementsByTag("input[name=\""+outPar.getParam().replaceAll("\"","\\\"")+"\"]");
-            if(outPar.isGlobal()) {
-                instance.updateGlobalVariable(outPar.getName(),hidden.val());
-            } else {
-                instance.updateLocalVariable(outPar.getName(),hidden.val());
-            }
+            updateVariable(instance,outPar.getName(),hidden.val(),outPar.isGlobal());
             return;
         }
         if(outPar.getType() == ResponseOut.TYPE_CSS){
@@ -348,13 +332,56 @@ public class DataUtils {
             if(val.isEmpty()){
                 val = res.html();
             }
-            if(outPar.isGlobal()) {
-                instance.updateGlobalVariable(outPar.getName(),val);
-            } else {
-                instance.updateLocalVariable(outPar.getName(),val);
-            }
+            updateVariable(instance,outPar.getName(),val,outPar.isGlobal());
             return;
         }
+    }
+
+    private static void updateVariable(Flow_Running instance,String vname, String vvalue,boolean isGlobal){
+        if(isGlobal) {
+            if(vname.equalsIgnoreCase("return")){
+                instance.updateGlobalVariable(instance.getName(), vvalue);
+            }else {
+                instance.updateGlobalVariable(vname, vvalue);
+            }
+        } else {
+            instance.updateLocalVariable(vname,vvalue);
+        }
+
+    }
+
+    private static void updateVariable_parametric(Flow_Running instance,String vname, String vvalue,boolean isGlobal){
+        String real_vname = vname;
+        int MAAX = 100;
+        Pattern pattern = Pattern.compile(Settings.TYPE_PATTERN);
+        Matcher matcher = pattern.matcher(real_vname);
+        int reference_time =0;
+        while (matcher.find()){
+            if(reference_time>MAAX){
+                BurpExtender.logText("Loop Detected. vname=" + vname + ", real_vname="+real_vname);
+                break;
+            }
+            reference_time +=1;
+            String varname = matcher.group(1);
+            String vartype = matcher.group(2);
+            if(vartype.equals("params")){
+                real_vname = instance.getParams().get(varname);
+            }
+            if(vartype.equals("locals")){
+                real_vname = instance.getLocals().get(varname);
+            }
+            if(vartype.equals("globals")){
+                real_vname = instance.getGLOBALS().get(varname);
+            }
+            matcher = pattern.matcher(real_vname);
+        }
+
+        if(isGlobal) {
+            instance.updateGlobalVariable(real_vname,vvalue);
+        } else {
+            instance.updateLocalVariable(real_vname,vvalue);
+        }
+
     }
 
     private static String showCaptcha(RequestListModelObject obj, Controller.OnCaptchaRefresh onRefresh) {

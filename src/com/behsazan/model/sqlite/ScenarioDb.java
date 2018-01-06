@@ -67,6 +67,7 @@ public class ScenarioDb extends SqliteHelper {
 
     public void cloneScenario(int id) throws SQLException {
         Scenario log = getScenarioById(id);
+        log.setName(log.getName()+"-clone");
         insertScenario(log);
 
     }

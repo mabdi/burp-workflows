@@ -47,7 +47,7 @@ public class DialogScenarioPlay extends AbstractDialog {
             protected Flow doInBackground() throws Exception {
                 scenario = Scenario.getById(id);
                 flow_runnings = Controller.buildTestCaseInstances(
-                        scenario.getFlow(), scenario.getUrl(), scenario.getParams_map(), new Controller.BuildTestCaseInstancesListener() {
+                        scenario.getFlow(),scenario.getName() , scenario.getUrl(), scenario.getParams_map(), new Controller.BuildTestCaseInstancesListener() {
                     @Override
                     public void publishInstance(Flow_Running instance) {
                         publish(instance);

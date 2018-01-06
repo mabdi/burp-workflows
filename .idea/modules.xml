@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/tadarokatv1.iml" filepath="$PROJECT_DIR$/tadarokatv1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/burp-workflow.iml" filepath="$PROJECT_DIR$/burp-workflow.iml" />
     </modules>
   </component>
 </project>
