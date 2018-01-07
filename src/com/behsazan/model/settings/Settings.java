@@ -31,14 +31,14 @@ public class Settings {
     private static final String SHOW_TAB_SCRIPT = "1";
     public static final String SECTION_CHAR = "\u00A7";
 
-    public static final String TYPE_PATTERN = "\u00A7" + "(\\w+)@(\\w+)" + "\u00A7";
+    public static final String TYPE_PATTERN = "\u00A7" + "([A-Za-z0-9\\-\\_]+)@(\\w+)" + "\u00A7";
 
     public static final String LOCAL_IDENTIFIER = "\u00A7" + "var@locals" + "\u00A7";
-    public static final String LOCAL_PATTERN = "\u00A7" + "(\\w+)@locals" + "\u00A7";
+    public static final String LOCAL_PATTERN = "\u00A7" + "([A-Za-z0-9\\-\\_]+)@locals" + "\u00A7";
     public static final String GLOBAL_IDENTIFIER = "\u00A7" + "var@globals" + "\u00A7";
-    public static final String GLOBAL_PATTERN = "\u00A7" + "(\\w+)@globals" + "\u00A7";
+    public static final String GLOBAL_PATTERN = "\u00A7" + "([A-Za-z0-9\\-\\_]+)@globals" + "\u00A7";
     public static final String PARAM_IDENTIFIER = "\u00A7" + "var@params" + "\u00A7";
-    public static final String PARAM_PATTERN = "\u00A7" + "(\\w+)@params" + "\u00A7";
+    public static final String PARAM_PATTERN = "\u00A7" + "([A-Za-z0-9\\-\\_]+)@params" + "\u00A7";
     private static final String[] BASE_URLS = new String[]{
             "http://localhost:8000/app4qa/",
             "http://localhost:8001/app4dev/"
